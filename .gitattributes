@@ -1,4 +1,7 @@
 waxc_cli.js linguist-generated
 waxc_cli.js inguist-detectable=false
-site/ linguist-generated
-site/ inguist-detectable=false
+site/* linguist-generated
+site/* inguist-detectable=false
+site linguist-generated
+site inguist-detectable=false
+*.html linguist-detectable=false
