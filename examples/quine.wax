@@ -1,0 +1,39 @@
+;; quine.wax
+;; based on https://en.wikipedia.org/wiki/Quine_(computing)
+(func main (result int)
+  (let q int 34)
+  (local s str (alloc str))
+  (local l (arr str) (alloc (arr str) 
+  ";; quine.wax"
+  ";; based on https://en.wikipedia.org/wiki/Quine_(computing)"
+  "(func main (result int)"
+  "  (let q int 34)"
+  "  (local s str (alloc str))"
+  "  (local l (arr str) (alloc (arr str)"
+  "  "
+  "  ))"
+  "  (for i 0 (< i 6) 1 (do"
+  "    (<< s (get l i)) (<< s 10)"
+  "  ))"
+  "  (for i 0 (< i (# l)) 1 (do"
+  "    (<< s (get l 6))"
+  "    (<< s q) (<< s (get l i)) (<< s q) (<< s 10)"
+  "  ))"
+  "  (for i 7 (< i (# l)) l (do"
+  "    (<< s (get l i)) (<< s 10)"
+  "  ))"
+  "  (print s)"
+  ")"
+  ))
+  (for i 0 (< i 6) 1 (do
+    (<< s (get l i)) (<< s 10)
+  ))
+  (for i 0 (< i (# l)) 1 (do
+    (<< s (get l 6))
+    (<< s q) (<< s (get l i)) (<< s q) (<< s 10)
+  ))
+  (for i 7 (< i (# l)) 1 (do
+    (<< s (get l i)) (<< s 10)
+  ))
+  (print s)
+)

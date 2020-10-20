@@ -1,0 +1,4 @@
+(func main (result int)
+  (print "hello world!")
+  (return 0)
+)

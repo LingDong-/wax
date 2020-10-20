@@ -1,0 +1,98 @@
+;; "Quicksort"
+;; includes both an in-place implementation
+;; and a functional implementation
+
+
+;; sort array in-place for index range [lo,hi] inclusive
+(func qksort_inplace (param A (arr float)) (param lo int) (param hi int)
+	(if (>= lo hi) (then
+		(return)
+	))
+	(let pivot float (get A lo))
+	(let left  int lo)
+	(let right int hi)
+	(while (<= left right) (do
+		(while (< (get A left) pivot) (do
+			(set left (+ left 1))
+		))
+		(while (> (get A right) pivot) (do
+			(set right (- right 1))
+		))
+		(if (<= left right) (then
+			(let tmp float (get A left))
+			(set A left (get A right))
+			(set A right tmp)
+			(set left  (+ left 1))
+			(set right (- right 1))
+		))
+	))
+	(call qksort_inplace A lo right)
+	(call qksort_inplace A left hi)
+)
+
+;; wrap qksort_inplace
+(func qksort (param A (arr float))
+	(if (! (# A)) (then
+		(return)
+	))
+	(call qksort_inplace A 0 (- (# A) 1))
+)
+
+;; functional version of quicksort
+(func qksort_func (param A (arr float)) (result (arr float))
+	(if (<= (# A) 1) (then
+		(return (slice A 0 (# A)))
+	))
+	(let pivot float (get A 0))
+	(local less (arr float) (alloc (arr float)))
+	(local more (arr float) (alloc (arr float)))
+	(for i 1 (< i (# A)) 1 (do
+		(if (< (get A i) pivot) (then
+			(insert less (# less) (get A i))
+		)(else
+			(insert more (# more) (get A i))
+		))
+	))
+	(let  sorted (arr float) (call qksort_func less))
+	(local right (arr float) (call qksort_func more))
+	(insert sorted (# sorted) pivot)
+	(for i 0 (< i (# right)) 1 (do
+		(insert sorted (# sorted) (get right i))
+	))
+	(return sorted)
+)
+
+;; print an array separated by commas
+(func print_arr (param A (arr float))
+	(local s str (alloc str ""))
+	(for i 0 (< i (# A)) 1 (do
+		(if i (then (<< s ", ")))
+		(<< s (cast (get A i) str))
+	))
+	(print s)
+)
+
+(func main (result int)
+
+	(local A (arr float) (alloc (arr float) 
+		0.9 0.2 88 10 3 4 5.5 0.1
+	))
+
+	(print "original array:")
+	(call print_arr A)
+	
+	(local B (arr float) (call qksort_func A))
+
+	(print "sorted with functional quicksort:")
+	(call print_arr B)
+
+	(print "original array is unchanged:")
+	(call print_arr A)
+
+	(call qksort A)
+
+	(print "sorted with in-place quicksort:")
+	(call print_arr A)
+	
+	(return 0)
+)

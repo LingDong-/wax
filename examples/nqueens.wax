@@ -1,0 +1,78 @@
+;; N-Queens Problem Solver
+;; ported from
+;; http://www.rosettacode.org/wiki/N-queens_problem#Java
+
+
+(@define N 8) ; board size / # of queens
+
+; check if a position is unsafe (attackable)
+(func unsafe 
+	(param B (vec @N int)) 
+	(param y int)
+	(result int)
+	
+	(let x int (get B y))
+	(for i 1 (<= i y) 1 (do
+		(let t int (get B (- y i)))
+		(if (||
+			(= t x) 
+			(= t (- x i))
+			(= t (+ x i))) (then
+			(return 1)	
+		))
+	))
+	(return 0)
+)
+
+; visualize a solution 
+; by printing ASCCi chessboard in terminal
+(func putboard (param B (vec @N int)) (param s int)
+	(local o str (alloc str "N="))
+	(<< o (cast @N str))
+	(<< o " solution #")
+	(<< o (cast s str))
+	(<< o "\n")
+	(for y 0 (< y @N) 1 (do
+		(for x 0 (< x @N) 1 (do
+			(<< o
+				(? (= (get B y) x) "|Q" "|_")
+			)
+		))
+		(<< o "|\n")
+	))
+	(print o)
+)
+
+; solve N-Queens puzzle (exhaustive)
+(func solve
+	(let B (vec @N int) (alloc (vec @N int))) ; chessboard
+	(let s int 0)  ; solution ID
+	(let y int 0)  ; current row
+	(set B 0 -1)
+	
+	(while (>= y 0) (do
+		(set B y (+ (get B y) 1))
+		(while (&&
+			(< (get B y) @N)
+			(call unsafe B y)
+		)(do
+			(set B y (+ (get B y) 1))
+		))
+		(if (< (get B y) @N) (then
+			(if (< y (- @N 1)) (then
+				(set y (+ y 1))
+				(set B y -1)
+			)(else
+				(set s (+ s 1))
+				(call putboard B s)
+			))
+		)(else
+			(set y (- y 1))
+		))
+	))
+)
+
+(func main
+	(call solve)
+	
+)

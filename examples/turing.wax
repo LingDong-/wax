@@ -1,0 +1,170 @@
+;; Universal Turing Machine Simulation
+;; A wax feature demo
+
+; enums for shift directions
+(@define STAY  0)
+(@define LEFT  1)
+(@define RIGHT 2)
+
+; datastructure for the transition function
+(struct transition
+  	(let q_curr int) ; current state
+  	(let q_targ int) ; target state
+	(let sym_r  int) ; read symbol
+  	(let sym_w  int) ; write symbol
+  	(let shift  int) ; shift direction
+)
+
+; datastructure for the turing machine
+; (map int int) is used to represent the tape,
+; mapping position to symbol, to simulate "infinite" length.
+; tmin/tmax are tape extremas for visualization
+(struct machine
+	(let state int) ; current state
+	(let head  int)
+	(let tape  (map int int))
+	(let tmin  int) ; leftmost  visited tape position
+	(let tmax  int) ; rightmost visited tape position
+)
+
+; simulate the turing machine for 1 step.
+(func step
+	(param M (struct machine))
+	(param D (arr (struct transition)))
+	(let tape (map int int) (get M tape))
+
+	; check each transition function, to see if conditions apply
+	(for i 0 (# D) 1 (do
+
+		(if (&&
+			(= (get M state)           (get D i q_curr))
+			(= (get tape (get M head)) (get D i sym_r ))
+		) (then
+			; execute the transition
+			(set tape  (get M head) (get D i sym_w ))
+			(set M state            (get D i q_targ))
+			(if (= (get D i shift) @LEFT) (then
+				(set M head (- (get M head) 1))
+			)(else(if (= (get D i shift) @RIGHT) (then
+				(set M head (+ (get M head) 1))
+			))))
+			(break)
+		))
+		
+	))
+	; expand tape boundries if necessary
+	(if (< (get M head) (get M tmin)) (then
+		(set M tmin (get M head))
+	))
+	(if (> (get M head) (get M tmax)) (then
+		(set M tmax (get M head))
+	))
+)
+
+; visualize the current state of turing machine
+; by printing ASCII drawing in the terminal
+(func draw (param M (struct machine))
+	(let s str (alloc str ""))
+	(for i (get M tmin) (<= i (get M tmax)) 1 (do
+		(<< s (? (= i (get M head )) (get M state) ' ') )
+		(<< s (?      (get M tape i) '1'           '_') )
+		(<< s "  ")
+	))
+	(print s)
+)
+
+; main turing machine simulation routine
+(func turing
+	(param D (arr (struct transition)))
+	(param q0 int) ; initial state
+	(param q1 int) ; halting state
+
+	; initialize
+	(local M (struct machine) (alloc (struct machine)))
+	(local tape (map int int) (alloc (map int int)))
+	(set M state q0)
+	(set M tape tape)
+
+	(call draw M)
+	
+	; simulate
+	(while 1 (do
+		(call step M D)
+		(call draw M)
+		(if (= (get M state) q1) (then
+			(break)
+		))
+	))
+)
+
+; helper for defining a transition
+; (allocate struct, fill in info, push to array)
+(func defn
+	(param D (arr (struct transition)))
+	(param q_curr int)  (param q_targ int)
+	(param sym_r  int)  (param sym_w  int)
+	(param shift  int)
+	
+	(let d (struct transition) (alloc (struct transition)))
+	(set d q_curr q_curr)
+	(set d q_targ q_targ)
+	(set d sym_r  sym_r )
+	(set d sym_w  sym_w )
+	(set d shift  shift )
+	
+	(insert D (# D) d)
+)
+
+;; end of turing machine implementation
+;; ============================================================
+;; start of turing machine examples
+
+
+; 3-state, 2-symbol busy beaver
+; https://rosettacode.org/wiki/Universal_Turing_machine
+(func beaver3
+	(local D (arr (struct transition)) 
+	  (alloc (arr (struct transition))))
+	
+	(call defn D 'A' 'B' 0 1 @RIGHT)
+	(call defn D 'A' 'C' 1 1 @LEFT )
+	(call defn D 'B' 'A' 0 1 @LEFT )
+	(call defn D 'B' 'B' 1 1 @RIGHT)
+	(call defn D 'C' 'B' 0 1 @LEFT )
+	(call defn D 'C' 'H' 1 1 @STAY )
+	
+	(call turing D 'A' 'H')
+
+	(for i 0 (< i (# D)) 1 (do
+		(free (get D i))
+	))
+)
+
+; 4-state, 2-symbol busy beaver
+; https://en.wikipedia.org/wiki/Busy_beaver
+(func beaver4
+	(local D (arr (struct transition)) 
+	  (alloc (arr (struct transition))))
+	
+	(call defn D 'A' 'B' 0 1 @RIGHT)
+	(call defn D 'A' 'B' 1 1 @LEFT )
+	(call defn D 'B' 'A' 0 1 @LEFT )
+	(call defn D 'B' 'C' 1 0 @LEFT )
+	(call defn D 'C' 'H' 0 1 @RIGHT)
+	(call defn D 'C' 'D' 1 1 @LEFT )
+	(call defn D 'D' 'D' 0 1 @RIGHT)
+	(call defn D 'D' 'A' 1 0 @RIGHT)
+	
+	(call turing D 'A' 'H')
+
+	(for i 0 (< i (# D)) 1 (do
+		(free (get D i))
+	))	
+)
+
+; run a turing machine in the main function for demo
+(func main (result int)
+	(call beaver4)
+	(return 0)	
+)
+	

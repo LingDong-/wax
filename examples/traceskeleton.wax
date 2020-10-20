@@ -1,0 +1,701 @@
+;; traceskeleton.wax
+;; Trace skeletonization result into polylines
+;;
+;; see https://github.com/LingDong-/skeleton-tracing
+;; ported to wax to illustrate a real-world usage
+;; with original comments
+
+(@include math)
+
+(@define HORIZONTAL 1)
+(@define VERTICAL   2)
+
+(let CHUNK_SIZE int 10)
+
+;;================================
+;; DATASTRUCTURES
+;;================================
+
+(struct point
+	(let x int)
+	(let y int)
+	(let next (struct point))
+)
+(struct polyline
+	(let head (struct point))
+	(let tail (struct point))
+	(let prev (struct polyline))
+	(let next (struct polyline))
+	(let size int)
+)
+
+;;================================
+;; DATASTRUCTURE IMPLEMENTATION
+;;================================
+
+(func new_polyline (result (struct polyline))
+	(let q0 (struct polyline) (alloc (struct polyline)))
+	(return q0)
+)
+(func print_polyline (param q (struct polyline))
+	(if (! (?? q)) (then
+		(return)
+	))
+	(let jt (struct point) (get q head))
+	(local s str (alloc str))
+	(while (?? jt) (do
+		(<< s (cast (get jt x) str))
+		(<< s ",")
+		(<< s (cast (get jt y) str))
+		(<< s " ")
+		(set jt (get jt next))
+	))
+	(print s)
+)
+(func print_polylines (param q (struct polyline))
+	(if (! (?? q)) (then
+		(return)
+	))
+	(let it (struct polyline) q)
+	(while (?? it) (do
+		(let jt (struct point) (get it head))
+		(local s str (alloc str))
+		(while (?? jt) (do
+			(<< s (cast (get jt x) str))
+			(<< s ",")
+			(<< s (cast (get jt y) str))
+			(<< s " ")
+			(set jt (get jt next))
+		))
+		(print s)
+		(set it (get it next))
+	))
+)
+
+(func destroy_polylines (param q (struct polyline))
+	(if (! (?? q)) (then
+		(return)
+	))
+	(let it (struct polyline) q)
+	(while (?? it) (do
+		(let lt (struct polyline) (get it next))
+		(let jt (struct point) (get it head))
+		(while (?? jt) (do
+			(let kt (struct point) (get jt next))
+			(free jt)
+			(set jt kt)
+		))
+		(free it)
+		(set it lt)
+	))
+)
+
+(func reverse_polyline (param q (struct polyline))
+	(if (|| (! (?? q)) (< (get q size) 2) ) (then
+		(return)
+	))
+	(set (get q tail) next (get q head))
+	(let it0 (struct point) (get q head))
+	(let it1 (struct point) (get it0 next))
+	(let it2 (struct point) (get it1 next))
+	(for i 0 (< i (- (get q size) 1) ) 1 (do
+		(set it1 next it0)
+		(set it0 it1)
+		(set it1 it2)
+		(set it2 (get it2 next))
+	))
+	(let q_head (struct point) (get q head))
+	(set q head (get q tail))
+	(set q tail q_head)
+	(null (get q tail) next)
+)
+
+(func cat_tail_polyline (param q0 (struct polyline)) (param q1 (struct polyline))
+	(if (! (?? q1)) (then
+		(return)
+	))
+	(if (! (?? q0)) (then
+		(return)
+	))
+	(if (! (?? (get q0 head))) (then
+		(set q0 head (get q1 head))
+		(set q0 tail (get q1 tail))
+		(return)
+	))
+	(set (get q0 tail) next (get q1 head))
+	(set q0 tail (get q1 tail))
+	(set q0 size (+ (get q0 size) (get q1 size)))
+	(null (get q0 tail) next)
+)
+
+(func cat_head_polyline (param q0 (struct polyline)) (param q1 (struct polyline))
+	(if (! (?? q1)) (then
+		(return)
+	))
+	(if (! (?? q0)) (then
+		(return)
+	))
+	(if (! (?? (get q0 head))) (then
+		(set q0 head (get q1 head))
+		(set q0 tail (get q1 tail))
+		(return)
+	))
+	(set (get q1 tail) next (get q0 head))
+	(set q0 head (get q1 head))
+	(set q0 size (+ (get q0 size) (get q1 size)))
+	(null (get q0 tail) next)
+)
+
+
+(func add_point_to_polyline (param q (struct polyline)) (param x int) (param y int) 
+	(let p (struct point) (alloc (struct point)))
+	(set p x x)
+	(set p y y)
+	(null p next)
+	(if (! (?? (get q head))) (then
+		(set q head p)
+		(set q tail p)
+	)(else
+		(set (get q tail) next p)
+		(set q tail p)
+	))
+	(set q size (+ (get q size) 1))
+)
+
+(func prepend_polyline 
+	(param q0 (struct polyline)) 
+	(param q1 (struct polyline)) 
+	(result (struct polyline))
+
+	(if (! (?? q0)) (then
+		(return q1)
+	))
+	(set q1 next q0)
+	(set q0 prev q1)
+	(return q1)
+)
+
+
+;;================================
+;; RASTER SKELETONIZATION
+;;================================
+;; Binary image thinning (skeletonization) in-place.
+;; Implements Zhang-Suen algorithm.
+;; http://agcggs680.pbworks.com/f/Zhan-Suen_algorithm.pdf
+
+(func thinning_zs_iteration 
+	(param im (arr int)) 
+	(param W int) 
+	(param H int) 
+	(param iter int) 
+	(result int)
+
+	(let diff int 0)
+	(for i 1 (< i (- H 1)) 1 (do
+		(for j 1 (< j (- W 1)) 1 (do
+			(let p2 int (& (get im (+    (* (- i 1) W ) j )) 1))
+			(let p3 int (& (get im (+ (+ (* (- i 1) W ) j )  1)) 1))
+			(let p4 int (& (get im (+ (+ (*    i    W ) j )  1)) 1))
+			(let p5 int (& (get im (+ (+ (* (+ i 1) W ) j )  1)) 1))
+			(let p6 int (& (get im (+ (*    (+ i 1) W ) j )) 1))
+			(let p7 int (& (get im (- (+ (* (+ i 1) W ) j )  1)) 1))
+			(let p8 int (& (get im (- (+ (*    i    W ) j )  1)) 1))
+			(let p9 int (& (get im (- (+ (* (- i 1) W ) j )  1)) 1))
+			(let A int (+
+				(&& (! p2) p3 ) (&& (! p3) p4 )
+				(&& (! p4) p5 ) (&& (! p5) p6 )
+				(&& (! p6) p7 ) (&& (! p7) p8 )
+				(&& (! p8) p9 ) (&& (! p9) p2 )
+			))
+			(let B int (+ p2 p3 p4 p5 p6 p7 p8 p9))
+			(let m1 int (? (= iter 0)
+				(* p2 p4 p6)
+				(* p2 p4 p8)
+			))
+			(let m2 int (? (= iter 0)
+				(* p4 p6 p8)
+				(* p2 p6 p8)
+			))
+			(if (&& (= A 1) (>= B 2) (<= B 6) (= m1 0) (= m2 0)) (then
+				(set im (+ (* i W) j)
+					(| (get im (+ (* i W) j)) 2)
+				)
+			))
+		))
+	))
+
+	(for i 0 (< i (* H W)) 1 (do
+		(let marker int (>> (get im i) 1))
+		(let old int (& (get im i) 1))
+		(set im i (& old (! marker)))
+		(if (&& (! diff) (<> (get im i) old)) (then
+			(set diff 1)
+		))
+	))
+	(return diff)
+)
+
+(func thinning_zs 
+	(param im (arr int)) 
+	(param W int) 
+	(param H int) 
+
+	(let diff int 1)
+	(while diff (do
+		(set diff (& diff (call thinning_zs_iteration im W H 0)))
+		(set diff (& diff (call thinning_zs_iteration im W H 1)))
+	))
+)
+
+;;================================
+;; MAIN ALGORITHM
+;;================================
+
+;; check if a region has any white pixel
+(func not_empty
+	(param im (arr int)) 
+	(param W int) (param H int) 
+	(param x int) (param y int)
+	(param w int) (param h int)
+	(result int)
+
+	(for i y (< i (+ y h)) 1 (do
+		(for j x (< j (+ x w)) 1 (do
+			(if (get im (+ (* i W) j))(then
+				(return 1)
+			))
+		))
+	))
+	(return 0)
+)
+
+;; merge ith fragment of second chunk to first chunk
+;; @param c0   fragments from  first  chunk
+;; @param c1i  ith fragment of second chunk
+;; @param sx   (x or y) coordinate of the seam
+;; @param isv  is vertical, not horizontal?
+;; @param mode 2-bit flag, 
+;;             MSB = is matching the left (not right) end of the fragment from first  chunk
+;;             LSB = is matching the right (not left) end of the fragment from second chunk
+;; @return     matching successful?             
+;; 
+(func merge_impl 
+	(param c0  (struct polyline))
+	(param c1i (struct polyline))
+	(param sx int)
+	(param isv int)
+	(param mode int)
+	(result int)
+
+	(let b0 int (> (& (>> mode 1) 1) 0 ))  ; match c0 left
+	(let b1 int (> (&     mode    1) 0 ))  ; match c1 left
+	(let c0j (struct polyline))
+	(let md int 4) ;maximum offset to be regarded as continuous
+
+	(let p1 (struct point) (? b1 (get c1i head) (get c1i tail) ))
+	(if (> (call abs (- (? isv (get p1 y) (get p1 x) ) sx) ) 0) (then
+		(return 0) ; not on the seam, skip
+	))
+	; find the best match
+	(let it (struct polyline) c0)
+	(while (?? it) (do
+		(let p0 (struct point) (? b0 (get it head) (get it tail)) )
+		(if (<= (call abs (- (? isv (get p0 y) (get p0 x) ) sx) ) 1) (then
+			(let d int
+				(call abs (-
+					(? isv (get p0 x) (get p0 y) )
+					(? isv (get p1 x) (get p1 y) )
+				))
+			)
+			(if (< d md) (then
+				(set c0j it)
+				(set md d)
+			))
+
+		))
+		(set it (get it next))
+	))
+	(if (?? c0j) (then ; best match is good enough, merge them
+		(if (&& b0 b1) (then
+			(call reverse_polyline c1i)
+			(call cat_head_polyline c0j c1i)
+		)(else (if (&& (! b0) b1) (then
+			(call cat_tail_polyline c0j c1i)
+		)(else (if (&& b0 (! b1)) (then
+			(call cat_head_polyline c0j c1i)
+		)(else
+			(call reverse_polyline c1i)
+			(call cat_tail_polyline c0j c1i)
+		))))))
+		(return 1)
+	))
+	(return 0)
+)
+
+;; merge fragments from two chunks
+;; @param c0   fragments from first  chunk
+;; @param c1   fragments from second chunk
+;; @param sx   (x or y) coordinate of the seam
+;; @param dr   merge direction, HORIZONTAL or VERTICAL?
+;; 
+(func merge_frags
+	(param c0 (struct polyline))
+	(param c1 (struct polyline))
+	(param sx int)
+	(param dr int)
+	(result (struct polyline))
+
+	(if (! (?? c0))(then
+		(return c1)
+	))
+	(if (! (?? c1))(then
+		(return c0)
+	))
+	(let it (struct polyline) c1)
+	(while (?? it) (do
+		(let tmp (struct polyline) (get it next))
+		(while 1 (do
+			(if (= dr @HORIZONTAL) (then
+				(if (call merge_impl c0 it sx 0 1) (then (break)))
+				(if (call merge_impl c0 it sx 0 3) (then (break)))
+				(if (call merge_impl c0 it sx 0 0) (then (break)))
+				(if (call merge_impl c0 it sx 0 2) (then (break)))
+			) (else
+				(if (call merge_impl c0 it sx 1 1) (then (break)))
+				(if (call merge_impl c0 it sx 1 3) (then (break)))
+				(if (call merge_impl c0 it sx 1 0) (then (break)))
+				(if (call merge_impl c0 it sx 1 2) (then (break)))
+			))
+			(set it tmp)
+			(break)
+		))
+		(if (<> it tmp) (then
+			(if (! (?? (get it prev))) (then
+				(set c1 (get it next))
+				(if (?? (get it next)) (then
+					(null (get it next) prev)
+				))
+			)(else
+				(set (get it prev) next (get it next))
+				(if (?? (get it next)) (then
+					(set (get it next) prev (get it prev))
+				))
+			))
+			(free it)
+			(set it tmp)
+		))
+	))
+	(set it c1)
+	(while (?? it) (do
+		(let tmp (struct polyline) (get it next))
+		(null it prev)
+		(null it next)
+		(set c0 (call prepend_polyline c0 it))
+		(set it tmp)
+	))
+	(return c0)
+)
+
+;; recursive bottom: turn chunk into polyline fragments;
+;; look around on 4 edges of the chunk, and identify the "outgoing" pixels;
+;; add segments connecting these pixels to center of chunk;
+;; apply heuristics to adjust center of chunk
+;; 
+;; @param x    left of   chunk
+;; @param y    top of    chunk
+;; @param w    width of  chunk
+;; @param h    height of chunk
+;; @return     the polyline fragments
+;; 
+(func chunk_to_frags 
+	(param im (arr int)) 
+	(param W int) (param H int) 
+	(param x int) (param y int) 
+	(param w int) (param h int)
+	(result (struct polyline))
+
+	(let frags (struct polyline))
+
+	(let fsize int 0) ; to deal with strokes thicker than 1px
+	(let on int 0)
+	(let li int -1)
+	(let lj int -1)
+
+	; walk around the edge clockwise
+	(for k 0 (< k (+ h h w w -4)) 1 (do
+		(let i int)
+		(let j int)
+		(if (< k w) (then
+			(set i y)
+			(set j (+ x k))
+		)(else (if (< k (+ w h -1)) (then
+			(set i (+ y k (- w) 1))
+			(set j (+ x w -1))
+
+		)(else (if (< k (+ w h w -2)) (then
+			(set i (+ y h -1))
+			(set j (+ x w (- k) w h -3))
+		)(else
+			(set i (+ y h (- k) w h w -4))
+			(set j x)
+		))))))
+		(if (get im (+ (* i W) j)) (then ; found an outgoing pixel
+			(if (! on) (then             ; left side of stroke
+				(set on 1)
+				(let f (struct polyline) (call new_polyline))
+				(call add_point_to_polyline f j i)
+				(call add_point_to_polyline f (+ x (/ w 2)) (+ y (/ h 2)))
+				(set frags (call prepend_polyline frags f))
+				(set fsize (+ fsize 1))
+			))
+
+		)(else
+			(if on (then ; right side of stroke, average to get center of stroke
+				(set (get frags head) x (/ (+ (get frags head x) lj) 2))
+				(set (get frags head) y (/ (+ (get frags head y) li) 2))
+				(set on 0)
+			))
+		))
+		(set li i)
+		(set lj j)
+	))
+	(if (= fsize 2) (then ; it's a crossroad, guess the intersection
+		(let f (struct polyline) (call new_polyline))
+		(call add_point_to_polyline f (get frags head x) (get frags head y))
+		(call add_point_to_polyline f (get frags next head x) (get frags next head y))
+		(call destroy_polylines frags)
+		(set frags f)
+	)(else (if (> fsize 2) (then
+		(let ms int 0)
+		(let mi int -1)
+		(let mj int -1)
+		; use convolution to find brightest blob
+		(for i (+ y 1) (< i (+ y h -1)) 1 (do
+			(for j (+ x 1) (< j (+ x w -1)) 1 (do
+				(let s int (+
+					(get im (+ (* i W) (- W) j -1))
+					(get im (+ (* i W) (- W) j   ))
+					(get im (+ (* i W) (- W) j  1))
+					(get im (+ (* i W)       j -1))
+					(get im (+ (* i W)       j   ))
+					(get im (+ (* i W)       j  1))
+					(get im (+ (* i W)    W  j -1))
+					(get im (+ (* i W)    W  j   ))
+					(get im (+ (* i W)    W  j  1))
+				))
+				(if (> s ms) (then
+					(set mi i)
+					(set mj j)
+					(set ms s)
+				)(else (if (&&
+					(= s ms)
+					(<
+						(+
+							(call abs (- j (+ x (/ w 2))))
+							(call abs (- i (+ y (/ h 2))))
+						)(+
+							(call abs (- mj (+ x (/ w 2))))
+							(call abs (- mi (+ y (/ h 2))))
+						)
+					)
+				)(then
+					(set mi i)
+					(set mj j)
+					(set ms s)
+				))))
+			))
+		))
+		(if (<> mi -1) (then
+			(let it (struct polyline) frags)
+			(while (?? it) (do
+				(set (get it tail) x mj)
+				(set (get it tail) y mi)
+				(set it (get it next))
+			))
+		))
+	))))
+	(return frags)
+)
+
+;; Trace skeleton from thinning result.
+;; Algorithm:
+;; 1. if chunk size is small enough, reach recursive bottom and turn it into segments
+;; 2. attempt to split the chunk into 2 smaller chunks, either horizontall or vertically;
+;;    find the best "seam" to carve along, and avoid possible degenerate cases
+;; 3. recurse on each chunk, and merge their segments
+;; 
+;; @param x       left of   chunk
+;; @param y       top of    chunk
+;; @param w       width of  chunk
+;; @param h       height of chunk
+;; @param iter    current iteration
+;; @return        an array of polylines
+;; 
+(func trace_skeleton
+	(param im (arr int))
+	(param W int)
+	(param H int)
+	(param x int)
+	(param y int)
+	(param w int)
+	(param h int)
+	(param iter int)
+	(result (struct polyline))
+
+	(let frags (struct polyline))
+	(if (<= iter 0) (then ; gameover
+		(return frags)
+	))
+	(if (&& (<= w CHUNK_SIZE) (<= h CHUNK_SIZE) ) (then ; recursive bottom
+		(set frags (call chunk_to_frags im W H x y w h))
+		(return frags)
+	))
+	(let ms int (+ W H)) ; number of white pixels on the seam, less the better
+	(let mi int -1)      ; horizontal seam candidate
+	(let mj int -1)      ; vertical   seam candidate
+	(if (> h CHUNK_SIZE) (then  ; try splitting top and bottom
+		(for i (+ y 3) (< i (+ y h -3)) 1 (do
+			(if (||
+					(get im (+ (*    i    W) x)) 
+					(get im (+ (* (- i 1) W) x))
+					(get im (+ (*    i    W) x w -1))
+					(get im (+ (* (- i 1) W) x w -1))
+			)(then)(else
+				(let s int 0)
+				(for j x (< j (+ x w)) 1 (do
+					(set s (+ s (get im (+ (*    i    W) j))))
+					(set s (+ s (get im (+ (* (- i 1) W) j))))
+				))
+				(if (< s ms) (then
+					(set ms s)
+					(set mi i)
+				)(else (if (&&
+					(= s ms)
+					(<
+						(call abs (-  i (+ y (/ h 2))))
+						(call abs (- mi (+ y (/ h 2))))
+					)
+				) (then
+				; if there is a draw (very common), we want the seam to be near the middle
+				; to balance the divide and conquer tree
+					(set ms s)
+					(set mi i)
+				))))
+			))
+
+		))
+	))
+	(if (> w CHUNK_SIZE) (then ; same as above, try splitting left and right
+		(for j (+ x 3) (< j (+ x w -3)) 1 (do
+			(if (||
+					(get im (+ (*    y    W)       j)) 
+					(get im (+ (* (+ y h) W) (- W) j))
+					(get im (+ (*    y    W)       j -1))
+					(get im (+ (* (+ y h) W) (- W) j -1))
+			)(then)(else
+				(let s int 0)
+				(for i y (< i (+ y h)) 1 (do
+					(set s (+ s (get im (+ (* i W) j))))
+					(set s (+ s (get im (+ (* i W) j -1))))
+				))
+				(if (< s ms) (then
+					(set ms s)
+					(set mi -1) ; horizontal seam is defeated
+					(set mj j)
+				)(else (if (&&
+					(= s ms)
+					(<
+						(call abs (-  j (+ x (/ w 2))))
+						(call abs (- mj (+ x (/ w 2))))
+					)
+				) (then
+					(set ms s)
+					(set mi -1)
+					(set mj j)
+				))))
+			))
+
+		))
+	))
+	(let L0 int -1) (let L1 int) (let L2 int) (let L3 int)
+	(let R0 int -1) (let R1 int) (let R2 int) (let R3 int)
+	(let dr int  0)
+	(let sx int)
+	(if (&& (> h CHUNK_SIZE) (<> mi -1)) (then ; split top and bottom
+		(set L0 x) (set L1 y ) (set L2 w) (set L3 (- mi y))
+		(set R0 x) (set R1 mi) (set R2 w) (set R3 (+ y h (- mi)))
+		(set dr @VERTICAL)
+		(set sx mi)
+	)(else (if (&& (> w CHUNK_SIZE) (<> mj -1)) (then ; split left and right
+		(set L0 x ) (set L1 y) (set L2 (- mj x))       (set L3 h)
+		(set R0 mj) (set R1 y) (set R2 (+ x w (- mj))) (set R3 h)
+		(set dr @HORIZONTAL)
+		(set sx mj)
+	))))
+	(if (&& (<> dr 0) (call not_empty im W H L0 L1 L2 L3)) (then
+		(set frags (call trace_skeleton im W H L0 L1 L2 L3 (- iter 1)))
+	))
+	(if (&& (<> dr 0) (call not_empty im W H R0 R1 R2 R3)) (then
+		(set frags (call merge_frags
+			frags
+			(call trace_skeleton im W H R0 R1 R2 R3 (- iter 1))
+			sx dr
+		))
+	))
+	(if (&& (= mi -1) (= mj -1)) (then
+		(set frags (call chunk_to_frags im W H x y w h))
+	))
+	(return frags)
+)
+
+
+(func print_bitmap
+	(param im (arr int)) 
+	(param W int) 
+	(param H int) 
+	(for i 0 (< i H) 1 (do
+		(local row str (alloc str ""))
+		(for j 0 (< j W) 1 (do
+			(<< row (? (get im (+ (* i W) j)) 'x' '.'))
+		))
+		(print row)
+	))
+)
+
+
+(func polylines_to_svg 
+	(param q (struct polyline)) 
+	(param W int) (param H int) 
+	(result str)
+
+	(let s str (alloc str "<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" width=\""))
+	(<< s (cast W str))
+	(<< s "\" height=\"")
+	(<< s (cast H str))
+	(<< s "\">")
+	(if (! (?? q)) (then
+		(return s)
+	))
+	(let it (struct polyline) q)
+	(while (?? it) (do
+		(<< s "<path d=\"")
+		(let jt (struct point) (get it head))
+		(while (?? jt) (do
+			(if (= jt (get it head))(then
+				(<< s "M")
+			)(else
+				(<< s "L")
+			))
+			(<< s (cast (get jt x) str))
+			(<< s ",")
+			(<< s (cast (get jt y) str))
+			(<< s " ")
+			(set jt (get jt next))
+		))
+		(<< s "\" fill=\"none\" stroke=\"black\"/>")
+		(set it (get it next))
+	))
+	(<< s "</svg>")
+	(return s)
+)
+

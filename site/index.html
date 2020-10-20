@@ -1,0 +1,273 @@
+
+<style>
+  body{
+    margin:0px;
+    overflow:hidden;
+    background:rgb(30,30,35);
+    font-family:sans-serif;
+    color:white;
+  }
+  select, button{
+    background:none;
+    -webkit-appearance:none;
+    font-size:12px;
+    color:silver;
+    border: 1px solid gray;
+    border-radius:2px;
+    padding:1px 5px 1px 5px;
+    margin:0px;
+    outline: none;
+    cursor:pointer;
+  }
+  select:hover, button:hover{
+    outline: none;
+    background:rgba(255,255,255,0.1);
+  }
+  div::-webkit-scrollbar {
+    display: none;
+  }
+  div {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/codemirror.min.css">
+<link rel="stylesheet" href="https://codemirror.net/theme/dracula.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/addon/mode/simple.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/addon/comment/comment.min.js"></script>
+<script src="https://codemirror.net/mode/javascript/javascript.js"></script>
+<script src="https://codemirror.net/mode/clike/clike.js"></script>
+
+
+<script src="https://unpkg.com/typescript@4.0.3/lib/typescriptServices.js"></script>
+
+<script src="waxc.js"></script>
+<style>.CodeMirror { height: 100%; }</style>
+<body>
+  <div id="hd" style="position:absolute;left:0px;top:0px;width:100%;height:50px;overflow-x:scroll;overflow-y:hidden">
+    <div id="hdin" style="width:2000px">
+      <div style="position:absolute;left:9px;top:9px;">
+        <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0" y="0" width="32" height="32" viewBox="0, 0, 143.398, 155.887">
+  <g id="Layer_1" transform="translate(-265.979, -593.56)">
+    <path d="M265.979,626.943 L409.377,594.842 L409.377,749.033 L266.034,749.447 L265.979,626.943 z" fill="#000000"/>
+    <path d="M275.586,705.402 L285.664,705.402 L289.297,724.598 L294.594,705.402 L304.648,705.402 L309.969,724.598 L313.602,705.402 L323.633,705.402 L316.063,739.762 L305.656,739.762 L299.633,718.129 L293.633,739.762 L283.227,739.762 z" fill="#FFFFFF"/>
+    <path d="M348.266,734.09 L336.172,734.09 L334.508,739.762 L323.656,739.762 L336.57,705.402 L348.148,705.402 L361.063,739.762 L349.953,739.762 z M346.039,726.66 L342.242,714.309 L338.469,726.66 z" fill="#FFFFFF"/>
+    <path d="M362.094,705.402 L373.789,705.402 L379.883,715.973 L385.789,705.402 L397.367,705.402 L386.68,722.043 L398.375,739.762 L386.445,739.762 L379.672,728.723 L372.875,739.762 L361.016,739.762 L372.875,721.856 z" fill="#FFFFFF"/>
+    <g>
+      <path d="M298.068,635.135 C286.588,635.135 277.281,625.828 277.281,614.348 C277.281,602.867 286.588,593.56 298.068,593.56 C309.549,593.56 318.856,602.867 318.856,614.348 C318.856,625.828 309.549,635.135 298.068,635.135 z" fill="#7A67FF"/>
+      <path d="M324.927,632.51 C316.74,632.51 310.103,625.873 310.103,617.686 C310.103,609.499 316.74,602.862 324.927,602.862 C333.114,602.862 339.751,609.499 339.751,617.686 C339.751,625.873 333.114,632.51 324.927,632.51 z" fill="#7A67FF"/>
+      <path d="M276.854,632.51 C272.014,632.51 268.09,628.586 268.09,623.746 C268.09,618.906 272.014,614.982 276.854,614.982 C281.694,614.982 285.618,618.906 285.618,623.746 C285.618,628.586 281.694,632.51 276.854,632.51 z" fill="#7A67FF"/>
+      <path d="M277.281,622.882 L283.408,622.882 L283.408,671.897 L277.281,671.897 L277.281,622.882 z" fill="#7A67FF"/>
+      <path d="M288.598,625.07 L299.777,625.07 L299.777,658.945 L288.598,658.945 L288.598,625.07 z" fill="#7A67FF"/>
+      <path d="M307.089,625.07 L313.111,625.07 L313.111,686.762 L307.089,686.762 L307.089,625.07 z" fill="#7A67FF"/>
+      <path d="M318.234,619.818 L323.854,619.818 L323.854,644.326 L318.234,644.326 L318.234,619.818 z" fill="#7A67FF"/>
+      <path d="M280.344,678.899 C277.686,678.899 275.53,676.744 275.53,674.085 C275.53,671.426 277.686,669.271 280.344,669.271 C283.003,669.271 285.158,671.426 285.158,674.085 C285.158,676.744 283.003,678.899 280.344,678.899 z" fill="#7A67FF"/>
+      <path d="M294.232,664.751 C291.169,664.751 288.686,662.268 288.686,659.205 C288.686,656.143 291.169,653.66 294.232,653.66 C297.294,653.66 299.777,656.143 299.777,659.205 C299.777,662.268 297.294,664.751 294.232,664.751 z" fill="#7A67FF"/>
+      <path d="M310.261,694.654 C306.514,694.654 303.477,691.617 303.477,687.87 C303.477,684.124 306.514,681.087 310.261,681.087 C314.007,681.087 317.044,684.124 317.044,687.87 C317.044,691.617 314.007,694.654 310.261,694.654 z" fill="#7A67FF"/>
+      <path d="M321.202,649.577 C318.906,649.577 317.044,647.716 317.044,645.42 C317.044,643.124 318.906,641.262 321.202,641.262 C323.498,641.262 325.359,643.124 325.359,645.42 C325.359,647.716 323.498,649.577 321.202,649.577 z" fill="#7A67FF"/>
+      <path d="M344.61,619.818 C338.671,619.818 333.857,615.004 333.857,609.065 C333.857,603.126 338.671,598.312 344.61,598.312 C350.549,598.312 355.363,603.126 355.363,609.065 C355.363,615.004 350.549,619.818 344.61,619.818 z" fill="#7A67FF"/>
+      <path d="M326.101,625.07 C318.712,625.07 312.722,619.08 312.722,611.691 C312.722,604.302 318.712,598.312 326.101,598.312 C333.49,598.312 339.48,604.302 339.48,611.691 C339.48,619.08 333.49,625.07 326.101,625.07 z" fill="#7A67FF"/>
+    </g>
+  </g>
+</svg>
+
+      </div>
+      <div style="position:absolute;left:50px;top:8px;font-size:16px;font-weight:bold;">
+        wax compiler
+      </div>
+      <div style="position:absolute;left:50px;top:27px;font-size:11px;color:gray">
+        A tiny language designed to transpile to other languages.
+      </div>
+
+      <div style="position:absolute;left:365px;top:27px;position:absolute;font-size:11px;color:gray">
+        Example:
+      </div>
+      <select id="selexam" style="position:absolute;left:420px;top:25px;">
+        <option>fib.wax</option><option>helloworld.wax</option><option>line.wax</option><option>nqueens.wax</option><option>qsort.wax</option><option>quine.wax</option><option>quine2.wax</option><option>traceskeleton.wax</option><option>turing.wax</option><option>xmas.wax</option>
+      </select>
+
+      <div style="position:absolute;left:550px;top:27px;position:absolute;font-size:11px;color:gray">
+        Transpile&nbsp;to:
+      </div>
+      <select id="seltarg" style="position:absolute;left:620px;top:25px;" value="ts">
+        <option value="c">C</option>
+        <option value="java">Java</option>
+        <option selected="selected" value="ts">TypeScript</option>
+        <!--<option value="ast">Syntax Tree</option>-->
+      </select>
+
+
+      <div style="position:absolute;left:715px;top:27px;position:absolute;font-size:11px;color:gray">
+        Realtime:
+      </div>
+      <select id="selreal" style="position:absolute;left:770px;top:25px;">
+        <option>yes</option>
+        <option>no</option>
+      </select>
+
+      <button id="butcomp" style="position:absolute;left:850px;top:25px;">
+        Compile
+      </button>
+
+      <button id="butrunc" style="position:absolute;left:910px;top:25px;">
+        Run
+      </button>
+
+    </div>
+  </div>
+  <div id="cl" style="position:absolute;left:0px;top:50px;width:50%;height:calc(100% - 50px)">
+    
+  </div>
+  <div id="cr" style="position:absolute;left:50%;top:50px;width:50%;height:calc(100% - 50px)">
+    
+  </div>
+</body>
+<script>
+  var examples = {"fib.wax":";; Simple recursive function to compute\n;; Fibonacci numbers\n\n(func fib (param i int) (result int)\n\t(if (<= i 1) (then\n\t\t(return i)\n\t))\n\t(return (+\n\t\t(call fib (- i 1))\n\t\t(call fib (- i 2))\n\t))\n)\n\n(func main (result int)\n\t(let x int (call fib 9))\n\t(print x)\n\t(return 0)\n)\n\n","helloworld.wax":"(func main (result int)\n  (print \"hello world!\")\n  (return 0)\n)","line.wax":";; lines.wax\n;; rasterize lines using simple line algorithm\n\n(@include math)\n\n;; datastructure for storing an image\n(struct image\n\t(let data (arr int))\n\t(let w int) ; width\n\t(let h int) ; height\n)\n\n;; initialize an image full of zeros\n(func zeros (param w int) (param h int)\n\t(result (struct image))\n\t(let data (arr int) (alloc (arr int)))\n\t(let im (struct image) (alloc (struct image)))\n\t(for i 0 (< i (* w h)) 1 (do\n\t\t(insert data (# data) 0)\n\t))\n\t(set im data data)\n\t(set im w w)\n\t(set im h h)\n\t(return im)\n)\n\n;; read value of a pixel\n(func getpixel \n\t(param im (struct image))\n\t(param x int) (param y int)\n\t(result int)\n\t(if (||   ; boundary check\n\t\t(<  x 0) (< y 0)\n\t\t(>= x (get im w))\n\t\t(>= y (get im h))\n\t)(then\n\t\t(return 0)\n\t))\n\t(return \n\t\t(get im data (+ (* y (get im w)) x))\n\t)\n)\n\n;; write value to a pixel\n(func setpixel \n\t(param im (struct image))\n\t(param x int) (param y int) (param v int)\n\t(if (||   ; boundary check\n\t\t(<  x 0) (< y 0)\n\t\t(>= x (get im w))\n\t\t(>= y (get im h))\n\t)(then\n\t\t(return)\n\t))\n\t(set (get im data)\n\t\t(+ (* y (get im w)) x)\n\t\tv\n\t)\n)\n\n;; helper for line drawing algorithm\n;; compute x/y from y/x using slope\n(func linestep\n\t(param sx0 int) (param sx1 int)\n\t(param sy0 int) (param sy1 int)\n\t(param x int)\n\t(result int)\n\t(if (= sx0 sx1) (then\n\t\t(return sy1)\n\t))\n\t(return (cast (call round\n\t\t(+ sy0 (*\n\t\t\t(- x sx0)\n\t\t\t(/ (- sy1 sy0) (cast (- sx1 sx0) float) )\n\t\t))\n\t) int))\n)\n\n;; raster line drawing algorithm\n(func line \n\t(param im (struct image))\n\t(param x0 float) (param y0 float) ; start pos\n\t(param x1 float) (param y1 float) ; end pos\n\t(param v int) ;color\n\t \n\t(let sx0 int (call round x0))\n\t(let sy0 int (call round y0))\n\t(let sx1 int (call round x1))\n\t(let sy1 int (call round y1))\n\t\n\t(let dx int (? (> sx1 sx0) 1 -1)) ; x increment\n\t(let dy int (? (> sy1 sy0) 1 -1)) ; y increment\n\t\n\t(if (>=\n\t\t(call abs (- sx0 sx1))\n\t\t(call abs (- sy0 sy1))\n\t)(then ; slope < 1 ?\n\t\t(let x int sx0)\n\t\t(while (<> x (+ sx1 dx)) (do\n\t\t\t(let y int (call linestep sx0 sx1 sy0 sy1 x))\n\t\t\t(call setpixel im x y v)\n\t\t\t(set x (+ x dx))\n\t\t))\n\t)(else\n\t\t(let y int sy0)\n\t\t(while (<> y (+ sy1 dy)) (do\n\t\t\t(let x int (call linestep sy0 sy1 sx0 sx1 y))\n\t\t\t(call setpixel im x y v)\n\t\t\t(set y (+ y dy))\n\t\t))\n\t))\n)\n\n;; visualize the image with ASCII drawing in terminal\n(func imshow (param im (struct image))\n\t(local s str (alloc str \"+\"))\n\t(for j 0 (< j (get im w)) 1 (do (<< s \"-\")))\n\t(<< s \"+\\n\")\n\t(for i 0 (< i (get im h)) 1 (do\n\t\t(<< s \"|\")\n\t\t(for j 0 (< j (get im w)) 1 (do\n\t\t\t(<< s (+ (call getpixel im j i) 32))\n\t\t))\n\t\t(<< s \"|\\n\")\n\t))\n\t(<< s \"+\")\n\t(for j 0 (< j (get im w)) 1 (do (<< s \"-\")))\n\t(<< s \"+\")\n\t(print s)\n)\n\n;; free allocated image\n(func dispose (param im (struct image))\n\t(free (get im data))\n\t(free im)\n)\n\n(func main (result int)\n\t(let im (struct image) (call zeros 60 30))\n\t\n\t;; generate some random lines to draw\n\t(for i 0 (< i 7) 1 (do\n\t\t(let x0 float (* (call random) (get im w)))\n\t\t(let y0 float (* (call random) (get im h)))\n\t\t(let x1 float (* (call random) (get im w)))\n\t\t(let y1 float (* (call random) (get im h)))\n\t\t(let v int (+ i 1))\n\t\t(call line im x0 y0 x1 y1 v)\n\t))\n\t\n\t(call imshow im)\n\t(call dispose im)\n\t(return 0)\n)\n","nqueens.wax":";; N-Queens Problem Solver\n;; ported from\n;; http://www.rosettacode.org/wiki/N-queens_problem#Java\n\n\n(@define N 8) ; board size / # of queens\n\n; check if a position is unsafe (attackable)\n(func unsafe \n\t(param B (vec @N int)) \n\t(param y int)\n\t(result int)\n\t\n\t(let x int (get B y))\n\t(for i 1 (<= i y) 1 (do\n\t\t(let t int (get B (- y i)))\n\t\t(if (||\n\t\t\t(= t x) \n\t\t\t(= t (- x i))\n\t\t\t(= t (+ x i))) (then\n\t\t\t(return 1)\t\n\t\t))\n\t))\n\t(return 0)\n)\n\n; visualize a solution \n; by printing ASCCi chessboard in terminal\n(func putboard (param B (vec @N int)) (param s int)\n\t(local o str (alloc str \"N=\"))\n\t(<< o (cast @N str))\n\t(<< o \" solution #\")\n\t(<< o (cast s str))\n\t(<< o \"\\n\")\n\t(for y 0 (< y @N) 1 (do\n\t\t(for x 0 (< x @N) 1 (do\n\t\t\t(<< o\n\t\t\t\t(? (= (get B y) x) \"|Q\" \"|_\")\n\t\t\t)\n\t\t))\n\t\t(<< o \"|\\n\")\n\t))\n\t(print o)\n)\n\n; solve N-Queens puzzle (exhaustive)\n(func solve\n\t(let B (vec @N int) (alloc (vec @N int))) ; chessboard\n\t(let s int 0)  ; solution ID\n\t(let y int 0)  ; current row\n\t(set B 0 -1)\n\t\n\t(while (>= y 0) (do\n\t\t(set B y (+ (get B y) 1))\n\t\t(while (&&\n\t\t\t(< (get B y) @N)\n\t\t\t(call unsafe B y)\n\t\t)(do\n\t\t\t(set B y (+ (get B y) 1))\n\t\t))\n\t\t(if (< (get B y) @N) (then\n\t\t\t(if (< y (- @N 1)) (then\n\t\t\t\t(set y (+ y 1))\n\t\t\t\t(set B y -1)\n\t\t\t)(else\n\t\t\t\t(set s (+ s 1))\n\t\t\t\t(call putboard B s)\n\t\t\t))\n\t\t)(else\n\t\t\t(set y (- y 1))\n\t\t))\n\t))\n)\n\n(func main\n\t(call solve)\n\t\n)","qsort.wax":";; \"Quicksort\"\n;; includes both an in-place implementation\n;; and a functional implementation\n\n\n;; sort array in-place for index range [lo,hi] inclusive\n(func qksort_inplace (param A (arr float)) (param lo int) (param hi int)\n\t(if (>= lo hi) (then\n\t\t(return)\n\t))\n\t(let pivot float (get A lo))\n\t(let left  int lo)\n\t(let right int hi)\n\t(while (<= left right) (do\n\t\t(while (< (get A left) pivot) (do\n\t\t\t(set left (+ left 1))\n\t\t))\n\t\t(while (> (get A right) pivot) (do\n\t\t\t(set right (- right 1))\n\t\t))\n\t\t(if (<= left right) (then\n\t\t\t(let tmp float (get A left))\n\t\t\t(set A left (get A right))\n\t\t\t(set A right tmp)\n\t\t\t(set left  (+ left 1))\n\t\t\t(set right (- right 1))\n\t\t))\n\t))\n\t(call qksort_inplace A lo right)\n\t(call qksort_inplace A left hi)\n)\n\n;; wrap qksort_inplace\n(func qksort (param A (arr float))\n\t(if (! (# A)) (then\n\t\t(return)\n\t))\n\t(call qksort_inplace A 0 (- (# A) 1))\n)\n\n;; functional version of quicksort\n(func qksort_func (param A (arr float)) (result (arr float))\n\t(if (<= (# A) 1) (then\n\t\t(return (slice A 0 (# A)))\n\t))\n\t(let pivot float (get A 0))\n\t(local less (arr float) (alloc (arr float)))\n\t(local more (arr float) (alloc (arr float)))\n\t(for i 1 (< i (# A)) 1 (do\n\t\t(if (< (get A i) pivot) (then\n\t\t\t(insert less (# less) (get A i))\n\t\t)(else\n\t\t\t(insert more (# more) (get A i))\n\t\t))\n\t))\n\t(let  sorted (arr float) (call qksort_func less))\n\t(local right (arr float) (call qksort_func more))\n\t(insert sorted (# sorted) pivot)\n\t(for i 0 (< i (# right)) 1 (do\n\t\t(insert sorted (# sorted) (get right i))\n\t))\n\t(return sorted)\n)\n\n;; print an array separated by commas\n(func print_arr (param A (arr float))\n\t(local s str (alloc str \"\"))\n\t(for i 0 (< i (# A)) 1 (do\n\t\t(if i (then (<< s \", \")))\n\t\t(<< s (cast (get A i) str))\n\t))\n\t(print s)\n)\n\n(func main (result int)\n\n\t(local A (arr float) (alloc (arr float) \n\t\t0.9 0.2 88 10 3 4 5.5 0.1\n\t))\n\n\t(print \"original array:\")\n\t(call print_arr A)\n\t\n\t(local B (arr float) (call qksort_func A))\n\n\t(print \"sorted with functional quicksort:\")\n\t(call print_arr B)\n\n\t(print \"original array is unchanged:\")\n\t(call print_arr A)\n\n\t(call qksort A)\n\n\t(print \"sorted with in-place quicksort:\")\n\t(call print_arr A)\n\t\n\t(return 0)\n)\n","quine.wax":";; quine.wax\n;; based on https://en.wikipedia.org/wiki/Quine_(computing)\n(func main (result int)\n  (let q int 34)\n  (local s str (alloc str))\n  (local l (arr str) (alloc (arr str) \n  \";; quine.wax\"\n  \";; based on https://en.wikipedia.org/wiki/Quine_(computing)\"\n  \"(func main (result int)\"\n  \"  (let q int 34)\"\n  \"  (local s str (alloc str))\"\n  \"  (local l (arr str) (alloc (arr str)\"\n  \"  \"\n  \"  ))\"\n  \"  (for i 0 (< i 6) 1 (do\"\n  \"    (<< s (get l i)) (<< s 10)\"\n  \"  ))\"\n  \"  (for i 0 (< i (# l)) 1 (do\"\n  \"    (<< s (get l 6))\"\n  \"    (<< s q) (<< s (get l i)) (<< s q) (<< s 10)\"\n  \"  ))\"\n  \"  (for i 7 (< i (# l)) l (do\"\n  \"    (<< s (get l i)) (<< s 10)\"\n  \"  ))\"\n  \"  (print s)\"\n  \")\"\n  ))\n  (for i 0 (< i 6) 1 (do\n    (<< s (get l i)) (<< s 10)\n  ))\n  (for i 0 (< i (# l)) 1 (do\n    (<< s (get l 6))\n    (<< s q) (<< s (get l i)) (<< s q) (<< s 10)\n  ))\n  (for i 7 (< i (# l)) 1 (do\n    (<< s (get l i)) (<< s 10)\n  ))\n  (print s)\n)","quine2.wax":"(func R (param x str)(param y str)(result str)(let w str (alloc str))(for i 0 (< i (# x)) 1 (do (if (= (get x i) 36)(then (<< w y))(else (<< w (get x i))))))(return w))(func Q (param x str)(result str)(let w str (alloc str))(<< w 34)(<< w x)(<< w 34)(return w))(func main (result int)(let s str \"(func R (param x str)(param y str)(result str)(let w str (alloc str))(for i 0 (< i (# x)) 1 (do (if (= (get x i) 36)(then (<< w y))(else (<< w (get x i))))))(return w))(func Q (param x str)(result str)(let w str (alloc str))(<< w 34)(<< w x)(<< w 34)(return w))(func main (result int)(let s str $)(local t str (call Q s))(local u str (call R s t))(print u))\")(local t str (call Q s))(local u str (call R s t))(print u))","traceskeleton.wax":";; traceskeleton.wax\n;; Trace skeletonization result into polylines\n;;\n;; see https://github.com/LingDong-/skeleton-tracing\n;; ported to wax to illustrate a real-world usage\n;; with original comments\n\n(@include math)\n\n(@define HORIZONTAL 1)\n(@define VERTICAL   2)\n\n(let CHUNK_SIZE int 10)\n\n;;================================\n;; DATASTRUCTURES\n;;================================\n\n(struct point\n\t(let x int)\n\t(let y int)\n\t(let next (struct point))\n)\n(struct polyline\n\t(let head (struct point))\n\t(let tail (struct point))\n\t(let prev (struct polyline))\n\t(let next (struct polyline))\n\t(let size int)\n)\n\n;;================================\n;; DATASTRUCTURE IMPLEMENTATION\n;;================================\n\n(func new_polyline (result (struct polyline))\n\t(let q0 (struct polyline) (alloc (struct polyline)))\n\t(return q0)\n)\n(func print_polyline (param q (struct polyline))\n\t(if (! (?? q)) (then\n\t\t(return)\n\t))\n\t(let jt (struct point) (get q head))\n\t(local s str (alloc str))\n\t(while (?? jt) (do\n\t\t(<< s (cast (get jt x) str))\n\t\t(<< s \",\")\n\t\t(<< s (cast (get jt y) str))\n\t\t(<< s \" \")\n\t\t(set jt (get jt next))\n\t))\n\t(print s)\n)\n(func print_polylines (param q (struct polyline))\n\t(if (! (?? q)) (then\n\t\t(return)\n\t))\n\t(let it (struct polyline) q)\n\t(while (?? it) (do\n\t\t(let jt (struct point) (get it head))\n\t\t(local s str (alloc str))\n\t\t(while (?? jt) (do\n\t\t\t(<< s (cast (get jt x) str))\n\t\t\t(<< s \",\")\n\t\t\t(<< s (cast (get jt y) str))\n\t\t\t(<< s \" \")\n\t\t\t(set jt (get jt next))\n\t\t))\n\t\t(print s)\n\t\t(set it (get it next))\n\t))\n)\n\n(func destroy_polylines (param q (struct polyline))\n\t(if (! (?? q)) (then\n\t\t(return)\n\t))\n\t(let it (struct polyline) q)\n\t(while (?? it) (do\n\t\t(let lt (struct polyline) (get it next))\n\t\t(let jt (struct point) (get it head))\n\t\t(while (?? jt) (do\n\t\t\t(let kt (struct point) (get jt next))\n\t\t\t(free jt)\n\t\t\t(set jt kt)\n\t\t))\n\t\t(free it)\n\t\t(set it lt)\n\t))\n)\n\n(func reverse_polyline (param q (struct polyline))\n\t(if (|| (! (?? q)) (< (get q size) 2) ) (then\n\t\t(return)\n\t))\n\t(set (get q tail) next (get q head))\n\t(let it0 (struct point) (get q head))\n\t(let it1 (struct point) (get it0 next))\n\t(let it2 (struct point) (get it1 next))\n\t(for i 0 (< i (- (get q size) 1) ) 1 (do\n\t\t(set it1 next it0)\n\t\t(set it0 it1)\n\t\t(set it1 it2)\n\t\t(set it2 (get it2 next))\n\t))\n\t(let q_head (struct point) (get q head))\n\t(set q head (get q tail))\n\t(set q tail q_head)\n\t(null (get q tail) next)\n)\n\n(func cat_tail_polyline (param q0 (struct polyline)) (param q1 (struct polyline))\n\t(if (! (?? q1)) (then\n\t\t(return)\n\t))\n\t(if (! (?? q0)) (then\n\t\t(return)\n\t))\n\t(if (! (?? (get q0 head))) (then\n\t\t(set q0 head (get q1 head))\n\t\t(set q0 tail (get q1 tail))\n\t\t(return)\n\t))\n\t(set (get q0 tail) next (get q1 head))\n\t(set q0 tail (get q1 tail))\n\t(set q0 size (+ (get q0 size) (get q1 size)))\n\t(null (get q0 tail) next)\n)\n\n(func cat_head_polyline (param q0 (struct polyline)) (param q1 (struct polyline))\n\t(if (! (?? q1)) (then\n\t\t(return)\n\t))\n\t(if (! (?? q0)) (then\n\t\t(return)\n\t))\n\t(if (! (?? (get q0 head))) (then\n\t\t(set q0 head (get q1 head))\n\t\t(set q0 tail (get q1 tail))\n\t\t(return)\n\t))\n\t(set (get q1 tail) next (get q0 head))\n\t(set q0 head (get q1 head))\n\t(set q0 size (+ (get q0 size) (get q1 size)))\n\t(null (get q0 tail) next)\n)\n\n\n(func add_point_to_polyline (param q (struct polyline)) (param x int) (param y int) \n\t(let p (struct point) (alloc (struct point)))\n\t(set p x x)\n\t(set p y y)\n\t(null p next)\n\t(if (! (?? (get q head))) (then\n\t\t(set q head p)\n\t\t(set q tail p)\n\t)(else\n\t\t(set (get q tail) next p)\n\t\t(set q tail p)\n\t))\n\t(set q size (+ (get q size) 1))\n)\n\n(func prepend_polyline \n\t(param q0 (struct polyline)) \n\t(param q1 (struct polyline)) \n\t(result (struct polyline))\n\n\t(if (! (?? q0)) (then\n\t\t(return q1)\n\t))\n\t(set q1 next q0)\n\t(set q0 prev q1)\n\t(return q1)\n)\n\n\n;;================================\n;; RASTER SKELETONIZATION\n;;================================\n;; Binary image thinning (skeletonization) in-place.\n;; Implements Zhang-Suen algorithm.\n;; http://agcggs680.pbworks.com/f/Zhan-Suen_algorithm.pdf\n\n(func thinning_zs_iteration \n\t(param im (arr int)) \n\t(param W int) \n\t(param H int) \n\t(param iter int) \n\t(result int)\n\n\t(let diff int 0)\n\t(for i 1 (< i (- H 1)) 1 (do\n\t\t(for j 1 (< j (- W 1)) 1 (do\n\t\t\t(let p2 int (& (get im (+    (* (- i 1) W ) j )) 1))\n\t\t\t(let p3 int (& (get im (+ (+ (* (- i 1) W ) j )  1)) 1))\n\t\t\t(let p4 int (& (get im (+ (+ (*    i    W ) j )  1)) 1))\n\t\t\t(let p5 int (& (get im (+ (+ (* (+ i 1) W ) j )  1)) 1))\n\t\t\t(let p6 int (& (get im (+ (*    (+ i 1) W ) j )) 1))\n\t\t\t(let p7 int (& (get im (- (+ (* (+ i 1) W ) j )  1)) 1))\n\t\t\t(let p8 int (& (get im (- (+ (*    i    W ) j )  1)) 1))\n\t\t\t(let p9 int (& (get im (- (+ (* (- i 1) W ) j )  1)) 1))\n\t\t\t(let A int (+\n\t\t\t\t(&& (! p2) p3 ) (&& (! p3) p4 )\n\t\t\t\t(&& (! p4) p5 ) (&& (! p5) p6 )\n\t\t\t\t(&& (! p6) p7 ) (&& (! p7) p8 )\n\t\t\t\t(&& (! p8) p9 ) (&& (! p9) p2 )\n\t\t\t))\n\t\t\t(let B int (+ p2 p3 p4 p5 p6 p7 p8 p9))\n\t\t\t(let m1 int (? (= iter 0)\n\t\t\t\t(* p2 p4 p6)\n\t\t\t\t(* p2 p4 p8)\n\t\t\t))\n\t\t\t(let m2 int (? (= iter 0)\n\t\t\t\t(* p4 p6 p8)\n\t\t\t\t(* p2 p6 p8)\n\t\t\t))\n\t\t\t(if (&& (= A 1) (>= B 2) (<= B 6) (= m1 0) (= m2 0)) (then\n\t\t\t\t(set im (+ (* i W) j)\n\t\t\t\t\t(| (get im (+ (* i W) j)) 2)\n\t\t\t\t)\n\t\t\t))\n\t\t))\n\t))\n\n\t(for i 0 (< i (* H W)) 1 (do\n\t\t(let marker int (>> (get im i) 1))\n\t\t(let old int (& (get im i) 1))\n\t\t(set im i (& old (! marker)))\n\t\t(if (&& (! diff) (<> (get im i) old)) (then\n\t\t\t(set diff 1)\n\t\t))\n\t))\n\t(return diff)\n)\n\n(func thinning_zs \n\t(param im (arr int)) \n\t(param W int) \n\t(param H int) \n\n\t(let diff int 1)\n\t(while diff (do\n\t\t(set diff (& diff (call thinning_zs_iteration im W H 0)))\n\t\t(set diff (& diff (call thinning_zs_iteration im W H 1)))\n\t))\n)\n\n;;================================\n;; MAIN ALGORITHM\n;;================================\n\n;; check if a region has any white pixel\n(func not_empty\n\t(param im (arr int)) \n\t(param W int) (param H int) \n\t(param x int) (param y int)\n\t(param w int) (param h int)\n\t(result int)\n\n\t(for i y (< i (+ y h)) 1 (do\n\t\t(for j x (< j (+ x w)) 1 (do\n\t\t\t(if (get im (+ (* i W) j))(then\n\t\t\t\t(return 1)\n\t\t\t))\n\t\t))\n\t))\n\t(return 0)\n)\n\n;; merge ith fragment of second chunk to first chunk\n;; @param c0   fragments from  first  chunk\n;; @param c1i  ith fragment of second chunk\n;; @param sx   (x or y) coordinate of the seam\n;; @param isv  is vertical, not horizontal?\n;; @param mode 2-bit flag, \n;;             MSB = is matching the left (not right) end of the fragment from first  chunk\n;;             LSB = is matching the right (not left) end of the fragment from second chunk\n;; @return     matching successful?             \n;; \n(func merge_impl \n\t(param c0  (struct polyline))\n\t(param c1i (struct polyline))\n\t(param sx int)\n\t(param isv int)\n\t(param mode int)\n\t(result int)\n\n\t(let b0 int (> (& (>> mode 1) 1) 0 ))  ; match c0 left\n\t(let b1 int (> (&     mode    1) 0 ))  ; match c1 left\n\t(let c0j (struct polyline))\n\t(let md int 4) ;maximum offset to be regarded as continuous\n\n\t(let p1 (struct point) (? b1 (get c1i head) (get c1i tail) ))\n\t(if (> (call abs (- (? isv (get p1 y) (get p1 x) ) sx) ) 0) (then\n\t\t(return 0) ; not on the seam, skip\n\t))\n\t; find the best match\n\t(let it (struct polyline) c0)\n\t(while (?? it) (do\n\t\t(let p0 (struct point) (? b0 (get it head) (get it tail)) )\n\t\t(if (<= (call abs (- (? isv (get p0 y) (get p0 x) ) sx) ) 1) (then\n\t\t\t(let d int\n\t\t\t\t(call abs (-\n\t\t\t\t\t(? isv (get p0 x) (get p0 y) )\n\t\t\t\t\t(? isv (get p1 x) (get p1 y) )\n\t\t\t\t))\n\t\t\t)\n\t\t\t(if (< d md) (then\n\t\t\t\t(set c0j it)\n\t\t\t\t(set md d)\n\t\t\t))\n\n\t\t))\n\t\t(set it (get it next))\n\t))\n\t(if (?? c0j) (then ; best match is good enough, merge them\n\t\t(if (&& b0 b1) (then\n\t\t\t(call reverse_polyline c1i)\n\t\t\t(call cat_head_polyline c0j c1i)\n\t\t)(else (if (&& (! b0) b1) (then\n\t\t\t(call cat_tail_polyline c0j c1i)\n\t\t)(else (if (&& b0 (! b1)) (then\n\t\t\t(call cat_head_polyline c0j c1i)\n\t\t)(else\n\t\t\t(call reverse_polyline c1i)\n\t\t\t(call cat_tail_polyline c0j c1i)\n\t\t))))))\n\t\t(return 1)\n\t))\n\t(return 0)\n)\n\n;; merge fragments from two chunks\n;; @param c0   fragments from first  chunk\n;; @param c1   fragments from second chunk\n;; @param sx   (x or y) coordinate of the seam\n;; @param dr   merge direction, HORIZONTAL or VERTICAL?\n;; \n(func merge_frags\n\t(param c0 (struct polyline))\n\t(param c1 (struct polyline))\n\t(param sx int)\n\t(param dr int)\n\t(result (struct polyline))\n\n\t(if (! (?? c0))(then\n\t\t(return c1)\n\t))\n\t(if (! (?? c1))(then\n\t\t(return c0)\n\t))\n\t(let it (struct polyline) c1)\n\t(while (?? it) (do\n\t\t(let tmp (struct polyline) (get it next))\n\t\t(while 1 (do\n\t\t\t(if (= dr @HORIZONTAL) (then\n\t\t\t\t(if (call merge_impl c0 it sx 0 1) (then (break)))\n\t\t\t\t(if (call merge_impl c0 it sx 0 3) (then (break)))\n\t\t\t\t(if (call merge_impl c0 it sx 0 0) (then (break)))\n\t\t\t\t(if (call merge_impl c0 it sx 0 2) (then (break)))\n\t\t\t) (else\n\t\t\t\t(if (call merge_impl c0 it sx 1 1) (then (break)))\n\t\t\t\t(if (call merge_impl c0 it sx 1 3) (then (break)))\n\t\t\t\t(if (call merge_impl c0 it sx 1 0) (then (break)))\n\t\t\t\t(if (call merge_impl c0 it sx 1 2) (then (break)))\n\t\t\t))\n\t\t\t(set it tmp)\n\t\t\t(break)\n\t\t))\n\t\t(if (<> it tmp) (then\n\t\t\t(if (! (?? (get it prev))) (then\n\t\t\t\t(set c1 (get it next))\n\t\t\t\t(if (?? (get it next)) (then\n\t\t\t\t\t(null (get it next) prev)\n\t\t\t\t))\n\t\t\t)(else\n\t\t\t\t(set (get it prev) next (get it next))\n\t\t\t\t(if (?? (get it next)) (then\n\t\t\t\t\t(set (get it next) prev (get it prev))\n\t\t\t\t))\n\t\t\t))\n\t\t\t(free it)\n\t\t\t(set it tmp)\n\t\t))\n\t))\n\t(set it c1)\n\t(while (?? it) (do\n\t\t(let tmp (struct polyline) (get it next))\n\t\t(null it prev)\n\t\t(null it next)\n\t\t(set c0 (call prepend_polyline c0 it))\n\t\t(set it tmp)\n\t))\n\t(return c0)\n)\n\n;; recursive bottom: turn chunk into polyline fragments;\n;; look around on 4 edges of the chunk, and identify the \"outgoing\" pixels;\n;; add segments connecting these pixels to center of chunk;\n;; apply heuristics to adjust center of chunk\n;; \n;; @param x    left of   chunk\n;; @param y    top of    chunk\n;; @param w    width of  chunk\n;; @param h    height of chunk\n;; @return     the polyline fragments\n;; \n(func chunk_to_frags \n\t(param im (arr int)) \n\t(param W int) (param H int) \n\t(param x int) (param y int) \n\t(param w int) (param h int)\n\t(result (struct polyline))\n\n\t(let frags (struct polyline))\n\n\t(let fsize int 0) ; to deal with strokes thicker than 1px\n\t(let on int 0)\n\t(let li int -1)\n\t(let lj int -1)\n\n\t; walk around the edge clockwise\n\t(for k 0 (< k (+ h h w w -4)) 1 (do\n\t\t(let i int)\n\t\t(let j int)\n\t\t(if (< k w) (then\n\t\t\t(set i y)\n\t\t\t(set j (+ x k))\n\t\t)(else (if (< k (+ w h -1)) (then\n\t\t\t(set i (+ y k (- w) 1))\n\t\t\t(set j (+ x w -1))\n\n\t\t)(else (if (< k (+ w h w -2)) (then\n\t\t\t(set i (+ y h -1))\n\t\t\t(set j (+ x w (- k) w h -3))\n\t\t)(else\n\t\t\t(set i (+ y h (- k) w h w -4))\n\t\t\t(set j x)\n\t\t))))))\n\t\t(if (get im (+ (* i W) j)) (then ; found an outgoing pixel\n\t\t\t(if (! on) (then             ; left side of stroke\n\t\t\t\t(set on 1)\n\t\t\t\t(let f (struct polyline) (call new_polyline))\n\t\t\t\t(call add_point_to_polyline f j i)\n\t\t\t\t(call add_point_to_polyline f (+ x (/ w 2)) (+ y (/ h 2)))\n\t\t\t\t(set frags (call prepend_polyline frags f))\n\t\t\t\t(set fsize (+ fsize 1))\n\t\t\t))\n\n\t\t)(else\n\t\t\t(if on (then ; right side of stroke, average to get center of stroke\n\t\t\t\t(set (get frags head) x (/ (+ (get frags head x) lj) 2))\n\t\t\t\t(set (get frags head) y (/ (+ (get frags head y) li) 2))\n\t\t\t\t(set on 0)\n\t\t\t))\n\t\t))\n\t\t(set li i)\n\t\t(set lj j)\n\t))\n\t(if (= fsize 2) (then ; it's a crossroad, guess the intersection\n\t\t(let f (struct polyline) (call new_polyline))\n\t\t(call add_point_to_polyline f (get frags head x) (get frags head y))\n\t\t(call add_point_to_polyline f (get frags next head x) (get frags next head y))\n\t\t(call destroy_polylines frags)\n\t\t(set frags f)\n\t)(else (if (> fsize 2) (then\n\t\t(let ms int 0)\n\t\t(let mi int -1)\n\t\t(let mj int -1)\n\t\t; use convolution to find brightest blob\n\t\t(for i (+ y 1) (< i (+ y h -1)) 1 (do\n\t\t\t(for j (+ x 1) (< j (+ x w -1)) 1 (do\n\t\t\t\t(let s int (+\n\t\t\t\t\t(get im (+ (* i W) (- W) j -1))\n\t\t\t\t\t(get im (+ (* i W) (- W) j   ))\n\t\t\t\t\t(get im (+ (* i W) (- W) j  1))\n\t\t\t\t\t(get im (+ (* i W)       j -1))\n\t\t\t\t\t(get im (+ (* i W)       j   ))\n\t\t\t\t\t(get im (+ (* i W)       j  1))\n\t\t\t\t\t(get im (+ (* i W)    W  j -1))\n\t\t\t\t\t(get im (+ (* i W)    W  j   ))\n\t\t\t\t\t(get im (+ (* i W)    W  j  1))\n\t\t\t\t))\n\t\t\t\t(if (> s ms) (then\n\t\t\t\t\t(set mi i)\n\t\t\t\t\t(set mj j)\n\t\t\t\t\t(set ms s)\n\t\t\t\t)(else (if (&&\n\t\t\t\t\t(= s ms)\n\t\t\t\t\t(<\n\t\t\t\t\t\t(+\n\t\t\t\t\t\t\t(call abs (- j (+ x (/ w 2))))\n\t\t\t\t\t\t\t(call abs (- i (+ y (/ h 2))))\n\t\t\t\t\t\t)(+\n\t\t\t\t\t\t\t(call abs (- mj (+ x (/ w 2))))\n\t\t\t\t\t\t\t(call abs (- mi (+ y (/ h 2))))\n\t\t\t\t\t\t)\n\t\t\t\t\t)\n\t\t\t\t)(then\n\t\t\t\t\t(set mi i)\n\t\t\t\t\t(set mj j)\n\t\t\t\t\t(set ms s)\n\t\t\t\t))))\n\t\t\t))\n\t\t))\n\t\t(if (<> mi -1) (then\n\t\t\t(let it (struct polyline) frags)\n\t\t\t(while (?? it) (do\n\t\t\t\t(set (get it tail) x mj)\n\t\t\t\t(set (get it tail) y mi)\n\t\t\t\t(set it (get it next))\n\t\t\t))\n\t\t))\n\t))))\n\t(return frags)\n)\n\n;; Trace skeleton from thinning result.\n;; Algorithm:\n;; 1. if chunk size is small enough, reach recursive bottom and turn it into segments\n;; 2. attempt to split the chunk into 2 smaller chunks, either horizontall or vertically;\n;;    find the best \"seam\" to carve along, and avoid possible degenerate cases\n;; 3. recurse on each chunk, and merge their segments\n;; \n;; @param x       left of   chunk\n;; @param y       top of    chunk\n;; @param w       width of  chunk\n;; @param h       height of chunk\n;; @param iter    current iteration\n;; @return        an array of polylines\n;; \n(func trace_skeleton\n\t(param im (arr int))\n\t(param W int)\n\t(param H int)\n\t(param x int)\n\t(param y int)\n\t(param w int)\n\t(param h int)\n\t(param iter int)\n\t(result (struct polyline))\n\n\t(let frags (struct polyline))\n\t(if (<= iter 0) (then ; gameover\n\t\t(return frags)\n\t))\n\t(if (&& (<= w CHUNK_SIZE) (<= h CHUNK_SIZE) ) (then ; recursive bottom\n\t\t(set frags (call chunk_to_frags im W H x y w h))\n\t\t(return frags)\n\t))\n\t(let ms int (+ W H)) ; number of white pixels on the seam, less the better\n\t(let mi int -1)      ; horizontal seam candidate\n\t(let mj int -1)      ; vertical   seam candidate\n\t(if (> h CHUNK_SIZE) (then  ; try splitting top and bottom\n\t\t(for i (+ y 3) (< i (+ y h -3)) 1 (do\n\t\t\t(if (||\n\t\t\t\t\t(get im (+ (*    i    W) x)) \n\t\t\t\t\t(get im (+ (* (- i 1) W) x))\n\t\t\t\t\t(get im (+ (*    i    W) x w -1))\n\t\t\t\t\t(get im (+ (* (- i 1) W) x w -1))\n\t\t\t)(then)(else\n\t\t\t\t(let s int 0)\n\t\t\t\t(for j x (< j (+ x w)) 1 (do\n\t\t\t\t\t(set s (+ s (get im (+ (*    i    W) j))))\n\t\t\t\t\t(set s (+ s (get im (+ (* (- i 1) W) j))))\n\t\t\t\t))\n\t\t\t\t(if (< s ms) (then\n\t\t\t\t\t(set ms s)\n\t\t\t\t\t(set mi i)\n\t\t\t\t)(else (if (&&\n\t\t\t\t\t(= s ms)\n\t\t\t\t\t(<\n\t\t\t\t\t\t(call abs (-  i (+ y (/ h 2))))\n\t\t\t\t\t\t(call abs (- mi (+ y (/ h 2))))\n\t\t\t\t\t)\n\t\t\t\t) (then\n\t\t\t\t; if there is a draw (very common), we want the seam to be near the middle\n\t\t\t\t; to balance the divide and conquer tree\n\t\t\t\t\t(set ms s)\n\t\t\t\t\t(set mi i)\n\t\t\t\t))))\n\t\t\t))\n\n\t\t))\n\t))\n\t(if (> w CHUNK_SIZE) (then ; same as above, try splitting left and right\n\t\t(for j (+ x 3) (< j (+ x w -3)) 1 (do\n\t\t\t(if (||\n\t\t\t\t\t(get im (+ (*    y    W)       j)) \n\t\t\t\t\t(get im (+ (* (+ y h) W) (- W) j))\n\t\t\t\t\t(get im (+ (*    y    W)       j -1))\n\t\t\t\t\t(get im (+ (* (+ y h) W) (- W) j -1))\n\t\t\t)(then)(else\n\t\t\t\t(let s int 0)\n\t\t\t\t(for i y (< i (+ y h)) 1 (do\n\t\t\t\t\t(set s (+ s (get im (+ (* i W) j))))\n\t\t\t\t\t(set s (+ s (get im (+ (* i W) j -1))))\n\t\t\t\t))\n\t\t\t\t(if (< s ms) (then\n\t\t\t\t\t(set ms s)\n\t\t\t\t\t(set mi -1) ; horizontal seam is defeated\n\t\t\t\t\t(set mj j)\n\t\t\t\t)(else (if (&&\n\t\t\t\t\t(= s ms)\n\t\t\t\t\t(<\n\t\t\t\t\t\t(call abs (-  j (+ x (/ w 2))))\n\t\t\t\t\t\t(call abs (- mj (+ x (/ w 2))))\n\t\t\t\t\t)\n\t\t\t\t) (then\n\t\t\t\t\t(set ms s)\n\t\t\t\t\t(set mi -1)\n\t\t\t\t\t(set mj j)\n\t\t\t\t))))\n\t\t\t))\n\n\t\t))\n\t))\n\t(let L0 int -1) (let L1 int) (let L2 int) (let L3 int)\n\t(let R0 int -1) (let R1 int) (let R2 int) (let R3 int)\n\t(let dr int  0)\n\t(let sx int)\n\t(if (&& (> h CHUNK_SIZE) (<> mi -1)) (then ; split top and bottom\n\t\t(set L0 x) (set L1 y ) (set L2 w) (set L3 (- mi y))\n\t\t(set R0 x) (set R1 mi) (set R2 w) (set R3 (+ y h (- mi)))\n\t\t(set dr @VERTICAL)\n\t\t(set sx mi)\n\t)(else (if (&& (> w CHUNK_SIZE) (<> mj -1)) (then ; split left and right\n\t\t(set L0 x ) (set L1 y) (set L2 (- mj x))       (set L3 h)\n\t\t(set R0 mj) (set R1 y) (set R2 (+ x w (- mj))) (set R3 h)\n\t\t(set dr @HORIZONTAL)\n\t\t(set sx mj)\n\t))))\n\t(if (&& (<> dr 0) (call not_empty im W H L0 L1 L2 L3)) (then\n\t\t(set frags (call trace_skeleton im W H L0 L1 L2 L3 (- iter 1)))\n\t))\n\t(if (&& (<> dr 0) (call not_empty im W H R0 R1 R2 R3)) (then\n\t\t(set frags (call merge_frags\n\t\t\tfrags\n\t\t\t(call trace_skeleton im W H R0 R1 R2 R3 (- iter 1))\n\t\t\tsx dr\n\t\t))\n\t))\n\t(if (&& (= mi -1) (= mj -1)) (then\n\t\t(set frags (call chunk_to_frags im W H x y w h))\n\t))\n\t(return frags)\n)\n\n\n(func print_bitmap\n\t(param im (arr int)) \n\t(param W int) \n\t(param H int) \n\t(for i 0 (< i H) 1 (do\n\t\t(local row str (alloc str \"\"))\n\t\t(for j 0 (< j W) 1 (do\n\t\t\t(<< row (? (get im (+ (* i W) j)) 'x' '.'))\n\t\t))\n\t\t(print row)\n\t))\n)\n\n\n(func polylines_to_svg \n\t(param q (struct polyline)) \n\t(param W int) (param H int) \n\t(result str)\n\n\t(let s str (alloc str \"<svg version=\\\"1.1\\\" xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"\"))\n\t(<< s (cast W str))\n\t(<< s \"\\\" height=\\\"\")\n\t(<< s (cast H str))\n\t(<< s \"\\\">\")\n\t(if (! (?? q)) (then\n\t\t(return s)\n\t))\n\t(let it (struct polyline) q)\n\t(while (?? it) (do\n\t\t(<< s \"<path d=\\\"\")\n\t\t(let jt (struct point) (get it head))\n\t\t(while (?? jt) (do\n\t\t\t(if (= jt (get it head))(then\n\t\t\t\t(<< s \"M\")\n\t\t\t)(else\n\t\t\t\t(<< s \"L\")\n\t\t\t))\n\t\t\t(<< s (cast (get jt x) str))\n\t\t\t(<< s \",\")\n\t\t\t(<< s (cast (get jt y) str))\n\t\t\t(<< s \" \")\n\t\t\t(set jt (get jt next))\n\t\t))\n\t\t(<< s \"\\\" fill=\\\"none\\\" stroke=\\\"black\\\"/>\")\n\t\t(set it (get it next))\n\t))\n\t(<< s \"</svg>\")\n\t(return s)\n)\n\n","turing.wax":";; Universal Turing Machine Simulation\n;; A wax feature demo\n\n; enums for shift directions\n(@define STAY  0)\n(@define LEFT  1)\n(@define RIGHT 2)\n\n; datastructure for the transition function\n(struct transition\n  \t(let q_curr int) ; current state\n  \t(let q_targ int) ; target state\n\t(let sym_r  int) ; read symbol\n  \t(let sym_w  int) ; write symbol\n  \t(let shift  int) ; shift direction\n)\n\n; datastructure for the turing machine\n; (map int int) is used to represent the tape,\n; mapping position to symbol, to simulate \"infinite\" length.\n; tmin/tmax are tape extremas for visualization\n(struct machine\n\t(let state int) ; current state\n\t(let head  int)\n\t(let tape  (map int int))\n\t(let tmin  int) ; leftmost  visited tape position\n\t(let tmax  int) ; rightmost visited tape position\n)\n\n; simulate the turing machine for 1 step.\n(func step\n\t(param M (struct machine))\n\t(param D (arr (struct transition)))\n\t(let tape (map int int) (get M tape))\n\n\t; check each transition function, to see if conditions apply\n\t(for i 0 (# D) 1 (do\n\n\t\t(if (&&\n\t\t\t(= (get M state)           (get D i q_curr))\n\t\t\t(= (get tape (get M head)) (get D i sym_r ))\n\t\t) (then\n\t\t\t; execute the transition\n\t\t\t(set tape  (get M head) (get D i sym_w ))\n\t\t\t(set M state            (get D i q_targ))\n\t\t\t(if (= (get D i shift) @LEFT) (then\n\t\t\t\t(set M head (- (get M head) 1))\n\t\t\t)(else(if (= (get D i shift) @RIGHT) (then\n\t\t\t\t(set M head (+ (get M head) 1))\n\t\t\t))))\n\t\t\t(break)\n\t\t))\n\t\t\n\t))\n\t; expand tape boundries if necessary\n\t(if (< (get M head) (get M tmin)) (then\n\t\t(set M tmin (get M head))\n\t))\n\t(if (> (get M head) (get M tmax)) (then\n\t\t(set M tmax (get M head))\n\t))\n)\n\n; visualize the current state of turing machine\n; by printing ASCII drawing in the terminal\n(func draw (param M (struct machine))\n\t(let s str (alloc str \"\"))\n\t(for i (get M tmin) (<= i (get M tmax)) 1 (do\n\t\t(<< s (? (= i (get M head )) (get M state) ' ') )\n\t\t(<< s (?      (get M tape i) '1'           '_') )\n\t\t(<< s \"  \")\n\t))\n\t(print s)\n)\n\n; main turing machine simulation routine\n(func turing\n\t(param D (arr (struct transition)))\n\t(param q0 int) ; initial state\n\t(param q1 int) ; halting state\n\n\t; initialize\n\t(local M (struct machine) (alloc (struct machine)))\n\t(local tape (map int int) (alloc (map int int)))\n\t(set M state q0)\n\t(set M tape tape)\n\n\t(call draw M)\n\t\n\t; simulate\n\t(while 1 (do\n\t\t(call step M D)\n\t\t(call draw M)\n\t\t(if (= (get M state) q1) (then\n\t\t\t(break)\n\t\t))\n\t))\n)\n\n; helper for defining a transition\n; (allocate struct, fill in info, push to array)\n(func defn\n\t(param D (arr (struct transition)))\n\t(param q_curr int)  (param q_targ int)\n\t(param sym_r  int)  (param sym_w  int)\n\t(param shift  int)\n\t\n\t(let d (struct transition) (alloc (struct transition)))\n\t(set d q_curr q_curr)\n\t(set d q_targ q_targ)\n\t(set d sym_r  sym_r )\n\t(set d sym_w  sym_w )\n\t(set d shift  shift )\n\t\n\t(insert D (# D) d)\n)\n\n;; end of turing machine implementation\n;; ============================================================\n;; start of turing machine examples\n\n\n; 3-state, 2-symbol busy beaver\n; https://rosettacode.org/wiki/Universal_Turing_machine\n(func beaver3\n\t(local D (arr (struct transition)) \n\t  (alloc (arr (struct transition))))\n\t\n\t(call defn D 'A' 'B' 0 1 @RIGHT)\n\t(call defn D 'A' 'C' 1 1 @LEFT )\n\t(call defn D 'B' 'A' 0 1 @LEFT )\n\t(call defn D 'B' 'B' 1 1 @RIGHT)\n\t(call defn D 'C' 'B' 0 1 @LEFT )\n\t(call defn D 'C' 'H' 1 1 @STAY )\n\t\n\t(call turing D 'A' 'H')\n\n\t(for i 0 (< i (# D)) 1 (do\n\t\t(free (get D i))\n\t))\n)\n\n; 4-state, 2-symbol busy beaver\n; https://en.wikipedia.org/wiki/Busy_beaver\n(func beaver4\n\t(local D (arr (struct transition)) \n\t  (alloc (arr (struct transition))))\n\t\n\t(call defn D 'A' 'B' 0 1 @RIGHT)\n\t(call defn D 'A' 'B' 1 1 @LEFT )\n\t(call defn D 'B' 'A' 0 1 @LEFT )\n\t(call defn D 'B' 'C' 1 0 @LEFT )\n\t(call defn D 'C' 'H' 0 1 @RIGHT)\n\t(call defn D 'C' 'D' 1 1 @LEFT )\n\t(call defn D 'D' 'D' 0 1 @RIGHT)\n\t(call defn D 'D' 'A' 1 0 @RIGHT)\n\t\n\t(call turing D 'A' 'H')\n\n\t(for i 0 (< i (# D)) 1 (do\n\t\t(free (get D i))\n\t))\t\n)\n\n; run a turing machine in the main function for demo\n(func main (result int)\n\t(call beaver4)\n\t(return 0)\t\n)\n\t","xmas.wax":";; \"The Twelve Days of Christmas\"\n;; A program that outputs the lyrics of the Christmas carol \n\n(func main (result int)\n\t(local ordinals (vec 12 str) (alloc (vec 12 str)\n\t\t\"first\"\n\t\t\"second\"\n\t\t\"third\"\n\t\t\"fourth\"\n\t\t\"fifth\"\n\t\t\"sixth\"\n\t\t\"seventh\"\n\t\t\"eighth\"\n\t\t\"ninth\"\n\t\t\"tenth\"\n\t\t\"eleventh\"\n\t\t\"twelveth\"\n\t))\n\n\t(local gifts (vec 12 str) (alloc (vec 12 str)\n\t\t\"A partridge in a pear tree.\"\n\t\t\"Two turtle doves, and\"\n\t\t\"Three French hens,\"\n\t\t\"Four calling birds,\"\n\t\t\"Five gold rings,\"\n\t\t\"Six geese a-laying,\"\n\t\t\"Seven swans a-swimming,\"\n\t\t\"Eight maids a-milking,\"\n\t\t\"Nine ladies dancing,\"\n\t\t\"Ten lords a-leaping,\"\n\t\t\"Eleven pipers piping,\"\n\t\t\"Twelve drummers drumming,\"\n\t))\n\n\t(for day 0 (< day 12) 1 (do\n\t\t(local lyrics str (alloc str \"\"))\n\t\t(<< lyrics \"On the \")\n\t\t(<< lyrics (get ordinals day))\n\t\t(<< lyrics \" day of Chirstmas, my true love sent to me: \")\n\t\t(print lyrics)\n\t\t(for i day (>= i 0) -1 (do\n\t\t\t(print (get gifts i))\n\t\t))\n\t\t(print \"\")\n\t))\n\n\t(return 0)\n)"}
+</script>
+<script>
+
+function main(){
+
+  CodeMirror.defineSimpleMode("wax", {
+    meta:{
+      lineComment: ';',
+      comment: ';',
+    },
+    start: [
+      {regex: /"(?:[^\\]|\\.)*?(?:"|$)/smi, token: "string"},
+      {regex: /(?:return|result|insert|remove|extern|param|local|while|alloc|slice|print|break|func|then|else|call|cast|free|null|get|set|let|for|asm|if|do)\b/,
+       token: "keyword"},
+      {regex: /(?:@include|@if|@define|@pragma)\b/,
+       token: "def"},
+      {regex: /(?:int|float|arr|vec|struct|map)\b/,
+       token: "type"},
+      {regex: /0x[a-f\d]+|[-+]?(?:\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?/i,
+       token: "number"},
+      {regex: /;.*/, token: "comment"},
+      {regex: /[-+\/*=<>!\?\&\|\^\%\~\#]+/, token: "keyword"},
+      {regex: /[\{\[\(]/, indent: true, token: "bracket"},
+      {regex: /[\}\]\)]/, dedent: true, token: "bracket"},
+      {regex: /[a-z$][\w$]*/, token: "variable-2"},
+    ],
+  });
+
+  var CML = CodeMirror(document.getElementById("cl"), {
+    lineNumbers:true,
+    matchBrackets: true,
+    theme:"dracula",
+    mode:  "wax",
+    indentWithTabs: true,
+    indentUnit: 4,
+    extraKeys:{
+      'Ctrl-/': 'toggleComment',
+      'Cmd-/': 'toggleComment'
+    }
+
+  });
+  window.CML = CML;
+
+  var CMR = CodeMirror(document.getElementById("cr"), {
+    lineNumbers:true,
+    matchBrackets: true,
+    theme:"dracula",
+    mode:  "javascript",
+    typescript:true,
+  });
+  window.CMR = CMR;
+
+  CML.setSize(null,null);
+  CMR.setSize(null,null);
+
+
+  
+
+  window.console_content = "";
+  window.print = console.log;
+  window.console.log = function(x){console_content+=x+"\n"}
+
+
+  var seltarg = document.getElementById("seltarg");
+  var selexam = document.getElementById("selexam");
+  var selreal = document.getElementById("selreal");
+  var butcomp = document.getElementById("butcomp");
+  var butrunc = document.getElementById("butrunc");
+
+  CML.on("change",function(e){
+    if (selreal.value == "yes"){
+      doCompile();
+    }
+  })
+
+  butcomp.onclick = function(){
+    doCompile();
+  }
+  butrunc.onclick = function(){
+    doRun();
+  }
+
+  selexam.onchange = function(){
+    CML.setValue(examples[selexam.value]);
+    doCompile();
+  }
+
+  selexam.value = "turing.wax";
+  selexam.onchange();
+
+  seltarg.onchange = function(){
+    doCompile();
+  }
+
+  function doCompile(){
+    if (window.transpile){
+      var out;
+      var targ = seltarg.value;
+      var mode = ({
+          "ts":"javascript",
+          "c":"text/x-csrc",
+          "java":"text/x-java",
+          "ast":"text",
+        })[targ];
+      // print(mode);
+      try{
+        out = transpile(targ,selexam.value,CML.getValue(),0);
+        CMR.setOption("mode", mode);
+        CMR.setOption("lineWrapping",false);
+      }catch(e){
+        out = console_content;
+        CMR.setOption("mode", "text");
+        CMR.setOption("lineWrapping",true);
+      }
+      console_content = "";
+      CMR.setValue(out);
+    }else{
+      setTimeout(doCompile,1000);
+    }
+  }
+
+  function doRun(){
+    if (window.transpile){
+      var tsCode = transpile('ts',selexam.value,CML.getValue(),0);
+      var jsCode = window.ts.transpile(tsCode);
+      console_content = "";
+      eval(jsCode);
+      CMR.setOption("mode", "text");
+      CMR.setOption("lineWrapping",false);
+      CMR.setValue(console_content);
+
+    }else{
+      setTimeout(doRun,1000);
+    }
+  }
+
+  WAXC().then(function(waxc){
+    window.transpile = waxc.cwrap('transpile', 'string', ['string','string','string','number'])
+  })
+
+}
+main();
+</script>

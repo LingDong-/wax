@@ -1,0 +1,155 @@
+;; lines.wax
+;; rasterize lines using simple line algorithm
+
+(@include math)
+
+;; datastructure for storing an image
+(struct image
+	(let data (arr int))
+	(let w int) ; width
+	(let h int) ; height
+)
+
+;; initialize an image full of zeros
+(func zeros (param w int) (param h int) 
+	(result (struct image))
+	
+	(let data (arr int) (alloc (arr int)))
+	(let im (struct image) (alloc (struct image)))
+	(for i 0 (< i (* w h)) 1 (do
+		(insert data (# data) 0)
+	))
+	(set im data data)
+	(set im w w)
+	(set im h h)
+	(return im)
+)
+
+;; read value of a pixel
+(func getpixel 
+	(param im (struct image))
+	(param x int) (param y int)
+	(result int)
+	(if (||   ; boundary check
+		(<  x 0) (< y 0)
+		(>= x (get im w))
+		(>= y (get im h))
+	)(then
+		(return 0)
+	))
+	(return 
+		(get im data (+ (* y (get im w)) x))
+	)
+)
+
+;; write value to a pixel
+(func setpixel 
+	(param im (struct image))
+	(param x int) (param y int) (param v int)
+	(if (||   ; boundary check
+		(<  x 0) (< y 0)
+		(>= x (get im w))
+		(>= y (get im h))
+	)(then
+		(return)
+	))
+	(set (get im data)
+		(+ (* y (get im w)) x)
+		v
+	)
+)
+
+;; helper for line drawing algorithm
+;; compute x/y from y/x using slope
+(func linestep
+	(param sx0 int) (param sx1 int)
+	(param sy0 int) (param sy1 int)
+	(param x int)
+	(result int)
+	(if (= sx0 sx1) (then
+		(return sy1)
+	))
+	(return (cast (call round
+		(+ sy0 (*
+			(- x sx0)
+			(/ (- sy1 sy0) (cast (- sx1 sx0) float) )
+		))
+	) int))
+)
+
+;; raster line drawing algorithm
+(func line 
+	(param im (struct image))
+	(param x0 float) (param y0 float) ; start pos
+	(param x1 float) (param y1 float) ; end pos
+	(param v int) ;color
+	 
+	(let sx0 int (call round x0))
+	(let sy0 int (call round y0))
+	(let sx1 int (call round x1))
+	(let sy1 int (call round y1))
+	
+	(let dx int (? (> sx1 sx0) 1 -1)) ; x increment
+	(let dy int (? (> sy1 sy0) 1 -1)) ; y increment
+	
+	(if (>=
+		(call abs (- sx0 sx1))
+		(call abs (- sy0 sy1))
+	)(then ; slope < 1 ?
+		(let x int sx0)
+		(while (<> x (+ sx1 dx)) (do
+			(let y int (call linestep sx0 sx1 sy0 sy1 x))
+			(call setpixel im x y v)
+			(set x (+ x dx))
+		))
+	)(else
+		(let y int sy0)
+		(while (<> y (+ sy1 dy)) (do
+			(let x int (call linestep sy0 sy1 sx0 sx1 y))
+			(call setpixel im x y v)
+			(set y (+ y dy))
+		))
+	))
+)
+
+;; visualize the image with ASCII drawing in terminal
+(func imshow (param im (struct image))
+	(local s str (alloc str "+"))
+	(for j 0 (< j (get im w)) 1 (do (<< s "-")))
+	(<< s "+\n")
+	(for i 0 (< i (get im h)) 1 (do
+		(<< s "|")
+		(for j 0 (< j (get im w)) 1 (do
+			(<< s (+ (call getpixel im j i) 32))
+		))
+		(<< s "|\n")
+	))
+	(<< s "+")
+	(for j 0 (< j (get im w)) 1 (do (<< s "-")))
+	(<< s "+")
+	(print s)
+)
+
+;; free allocated image
+(func dispose (param im (struct image))
+	(free (get im data))
+	(free im)
+)
+
+(func main (result int)
+	(let im (struct image) (call zeros 60 30))
+	
+	;; generate some random lines to draw
+	(for i 0 (< i 7) 1 (do
+		(let x0 float (* (call random) (get im w)))
+		(let y0 float (* (call random) (get im h)))
+		(let x1 float (* (call random) (get im w)))
+		(let y1 float (* (call random) (get im h)))
+		(let v int (+ i 1))
+		(call line im x0 y0 x1 y1 v)
+	))
+	
+	(call imshow im)
+	(call dispose im)
+	(return 0)
+)
