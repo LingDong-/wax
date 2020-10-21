@@ -38,7 +38,7 @@ str_t zero_to_ts(type_t* typ){
   if (typ->tag == TYP_INT){
     str_add(&out,"0");
   }else if (typ->tag == TYP_FLT){
-    str_add(&out,"0.0f");
+    str_add(&out,"0.0");
   }else if (typ->tag == TYP_STT){
     str_add(&out,"(null as any)");
   }else if (typ->tag == TYP_ARR){

@@ -1,4 +1,4 @@
-;; lines.wax
+;; line.wax
 ;; rasterize lines using simple line algorithm
 
 (@include math)
