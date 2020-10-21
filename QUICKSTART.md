@@ -743,6 +743,14 @@ Then in your code, you can write:
 (call sin 3.14)
 ```
 
+(This is exactly how `(@include math)` is implemented: the functions get mapped to the math library of the target language with `extern`s)
+
+You can also have extern variables in addition to functions:
+
+```scheme
+(extern PI float)
+```
+
 ## Inline "Assembly"
 
 You can embed fragments of the target language into wax, similar to embedding assembly in C, using the `(asm "...")` expression. For example:
