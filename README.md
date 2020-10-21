@@ -93,7 +93,7 @@ There're many more examples, check them out [here](./examples) or on the [online
 - syntax is simple: an expression is always a list of tokens enclosed in parenthesis `()`, and the first token is always a keyword/operator. There're 50 keywords in total.
 - wax does not support OOP (meaning that you get `struct`s to pack data together, but you cannot blend methods into structs), nor does it support functional programming.
 - wax does not have a boolean: zero is false, non-zero is true.
-- wax is not garbage-collected. However, it does have constructs to facilitate memory management and make leaky bugs less likely. On compile targets that do support garbage collection (e.g. Java, JS), explicit freeing of resources is not required, and theoretically you can ignore memory management altogether if you intend to compile to these targets only. Check out the Memory Management section for details.
+- wax is not garbage-collected. However, it does have constructs to facilitate memory management and make leaky bugs less likely. On compile targets that do support garbage collection (e.g. Java, JS), explicit freeing of resources is not required, and theoretically you can ignore memory management altogether if you intend to compile to these targets only. Check out the [Array/Vector/Struct sections in Quickstart](https://github.com/LingDong-/wax/blob/main/QUICKSTART.md#arrays-and-vectors) for details.
 
 ## The Compiler
 
