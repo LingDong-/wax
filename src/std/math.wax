@@ -22,5 +22,5 @@
 (extern fmin   (param x float) (param y float) (result float))
 (extern abs    (param x int) (result int))
 (extern random (result float))
-(extern inf    (result float))
+(extern INFINITY float)
 

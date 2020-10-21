@@ -1917,6 +1917,12 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
     ex0->type = typ;      
 
   }else if (str_eq(&expr->rawkey,"func")){
+
+    if (expr->children.len < 1){
+      printerr("syntax")("line %d: 'func' must at least have a name.\n",expr->lino);
+      goto crash;
+    }
+
     expr_t* ex0 = (expr_t*)((expr->children).head->data);
     expr->key = EXPR_FUNC;
     expr->type = prim_type(TYP_VOD);
@@ -2023,6 +2029,11 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
   }else if (str_eq(&expr->rawkey,"extern")){
     
+    if (expr->children.len < 1){
+      printerr("syntax")("line %d: 'extern' must at least have a name.\n",expr->lino);
+      goto crash;
+    }
+
     expr_t* ex0 = (expr_t*)((expr->children).head->data);
     expr->key = EXPR_EXTERN;
     expr->type = prim_type(TYP_VOD);
@@ -2033,67 +2044,76 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
       goto crash;
     }
 
-    func_t* func = (func_t*)mallocx(sizeof(func_t));
-    func->name = ((tok_t*)ex0->term)->val;
-    func->params = list_new();
 
-    map_add(functable,func->name,func);
+    if (expr->children.len == 2 && ((expr_t*)((expr->children).head->next->data))->key == EXPR_TYPE){
+      
+      map_add(&tree->symtable, ((tok_t*)ex0->term)->val, sym_new(((tok_t*)ex0->term)->val, *(type_t*)(((expr_t*)((expr->children).head->next->data))->term), 0));
 
-    list_node_t* jt = ((expr->children).head->next);
-    while (jt){
-      expr_t* ex = (expr_t*)(jt->data);
-      if (!str_eq(&ex->rawkey,"param")){
-        break;
-      }
-      if (ex->children.len != 2){
-        printerr("syntax")("line %d: 'param' keyword takes exactly 2 params (param name type).\n",ex0->lino);
-        goto crash;
-      }
-      expr_t* e0 = (expr_t*)(ex->children.head->data);
-      expr_t* e1 = (expr_t*)(ex->children.head->next->data);
-      if (e0->key != EXPR_TERM || ((tok_t*)e0->term)->tag != TOK_IDT ){
-        printerr("syntax")("line %d: invalid param name.\n",e0->lino);
-        goto crash;
-      }
-      if (e1->key != EXPR_TYPE){
-        printerr("syntax")("line %d: invalid param type.\n",e1->lino);
-        goto crash;
-      }
-      str_t pname = ((tok_t*)e0->term)->val;
-      type_t* ptyp = ((type_t*)e1->term);
 
-      list_add(&func->params,sym_new(pname,*ptyp ,0));
-      e0->type = ptyp;
-      ex->type = prim_type(TYP_VOD);
-      ex->key = EXPR_PARAM;
-
-      map_add(&expr->symtable, pname, sym_new(pname, *ptyp ,0));
-
-      jt = jt->next;
-    }
-    expr_t* ex = (expr_t*)(jt->data);
-    if (str_eq(&ex->rawkey,"result")){
-      if (ex->children.len != 1){
-        printerr("syntax")("line %d: 'result' keyword takes exactly 1 param (result type).\n",ex0->lino);
-        goto crash;
-      }
-      expr_t* e0 = (expr_t*)(ex->children.head->data);
-      if (e0->key != EXPR_TYPE){
-        printerr("syntax")("line %d: invalid result type.\n",e0->lino);
-        goto crash;
-      }
-      type_t* rtyp = ((type_t*)e0->term);
-
-      e0->type = rtyp;
-      ex->type = prim_type(TYP_VOD);
-      ex->key = EXPR_RESULT;
-      func->result = rtyp;
-      jt = jt->next;
     }else{
-      func->result = prim_type(TYP_VOD);
-    }
-    
+      
 
+      func_t* func = (func_t*)mallocx(sizeof(func_t));
+      func->name = ((tok_t*)ex0->term)->val;
+      func->params = list_new();
+
+      map_add(functable,func->name,func);
+
+      list_node_t* jt = ((expr->children).head->next);
+      while (jt){
+        expr_t* ex = (expr_t*)(jt->data);
+        if (!str_eq(&ex->rawkey,"param")){
+          break;
+        }
+        if (ex->children.len != 2){
+          printerr("syntax")("line %d: 'param' keyword takes exactly 2 params (param name type).\n",ex0->lino);
+          goto crash;
+        }
+        expr_t* e0 = (expr_t*)(ex->children.head->data);
+        expr_t* e1 = (expr_t*)(ex->children.head->next->data);
+        if (e0->key != EXPR_TERM || ((tok_t*)e0->term)->tag != TOK_IDT ){
+          printerr("syntax")("line %d: invalid param name.\n",e0->lino);
+          goto crash;
+        }
+        if (e1->key != EXPR_TYPE){
+          printerr("syntax")("line %d: invalid param type.\n",e1->lino);
+          goto crash;
+        }
+        str_t pname = ((tok_t*)e0->term)->val;
+        type_t* ptyp = ((type_t*)e1->term);
+
+        list_add(&func->params,sym_new(pname,*ptyp ,0));
+        e0->type = ptyp;
+        ex->type = prim_type(TYP_VOD);
+        ex->key = EXPR_PARAM;
+
+        map_add(&expr->symtable, pname, sym_new(pname, *ptyp ,0));
+
+        jt = jt->next;
+      }
+      expr_t* ex = (expr_t*)(jt->data);
+      if (str_eq(&ex->rawkey,"result")){
+        if (ex->children.len != 1){
+          printerr("syntax")("line %d: 'result' keyword takes exactly 1 param (result type).\n",ex0->lino);
+          goto crash;
+        }
+        expr_t* e0 = (expr_t*)(ex->children.head->data);
+        if (e0->key != EXPR_TYPE){
+          printerr("syntax")("line %d: invalid result type.\n",e0->lino);
+          goto crash;
+        }
+        type_t* rtyp = ((type_t*)e0->term);
+
+        e0->type = rtyp;
+        ex->type = prim_type(TYP_VOD);
+        ex->key = EXPR_RESULT;
+        func->result = rtyp;
+        jt = jt->next;
+      }else{
+        func->result = prim_type(TYP_VOD);
+      }
+      
+    }
 
   }else if (str_eq(&expr->rawkey,"=") || str_eq(&expr->rawkey,"<>")){
     if ((expr->children).len != 2){

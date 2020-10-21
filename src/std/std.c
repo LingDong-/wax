@@ -353,7 +353,6 @@ void w_free_map(w_map_t* map){
   free(map);
 }
 
-#define inf() HUGE_VAL
 #define random() ((float)rand()/RAND_MAX)
 
 #endif

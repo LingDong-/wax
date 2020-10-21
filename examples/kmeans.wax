@@ -108,7 +108,7 @@
 		
 		; find closest cluster center to attach the point
 		(for i 0 (< i (# pts)) 1 (do
-			(let dstmin float (call inf))
+			(let dstmin float INFINITY)
 			(let argmin int 0) 
 			(for j 0 (< j n_clusters) 1 (do
 				(let d float (call dist_sq

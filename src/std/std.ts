@@ -17,7 +17,7 @@ const pow   = Math.pow   ;
 const abs   = Math.abs   ;
 const round = Math.round ;
 const random= Math.random;
-const inf   = ()=>Infinity;
+const INFINITY = Infinity;
 // @ts-ignore
 const sinh  = Math.sinh ;
 // @ts-ignore

@@ -533,9 +533,16 @@ str_t expr_to_java(expr_t* expr, int indent){
       }
     }
   }else if (expr->key == EXPR_FREE){
-    str_add(&out,"/*GC*/");
-    str_add(&out, expr_to_java(CHILD1,-1).data);
-    str_add(&out,"=null");
+    if (CHILD1->key == EXPR_TERM){
+      str_add(&out,"/*GC*/");
+      str_add(&out, expr_to_java(CHILD1,-1).data);
+      str_add(&out,"=null");
+    }else{
+      //too complex, don't handle
+      str_add(&out,"/*GC `");
+      str_add(&out, expr_to_java(CHILD1,-1).data);
+      str_add(&out,"=null`*/");
+    }
 
   }else if (expr->key == EXPR_STRUCTGET){
     str_add(&out,"((");
@@ -759,9 +766,9 @@ str_t tree_to_java(str_t modname, expr_t* tree, map_t* functable, map_t* stttabl
   str_addconst(&out,TEXT_std_java);
   if (included_lookup("math",included)){
     str_add(&out,"\npublic static float fabs(float x){return Math.abs(x);}\n");
-    str_add(&out,"\npublic static float inf(){return Float.POSITIVE_INFINITY;}\n");
     str_add(&out,"\npublic static float fmin(float x, float y){return Math.min(x,y);}\n");
     str_add(&out,"\npublic static float fmax(float x, float y){return Math.max(x,y);}\n");
+    str_add(&out,"\npublic static final float INFINITY = Float.POSITIVE_INFINITY;\n");
   }
   str_add(&out,"/*=== WAX Standard Library END   ===*/\n\n");
   str_add(&out,"/*=== User Code            BEGIN ===*/\n");

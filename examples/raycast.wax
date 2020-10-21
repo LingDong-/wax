@@ -11,9 +11,9 @@
 (@include math)
 
 ;; dimension of camera
-(@define W 80)
-(@define H 40)
-(@define WxH 3840)
+(@define W      80)
+(@define H      40)
+(@define WxH  3840)
 (@define FOCAL 100)
 
 ;; datastructure for a ray
@@ -26,8 +26,8 @@
 
 ;; datastructure for a mesh
 (struct mesh
-	(let vertices (arr (vec 3 float)))  ; 3d coordinates
-	(let faces (arr (vec 3 int)))       ; winding
+	(let vertices  (arr (vec 3 float)))  ; 3d coordinates
+	(let faces     (arr (vec 3 int  )))  ; winding
 	(let facenorms (arr (vec 3 float)))
 )
 
@@ -37,7 +37,7 @@
 (func v_sub 
 	(param u (vec 3 float))
 	(param v (vec 3 float))
-	(result (vec 3 float))
+	(result  (vec 3 float))
 
 	(return (alloc (vec 3 float)
 		(- (get u 0) (get v 0))
@@ -50,7 +50,7 @@
 (func v_cross
 	(param u (vec 3 float))
 	(param v (vec 3 float))
-	(result (vec 3 float))
+	(result  (vec 3 float))
 	(return (alloc (vec 3 float)
 		(-
 			(* (get u 1) (get v 2))
@@ -135,7 +135,7 @@
 	(param dx float) (param dy float) (param dz float)
 	(result (struct ray))
 	
-	(let r (struct ray) (alloc (struct ray)))
+	(let r (struct ray)  (alloc (struct ray)))
 	(let o (vec 3 float) (alloc (vec 3 float)
 		ox oy oz
 	))
@@ -146,7 +146,7 @@
 	(set r o o)
 	(set r d d)
 	(set r tmin 0.0)
-	(set r tmax (call inf))
+	(set r tmax INFINITY)
 	(return r)
 )
 
@@ -169,13 +169,13 @@
 	(local e1 (vec 3 float) (call v_sub p1 p0))
 	(local e2 (vec 3 float) (call v_sub p2 p0))
 	
-	(local s  (vec 3 float) (call v_sub (get r o) p0))
+	(local s  (vec 3 float) (call v_sub   (get r o) p0))
 	(local _d (vec 3 float) (call v_scale (get r d) -1))
 	
 	(let denom float (call det e1 e2 _d))
 	
 	(if (= denom 0) (then
-		(return (call inf))
+		(return INFINITY)
 	))
 	
 	(let u float (/ (call det s e2 _d) denom))
@@ -188,7 +188,7 @@
 		(< (- 1 (+ u v)) 0)
 		(< t (get r tmin)) (> t (get r tmax))) (then
 
-		(return (call inf))	
+		(return INFINITY)	
 	))
 	
 	(set r tmax t)
@@ -204,7 +204,7 @@
 	(param l (vec 3 float))
 	(result float)
 
-	(let dstmin float (call inf))
+	(let dstmin float INFINITY)
 	(let argmin int -1)
 	(for i 0 (< i (# (get m faces))) 1 (do
 		(let a (vec 3 float) (get m vertices (get m faces i 0)))
@@ -216,7 +216,7 @@
 			(set argmin i)
 		))
 	))
-	(if (|| (< argmin -1) (= dstmin (call inf))) (then
+	(if (|| (< argmin -1) (= dstmin INFINITY)) (then
 		(return 0.0)
 	))
 	
@@ -249,8 +249,8 @@
 	
 	(insert (get m faces) (# (get m faces))
 		; hacks specific to .obj files:
-		; -1 because in .obj format index start at 1
-		; (a,c,b) because some .obj's winds the wrong way
+		; -1 because in .obj format index starts at 1
+		; (a,c,b) because some .obj's wind the wrong way
 		(alloc (vec 3 int) (- a 1) (- c 1) (- b 1))
 	)
 )
@@ -305,7 +305,7 @@
 	(call normalize light)
 	
 	(let palette str "`.-,_:^!~;r+|()=>l?icv[]tzj7*f{}sYTJ1unyIFowe2h3Za4X%5P$mGAUbpK960#H&DRQ80WMB@N")
-	(let lo float (call inf))
+	(let lo float INFINITY)
 	(let hi float 0)
 	(for y 0 (< y @H) 1 (do
 		(for x 0 (< x @W) 1 (do
@@ -350,9 +350,9 @@
 	(result (struct mesh))
 	
 	(let m (struct mesh) (alloc (struct mesh)))
-	(set m vertices (alloc (arr (vec 3 float))))
-	(set m faces (alloc (arr (vec 3 int))))
-	(set m facenorms (alloc (arr (vec 3 float))))
+	(set m vertices      (alloc (arr (vec 3 float))))
+	(set m faces         (alloc (arr (vec 3 int))))
+	(set m facenorms     (alloc (arr (vec 3 float))))
 		
 	(call add_vert m -0.436466 -0.668835 0.601794)
 	(call add_vert m 0.918378 0.351401 -0.181931)
@@ -376,16 +376,16 @@
 	(call add_vert m -0.730785 -0.468323 -0.496615)
 
 	(call add_face m 19  3  2)  (call add_face m 12  19  2) (call add_face m 15  12  2) 
-	(call add_face m 8  14  2)  (call add_face m 18  8  2) (call add_face m 3  18  2)
+	(call add_face m 8  14  2)  (call add_face m 18  8  2)  (call add_face m 3  18  2)
 	(call add_face m 20  5  4)  (call add_face m 9  20  4)  (call add_face m 16  9  4)  
 	(call add_face m 13  17  4) (call add_face m 1  13  4)  (call add_face m 5  1  4)
-	(call add_face m 7  16  4)  (call add_face m 6  7  4)  (call add_face m 17  6  4)  
+	(call add_face m 7  16  4)  (call add_face m 6  7  4)   (call add_face m 17  6  4)  
 	(call add_face m 6  15  2)  (call add_face m 7  6  2)   (call add_face m 14  7  2)
 	(call add_face m 10  18  3) (call add_face m 11  10  3) (call add_face m 19  11  3) 
 	(call add_face m 11  1  5)  (call add_face m 10  11  5) (call add_face m 20  10  5)
 	(call add_face m 20  9  8)  (call add_face m 10  20  8) (call add_face m 18  10  8) 
-	(call add_face m 9  16  7) (call add_face m 8  9  7)   (call add_face m 14  8  7)
-	(call add_face m 12  15  6) (call add_face m 13  12  6)(call add_face m 17  13  6) 
+	(call add_face m 9  16  7)  (call add_face m 8  9  7)   (call add_face m 14  8  7)
+	(call add_face m 12  15  6) (call add_face m 13  12  6) (call add_face m 17  13  6) 
 	(call add_face m 13  1  11) (call add_face m 12  13  11)(call add_face m 19  12  11)
 
 	(call calc_facenorms m)
