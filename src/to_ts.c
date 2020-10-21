@@ -414,7 +414,7 @@ str_t expr_to_ts(expr_t* expr, int indent){
         sprintf(s,"%d",typ->size);
         str_add(&out,"(new Array(");
         str_add(&out,s);
-        str_add(&out,").fill(0))");
+        str_add(&out,")['fill'](0))");
       }else{
         str_add(&out,"[");
         list_node_t* it = expr->children.head->next;

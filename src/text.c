@@ -68,6 +68,8 @@ const char* TEXT_std_ts = "const acos  = Math.acos  ;\n"
 "const ceil  = Math.ceil  ;\n"
 "const floor = Math.floor ;\n"
 "const fabs  = Math.abs   ;\n"
+"const fmin  = Math.min   ;\n"
+"const fmax  = Math.max   ;\n"
 "const atan2 = Math.atan2 ;\n"
 "const pow   = Math.pow   ;\n"
 "const abs   = Math.abs   ;\n"
@@ -80,6 +82,6 @@ const char* TEXT_std_ts = "const acos  = Math.acos  ;\n"
 "const cosh  = Math.cosh ;\n"
 "// @ts-ignore\n"
 "const tanh  = Math.tanh ;\n";
-const char* TEXT_math_wax = "(@pragma once)  (extern acos   (param x float) (result float)) (extern asin   (param x float) (result float)) (extern atan   (param x float) (result float)) (extern cos    (param x float) (result float)) (extern cosh   (param x float) (result float)) (extern sin    (param x float) (result float)) (extern sinh   (param x float) (result float)) (extern tan    (param x float) (result float)) (extern tanh   (param x float) (result float)) (extern exp    (param x float) (result float)) (extern log    (param x float) (result float)) (extern sqrt   (param x float) (result float)) (extern ceil   (param x float) (result float)) (extern floor  (param x float) (result float)) (extern fabs   (param x float) (result float)) (extern round  (param x float) (result float)) (extern atan2  (param x float) (param y float) (result float)) (extern pow    (param x float) (param y float) (result float)) (extern abs    (param x int) (result int)) (extern random (result float)) (extern inf    (result float))\n";
+const char* TEXT_math_wax = "(@pragma once)  (extern acos   (param x float) (result float)) (extern asin   (param x float) (result float)) (extern atan   (param x float) (result float)) (extern cos    (param x float) (result float)) (extern cosh   (param x float) (result float)) (extern sin    (param x float) (result float)) (extern sinh   (param x float) (result float)) (extern tan    (param x float) (result float)) (extern tanh   (param x float) (result float)) (extern exp    (param x float) (result float)) (extern log    (param x float) (result float)) (extern sqrt   (param x float) (result float)) (extern ceil   (param x float) (result float)) (extern floor  (param x float) (result float)) (extern fabs   (param x float) (result float)) (extern round  (param x float) (result float)) (extern atan2  (param x float) (param y float) (result float)) (extern pow    (param x float) (param y float) (result float)) (extern fmax   (param x float) (param y float) (result float)) (extern fmin   (param x float) (param y float) (result float)) (extern abs    (param x int) (result int)) (extern random (result float)) (extern inf    (result float))\n";
 
 #endif

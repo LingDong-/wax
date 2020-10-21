@@ -18,6 +18,8 @@
 (extern round  (param x float) (result float))
 (extern atan2  (param x float) (param y float) (result float))
 (extern pow    (param x float) (param y float) (result float))
+(extern fmax   (param x float) (param y float) (result float))
+(extern fmin   (param x float) (param y float) (result float))
 (extern abs    (param x int) (result int))
 (extern random (result float))
 (extern inf    (result float))

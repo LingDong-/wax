@@ -335,6 +335,10 @@ str_t expr_to_java(expr_t* expr, int indent){
     if (str_eq(&funcname,"main")){
       funcname = str_from("main_",5);
     }
+    if (expr->type->tag == TYP_FLT){
+      //fuck double
+      (str_add(&out, "(float)"));
+    }
     str_add(&out, funcname.data);
     str_add(&out, "(");
     list_node_t* it = expr->children.head->next;
@@ -755,7 +759,9 @@ str_t tree_to_java(str_t modname, expr_t* tree, map_t* functable, map_t* stttabl
   str_addconst(&out,TEXT_std_java);
   if (included_lookup("math",included)){
     str_add(&out,"\npublic static float fabs(float x){return Math.abs(x);}\n");
-    str_add(&out,"\npublic static float random(){return (float)Math.random();}\n");
+    str_add(&out,"\npublic static float inf(){return Float.POSITIVE_INFINITY;}\n");
+    str_add(&out,"\npublic static float fmin(float x, float y){return Math.min(x,y);}\n");
+    str_add(&out,"\npublic static float fmax(float x, float y){return Math.max(x,y);}\n");
   }
   str_add(&out,"/*=== WAX Standard Library END   ===*/\n\n");
   str_add(&out,"/*=== User Code            BEGIN ===*/\n");
