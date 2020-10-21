@@ -705,6 +705,13 @@ The content of the included file gets dumped into exactly where this `@include` 
 (@pragma once)
 ```
 
+To include a standard library, include its name without quotes:
+
+```scheme
+(@include math)
+```
+
+
 ### Target-specific behaviors
 
 These macros are pre-defined to be `1` when the wax compiler is asked to compile to a specific language, so the user can specify different behavior for different languages:

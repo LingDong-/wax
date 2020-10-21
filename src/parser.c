@@ -2091,24 +2091,28 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
         jt = jt->next;
       }
-      expr_t* ex = (expr_t*)(jt->data);
-      if (str_eq(&ex->rawkey,"result")){
-        if (ex->children.len != 1){
-          printerr("syntax")("line %d: 'result' keyword takes exactly 1 param (result type).\n",ex0->lino);
-          goto crash;
-        }
-        expr_t* e0 = (expr_t*)(ex->children.head->data);
-        if (e0->key != EXPR_TYPE){
-          printerr("syntax")("line %d: invalid result type.\n",e0->lino);
-          goto crash;
-        }
-        type_t* rtyp = ((type_t*)e0->term);
+      if (jt){
+        expr_t* ex = (expr_t*)(jt->data);
+        if (str_eq(&ex->rawkey,"result")){
+          if (ex->children.len != 1){
+            printerr("syntax")("line %d: 'result' keyword takes exactly 1 param (result type).\n",ex0->lino);
+            goto crash;
+          }
+          expr_t* e0 = (expr_t*)(ex->children.head->data);
+          if (e0->key != EXPR_TYPE){
+            printerr("syntax")("line %d: invalid result type.\n",e0->lino);
+            goto crash;
+          }
+          type_t* rtyp = ((type_t*)e0->term);
 
-        e0->type = rtyp;
-        ex->type = prim_type(TYP_VOD);
-        ex->key = EXPR_RESULT;
-        func->result = rtyp;
-        jt = jt->next;
+          e0->type = rtyp;
+          ex->type = prim_type(TYP_VOD);
+          ex->key = EXPR_RESULT;
+          func->result = rtyp;
+          jt = jt->next;
+        }else{
+          func->result = prim_type(TYP_VOD);
+        }
       }else{
         func->result = prim_type(TYP_VOD);
       }
