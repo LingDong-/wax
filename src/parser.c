@@ -2113,7 +2113,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
     int ptrver;
     if (str_eq(&expr->rawkey,"=")){
       intver = EXPR_IEQ; 
-      fltver = EXPR_FSUB;
+      fltver = EXPR_FEQ;
       strver = EXPR_STREQL;
       ptrver = EXPR_PTREQL;
     }else{
