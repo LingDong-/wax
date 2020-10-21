@@ -11,7 +11,7 @@ The goal of wax is to be a "common subset" of most major imperative programming 
 
 - Readable: The output code looks just like the input code.
 - Editable: A human programmer should be able to work from the output even if the original wax source is unavailable.
-- Integratabtle: The output code can be imported as libraries to use with the rest of the target language (in addition to just being runnable alone).
+- Integrable: The output code can be imported as libraries to use with the rest of the target language (in addition to just being runnable alone).
 
 These of course, from the programmers' perspective, come at the cost of losing some of the interesting features offered by other languages. Nevertheless, wax retains the crucial bits for a programming language to be productive.
 
