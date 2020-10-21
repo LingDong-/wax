@@ -10,8 +10,8 @@
 The goal of wax is to be a "common subset" of most major imperative programming languages. By lacking the unique fancy features in each of these languages and being as boring as possible, wax transpiles to all of them seamlessly, producing outputs that are:
 
 - Readable: The output code looks just like the input code.
-- Editable: A human programmer should be able to work from the output even if the orignal wax source is unavailable.
-- Integratable: The output code can be imported as libraries to use with the rest of the target language (in addition to just being runnable alone).
+- Editable: A human programmer should be able to work from the output even if the original wax source is unavailable.
+- Integratabtle: The output code can be imported as libraries to use with the rest of the target language (in addition to just being runnable alone).
 
 These of course, from the programmers' perspective, come at the cost of losing some of the interesting features offered by other languages. Nevertheless, wax retains the crucial bits for a programming language to be productive.
 
@@ -90,10 +90,10 @@ There're many more examples, check them out [here](./examples) or on the [online
 - wax is strongly statically typed.
 - wax has built-in support for arrays, hashtables and structs.
 - wax supports C-like macros, allowing specifying different behavior/branches for each compile target, as well as embedding target code directly.
-- syntax is simple: an expression is always a list of tokens encolsed in parenthesis `()`, and the first token is always a keyword/operator. There're 50 keywords in total.
-- wax does not support OOP or functional programming.
+- syntax is simple: an expression is always a list of tokens enclosed in parenthesis `()`, and the first token is always a keyword/operator. There're 50 keywords in total.
+- wax does not support OOP (meaning that you get `struct`s to pack data together, but you cannot blend methods into structs), nor does it support functional programming.
 - wax does not have a boolean: zero is false, non-zero is true.
-- wax is not garbage-collected. However, it does have constructs to facilitate memory management and make leaky bugs less likely. On compile targets that do support garbage collection (e.g. Java, JS), explicit freeing of resources is not required, and theoratically you can ignore memory management altogether if you intend to compile to these targets only. Check out the Memory Management section for details.
+- wax is not garbage-collected. However, it does have constructs to facilitate memory management and make leaky bugs less likely. On compile targets that do support garbage collection (e.g. Java, JS), explicit freeing of resources is not required, and theoretically you can ignore memory management altogether if you intend to compile to these targets only. Check out the Memory Management section for details.
 
 ## The Compiler
 

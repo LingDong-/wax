@@ -46,9 +46,9 @@ An array of 3D vectors:
 
 Variables default to the zero value of their type when an initial value is not specified. `int` and `float` default to `0`. Other types default to null. Null is not a type itself in wax, but nullable objects can be nullified with expression `(null x)`. To check if a variable is NOT null, use `(?? x)` (equivalent to `x!=null` in other languages).
 
-You can also use `local` in place of `let`, to declare variables that gets automatically freed when it goes out of scope. See next section for details.
+You can also use `local` in place of `let`, to declare variables that get automatically freed when it goes out of scope. See next section for details.
 
-### Varaible Assignment
+### Variable Assignment
 
 ```scheme
 (set x 42)
@@ -231,7 +231,7 @@ To produce a new array that contains a range of values from an array `x`, starti
 
 Note that if the result of `slice` operation is neither assigned to anything nor returned, it would be a memory leak since `slice` allocates a new array.
 
-These four are the only operations with syntax level support (`#`, `insert` `remove` and `slice` are keywords). Other methods can be implemented as function calls derived from these fundemental operations.
+These four are the only operations with syntax level support (`#`, `insert` `remove` and `slice` are keywords). Other methods can be implemented as function calls derived from these fundamental operations.
 
 
 ## Maps
@@ -263,7 +263,7 @@ Map key type can be `int` `float` or `str`. Map value type can be anything.
     (let y float)
 )
 ```
-Structs are declared with `struct` keyword. In it, fields are listed with `let` expessions, though initial values cannot be specified (they'll be set to zero values of respective types when the struct gets allocated).
+Structs are declared with `struct` keyword. In it, fields are listed with `let` expressions, though initial values cannot be specified (they'll be set to zero values of respective types when the struct gets allocated).
 
 Another example: structs used for implementing linked lists might look something like this:
 
@@ -707,7 +707,7 @@ The content of the included file gets dumped into exactly where this `@include` 
 
 ### Target-specific behaviors
 
-These macros are pre-defined to be `1` when the wax compiler is asked to compile to a specific language, so the user can specify different behavior for different lanauges:
+These macros are pre-defined to be `1` when the wax compiler is asked to compile to a specific language, so the user can specify different behavior for different languages:
 
 ```c
 TARGET_C
