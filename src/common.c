@@ -302,11 +302,8 @@ void map_add(map_t* m, str_t s, void* dataptr){
   m->len++;
 }
 
-int str_eq(str_t* s, const char* cs){
-  if (strcmp(s->data,cs) == 0){
-    return 1;
-  }
-  return 0;
+bool str_eq(str_t* s, const char* cs){
+  return strcmp(s->data,cs) == 0;
 }
 
 str_t str_unquote(str_t src){

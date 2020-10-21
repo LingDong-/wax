@@ -1,6 +1,7 @@
 #ifndef WAX_PARSER
 #define WAX_PARSER
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -231,11 +232,8 @@ tok_t* tok_alloc(char tag, int lino){
 
 
 
-int tok_eq(tok_t* tok, const char* cs){
-  if (strcmp(tok->val.data,cs) == 0){
-    return 1;
-  }
-  return 0;
+bool tok_eq(tok_t* tok, const char* cs){
+  return strcmp(tok->val.data,cs) == 0;
 }
 
 
@@ -1389,19 +1387,19 @@ expr_t* caster(expr_t* expr, type_t* typ){
   return ex;
 }
 
-int type_eq(type_t* t0, type_t* t1){
+bool type_eq(type_t* t0, type_t* t1){
 
   if (t0->tag == TYP_INT && t1->tag == TYP_INT){
-    return 1;
+    return true;
   }
   if (t0->tag == TYP_FLT && t1->tag == TYP_FLT){
-    return 1;
+    return true;
   }
   if (t0->tag == TYP_STR && t1->tag == TYP_STR){
-    return 1;
+    return true;
   }
   if (t0->tag == TYP_VOD && t1->tag == TYP_VOD){
-    return 1;
+    return true;
   }
   if (t0->tag == TYP_ARR && t1->tag == TYP_ARR){
     return type_eq(t0->elem0,t1->elem0);
@@ -1415,7 +1413,7 @@ int type_eq(type_t* t0, type_t* t1){
   if (t0->tag == TYP_STT && t1->tag == TYP_STT){
     return str_eq(&t0->name,t1->name.data);
   }
-  return 0;
+  return false;
 }
 
 void local_auto_free(void* it, expr_t* tree, int rec){
