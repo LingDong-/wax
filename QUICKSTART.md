@@ -14,6 +14,7 @@ There are only 7 types in wax.
 - `map`: hashtables
 - `struct` : user defined data structures
 
+See [Appendix](#appendix) for how wax types map to types in the target languages.
 
 ### Variable Declaration
 
@@ -773,4 +774,18 @@ You can embed fragments of the target language into wax, similar to embedding as
     (asm "console.log(\"hello from TypeScript\n\");")
 )
 ```
+
+## Appendix
+
+### Datatype mapping
+
+wax tries to give the genrated code an "idomatic" look & feel by mapping wax types directly to common types in target language whenever possible, in favor of rolling out custom ones.
+
+|   | int | float | str | vec | arr | map |
+|---|-----|-------|-----|-----|-----|-----|
+| C | `int` | `float` | `char*` | `T*` | `w_arr_t*` (custom impl.) | `w_map_t*` (custom impl.) |
+| Java | `int` | `float` | `String` | `T[]` | `ArrayList<T>` | `HashMap<K,V>` |
+| TypeScript | `number` | `number` | `string` | `Array` | `Array` | `Record<K,V>` |
+
+
 

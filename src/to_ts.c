@@ -1,5 +1,5 @@
-#ifndef WAX_to_ts
-#define WAX_to_ts
+#ifndef WAX_TO_TS
+#define WAX_TO_TS
 
 #include "text.c"
 #include "parser.c"

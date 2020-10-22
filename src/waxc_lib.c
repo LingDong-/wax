@@ -10,6 +10,7 @@ int WVERBOSE = 0;
 #include "to_c.c"
 #include "to_java.c"
 #include "to_ts.c"
+#include "to_json.c"
 
 
 char* transpile(char* targ, char* filname, char* src, int print_ast){
@@ -26,6 +27,8 @@ char* transpile(char* targ, char* filname, char* src, int print_ast){
     defs_addbool(&defs,"TARGET_JAVA",0);
   }else if (!strcmp(targ,"ts")){
     defs_addbool(&defs,"TARGET_TS",0);
+  }else if (!strcmp(targ,"json")){
+    defs_addbool(&defs,"TARGET_JSON",0);
   }
 
   printinfo("[info] running preprocessor...\n");
@@ -57,6 +60,8 @@ char* transpile(char* targ, char* filname, char* src, int print_ast){
     out = tree_to_java(modname,tree,&functable,&stttable,&included);
   }else if (!strcmp(targ,"ts")){
     out = tree_to_ts(modname,tree,&functable,&stttable,&included);
+  }else if (!strcmp(targ,"json")){
+    out = tree_to_json(modname,tree,&functable,&stttable,&included);
   }
   char* cout = (char*)malloc(out.len+1);
   memcpy(cout, out.data, out.len);

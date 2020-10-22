@@ -17,6 +17,7 @@ These of course, from the programmers' perspective, come at the cost of losing s
 
 The syntax of wax is inspired by WebAssembly Text Format (wat), hence the name. Though it uses S-expressions reminiscent of the Lisp family, it is actually quite **imperative** and most resemblant of C in its design. The idea of transpiling to many languages is inspired by Haxe.
 
+
 wax is currently experimental, so there might be bugs as well as aspects to be improved, in which case PR and Issues are very much appreciated.
 
 
@@ -101,7 +102,8 @@ This repo contains a reference implementation of wax called `waxc`, written from
 
 - Compiles from wax to C, Java and TypeScript.
 - It seems pretty fast. Compiling a 700 lines file takes 0.015 seconds on Macbook Pro 2015. Comparison: the output TypeScript, which is also 700 lines long, took `tsc` 1.5 seconds to compile. 
-- It can print the tokenization and the abstract syntax tree.
+- Additionally, it can emit a very detailed and low-level syntax tree in JSON format. (If your favourite language is not a supported wax target yet, it's not too hard to go from this file and write a code generator :)
+- It can print the tokenization and the abstract syntax tree to terminal.
 - Usage:
 
 ```
@@ -117,7 +119,8 @@ USAGE: waxc [options] code.wax
 OPTIONS:                                        
 --c    path/out.c     transpile to c            
 --java path/out.java  transpile to java         
---ts   path/out.ts    transpile to typescript   
+--ts   path/out.ts    transpile to typescript  
+--json path/out.json  syntax tree to JSON file   
 --tokens              print tokenization        
 --ast                 print abstract syntax tree
 --silent              don't print info          
