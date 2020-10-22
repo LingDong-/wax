@@ -209,7 +209,7 @@ To find out the length of an array `x`, use `#` operator:
 To insert `v` into a an array `x` at index `i`, use
 
 ```scheme
-(insert x v)
+(insert x i v)
 ```
 
 So say to push to the end of the array, you might use
