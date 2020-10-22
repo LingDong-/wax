@@ -34,7 +34,7 @@
 	(let tape (map int int) (get M tape))
 
 	; check each transition function, to see if conditions apply
-	(for i 0 (# D) 1 (do
+	(for i 0 (< i (# D)) 1 (do
 
 		(if (&&
 			(= (get M state)           (get D i q_curr))

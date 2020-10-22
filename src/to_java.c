@@ -201,7 +201,8 @@ str_t expr_to_java(expr_t* expr, int indent){
       str_add(&out, "else{\n");
       str_add(&out, expr_to_java(CHILD3,indent).data);
       INDENT2(indent);
-      str_add(&out, "}");
+      str_add(&out, "}\n");
+      indent=-1;
     }
 
   }else if (expr->key == EXPR_TIF){
@@ -711,7 +712,10 @@ str_t expr_to_java(expr_t* expr, int indent){
 
   }else if (expr->key == EXPR_EXTERN){
     //skip
+    out.len-=2;
+    out.data[out.len] = 0;
     indent=-1;
+
   }else if (expr->key == EXPR_BREAK){
     str_add(&out,"break");
   }else if (expr->key == EXPR_ASM){

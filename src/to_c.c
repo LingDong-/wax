@@ -467,9 +467,9 @@ str_t expr_to_c(expr_t* expr, int indent){
         str_add(&out,"(");
         str_add(&out,type_to_c(typ->elem0).data);
         str_add(&out,"*)");
-        str_add(&out,"malloc(sizeof(");
+        str_add(&out,"calloc(sizeof(");
         str_add(&out,type_to_c(typ->elem0).data);
-        str_add(&out,")*");
+        str_add(&out,"),");
         str_add(&out,s);
         str_add(&out,")");
       }else{

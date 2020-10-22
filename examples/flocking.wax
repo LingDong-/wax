@@ -1,0 +1,369 @@
+;; flocking.wax
+;; flocking "boid" simulation
+;; ported from Processing example:
+;; https://processing.org/examples/flocking.html
+;; including original comments
+
+(@include math)
+
+;; math constants
+(@define PI         3.1415926536)
+(@define TWO_PI     6.2831853072)
+(@define HALF_PI    1.5707963268)
+(@define QUARTER_PI 0.7853981634)
+
+;; simulation constants
+(@define WIDTH    640) ; dimension of the world (for wraparound)
+(@define HEIGHT   360)
+(@define S        0.1) ; scaling to display with ASCII art
+(@define W         64) ; columns of ASCII art
+(@define H         36) ; rows ..
+(@define WxH     2304) ; rows x columns
+
+(@define FRAMES    5000) ; number of frames to simulate
+(@if TARGET_TS 1         ; do less frames in browsers
+	(@define FRAMES 200) ; so it doesn't look like hanging :)
+)
+
+;; The Boid class
+(struct boid
+	(let position (vec 2 float))
+	(let velocity (vec 2 float))
+	(let acceleration (vec 2 float))
+	(let r float)
+	(let maxforce float) ; Maximum steering force
+	(let maxspeed float) ; Maximum speed
+)
+
+
+;; ===== "polyfill" Processing vector utils =====
+(func v_mult (param v (vec 2 float)) (param x float)
+	(set v 0 (* (get v 0) x))
+	(set v 1 (* (get v 1) x))
+)
+
+(func v_add (param v (vec 2 float)) (param u (vec 2 float))
+	(set v 0 (+ (get v 0) (get u 0)))
+	(set v 1 (+ (get v 1) (get u 1)))
+)
+(func v_sub (param v (vec 2 float)) (param u (vec 2 float))
+	(set v 0 (- (get v 0) (get u 0)))
+	(set v 1 (- (get v 1) (get u 1)))
+)
+(func v_copy (param v (vec 2 float))
+	(result (vec 2 float))
+	(return (alloc (vec 2 float)
+		(get v 0)
+		(get v 1)
+	))
+)
+(func v_dist (param v (vec 2 float)) (param u (vec 2 float))
+	(result float)
+
+	(return (call sqrt (+
+		(call pow (- (get v 0) (get u 0)) 2)
+		(call pow (- (get v 1) (get u 1)) 2)
+	)))
+)
+(func v_mag
+	(param v (vec 2 float))
+	(result float)	
+	(return (call sqrt
+		(+
+			(* (get v 0) (get v 0))
+			(* (get v 1) (get v 1))
+		)
+	))
+)
+(func v_normalize
+	(param v (vec 2 float))
+	(let l float (call v_mag v))
+	(set v 0 (/ (get v 0) l))
+	(set v 1 (/ (get v 1) l))
+)
+(func v_limit (param v (vec 2 float)) (param m float)
+	(let l float (call v_mag v))
+	(if (< l m) (then
+		(return)
+	))
+	(call v_normalize v)
+	(call v_mult v m)
+)
+
+(func boid_new (param x float) (param y float)
+	(result (struct boid))
+
+	(let b (struct boid) (alloc (struct boid)))
+	(set b acceleration (alloc (vec 2 float)))
+
+	(let angle float (* (call random) @TWO_PI))
+	(set b velocity (alloc (vec 2 float)
+		(call cos angle)
+		(call sin angle)
+	))
+	(set b position (alloc (vec 2 float) x y ))
+
+	(set b r 2.0)
+	(set b maxspeed 2.0)
+	(set b maxforce 0.03)
+
+	(return b)
+)
+
+(func boid_app_force 
+	(param B (struct boid)) 
+	(param force (vec 2 float)) 
+	; We could add mass here if we want A = F / M
+	(call v_add (get B acceleration) force)
+)
+
+;; Separation
+;; Method checks for nearby boids and steers away
+(func boid_separate
+	(param B (struct boid)) 
+	(param boids (arr (struct boid)))
+	(result (vec 2 float))
+
+	(let desiredseparation float 25.0)
+	(let steer (vec 2 float) (alloc (vec 2 float)))
+	(let count int 0)
+
+	; For every boid in the system, check if it's too close
+	(for i 0 (< i (# boids)) 1 (do
+		(let other (struct boid) (get boids i))
+		(let d float (call v_dist (get B position) (get other position)))
+		; If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
+		(if (&& (> d 0) (< d desiredseparation)) (then
+			; Calculate vector pointing away from neighbor
+			(local diff (vec 2 float) (call v_copy (get B position)))
+			(call v_sub diff (get other position))
+			(call v_normalize diff)
+			(call v_mult diff (/ 1.0 d)) ; Weight by distance
+			(call v_add steer diff)
+			(set count (+ 1 count))      ; Keep track of how many
+		))
+	))
+	; Average -- divide by how many
+	(if (> count 0) (then
+		(call v_mult steer (/ 1.0 count))
+	))
+	; As long as the vector is greater than 0
+	(if (> (call v_mag steer) 0) (then
+		; Implement Reynolds: Steering = Desired - Velocity
+		(call v_normalize steer)
+		(call v_mult steer (get B maxspeed))
+		(call v_sub steer (get B velocity))
+		(call v_limit steer (get B maxforce))
+	))
+	(return steer)
+)
+
+;; Alignment
+;; For every nearby boid in the system, calculate the average velocity
+(func boid_align 
+	(param B (struct boid)) 
+	(param boids (arr (struct boid)))
+	(result (vec 2 float))
+
+	(let neighborv_dist float 50)
+	(let sum (vec 2 float) (alloc (vec 2 float)))
+	(let count int 0)
+	(for i 0 (< i (# boids)) 1 (do
+		(let other (struct boid) (get boids i))
+		(let d float (call v_dist (get B position) (get other position)))
+		(if (&&
+			(> d 0)
+			(< d neighborv_dist)
+		)(then
+			(call v_add sum (get other velocity))
+			(set count (+ 1 count))
+		))
+	))
+	(if (> count 0) (then
+		(call v_mult sum (/ 1.0 count))
+		; Implement Reynolds: Steering = Desired - Velocity
+		(call v_normalize sum)
+		(call v_mult sum (get B maxspeed))
+		(call v_sub sum (get B velocity))
+		(call v_limit sum (get B maxforce))
+		(return sum)
+	)(else
+		(call v_mult sum 0)
+		(return sum)
+	))
+)
+
+;; A method that calculates and applies a steering force towards a target
+;; STEER = DESIRED MINUS VELOCITY
+(func boid_seek 
+	(param B (struct boid))
+	(param target (vec 2 float))
+
+	(call v_sub target (get B position))
+	(call v_normalize target)
+	(call v_mult target (get B maxspeed))
+
+	; Steering = Desired minus Velocity
+	(call v_sub target (get B velocity))
+	(call v_limit target (get B maxforce)) ; Limit to maximum steering force
+)
+
+
+;; Cohesion
+;; For the average position (i.e. center) of all nearby boids, calculate steering vector towards that position
+(func boid_cohesion
+	(param B (struct boid)) 
+	(param boids (arr (struct boid)))
+	(result (vec 2 float))
+
+	(let neighbordist float 50)
+	(let sum (vec 2 float) (alloc (vec 2 float))) ; Start with empty vector to accumulate all positions
+	(let count int 0)
+	(for i 0 (< i (# boids)) 1 (do
+		(let other (struct boid) (get boids i))
+		(let d float (call v_dist (get B position) (get other position)))
+		(if (&&
+			(> d 0)
+			(< d neighbordist)
+		)(then
+			(call v_add sum (get other position)) ; Add position
+			(set count (+ 1 count))
+		))
+	))
+	(if (> count 0) (then
+		(call v_mult sum (/ 1.0 count))
+		(call boid_seek B sum) ; Steer towards the position
+		(return sum)
+	)(else
+		(call v_mult sum 0)
+		(return sum)
+	))
+)
+
+
+;;  We accumulate a new acceleration each time based on three rules
+(func boid_flock 
+	(param B (struct boid)) 
+	(param boids (arr (struct boid)))
+
+	(local sep (vec 2 float) (call boid_separate B boids)) ; Separation
+	(local ali (vec 2 float) (call boid_align    B boids)) ; Alignment
+	(local coh (vec 2 float) (call boid_cohesion B boids)) ; Cohesion
+
+	; Arbitrarily weight these forces
+	(call v_mult sep 1.5)
+	(call v_mult ali 1.0)
+	(call v_mult coh 1.0)
+
+	; Add the force vectors to acceleration
+	(call boid_app_force B sep)
+	(call boid_app_force B ali)
+	(call boid_app_force B coh)
+)
+
+;; Wraparound
+(func boid_borders (param B (struct boid))
+	(let r float (get B r))
+	(if (< (get B position 0) (- r)) (then
+		(set (get B position) 0 (+ @WIDTH r))
+	))
+	(if (< (get B position 1) (- r)) (then
+		(set (get B position) 1 (+ @HEIGHT r))
+	))
+	(if (> (get B position 0) (+ @WIDTH r)) (then
+		(set (get B position) 0 (- r))
+	))
+	(if (> (get B position 1) (+ @HEIGHT r)) (then
+		(set (get B position) 1 (- r))
+	))
+
+)
+
+;; Method to update position
+(func boid_update (param B (struct boid))
+	; Update velocity
+	(call v_add (get B velocity) (get B acceleration))
+	; Limit speed
+	(call v_limit (get B velocity) (get B maxspeed))
+	(call v_add (get B position) (get B velocity))
+	; Reset accelertion to 0 each cycle
+	(call v_mult (get B acceleration) 0)
+)
+
+
+(func boid_run (param B (struct boid)) (param boids (arr (struct boid)))
+	(call boid_flock B boids)
+	(call boid_update B)
+	(call boid_borders B)
+)
+
+(func boid_free (param B (struct boid))
+	(free (get B position))
+	(free (get B acceleration))
+	(free (get B velocity))
+	(free B)
+)
+
+;; plot the flock with 2d ascii art
+(func flock_plot (param boids (arr (struct boid))) (param num int)
+	(local pix 
+		(vec @WxH int) 
+		(alloc (vec @WxH int))
+	)
+	(for i 0 (< i (# boids)) 1 (do
+		(let x int (* (get boids i position 0) @S))
+		(let y int (* (get boids i position 1) @S))
+		(if (&&
+			(>= y 0) (>= x 0)
+			(< y @H) (< x @W)
+		)(then
+
+			(let ang float (call atan2 
+				(get boids i velocity 1)
+				(get boids i velocity 0)
+			))
+			(let c int)
+			(if (&& (>= ang (- @QUARTER_PI))              (< ang @QUARTER_PI))             (then (set c '>')))
+			(if (&& (>= ang @QUARTER_PI)                  (< ang (+ @HALF_PI @QUARTER_PI)))(then (set c 'v')))
+			(if (&& (>= ang (- (+ @HALF_PI @QUARTER_PI))) (< ang (- @QUARTER_PI)))         (then (set c '^')))
+			(if (! c) (then (set c '<')))
+			
+			(set pix (+ (* y @W) x) c)
+		))
+	))
+	(local s str (alloc str "FRAME: "))
+	(<< s (cast num str))
+	(for i 0 (< i @WxH) 1 (do
+		(if (! (% i @W)) (then
+			(<< s "\n")
+		))
+		(<< s (? (get pix i) (get pix i) ' '))
+	))
+	(print s)
+)
+
+;; run the simulation
+(func main (result int)
+	(let flock (arr (struct boid)) (alloc (arr (struct boid))))
+	(for i 0 (< i 100) 1 (do
+		(insert flock (# flock)
+			(call boid_new (/ @WIDTH 2.0) (/ @HEIGHT 2.0))
+		)
+	))
+	(for k 0 (< k @FRAMES) 1 (do
+		(for i 0 (< i (# flock)) 1 (do
+			(call boid_run (get flock i) flock)
+		))
+		(if (! (% k 20)) (then
+			(call flock_plot flock k)
+		))
+	))
+	(for i 0 (< i (# flock)) 1 (do
+		(call boid_free (get flock i))
+	))
+	(free flock)
+	(return 0)
+)
+
+
+
