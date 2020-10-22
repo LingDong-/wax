@@ -129,7 +129,7 @@ OPTIONS:
 
 ### Example
 
-To compile the `fib.wax` example included in the example folder to C, and print the abstract sytax tree to terminal:
+To compile the `fib.wax` example included in the example folder to C, and print the abstract syntax tree to terminal:
 
 ```bash
 ./waxc examples/fib.wax --c fib.c --ast
