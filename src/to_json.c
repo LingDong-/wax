@@ -228,7 +228,7 @@ str_t stttable_to_json(map_t* stttable,int indent){
       stt_t* stt = (stt_t*)(it->data);
       str_add(&out,"{\"struct\":\"");
       str_add(&out,stt->name.data);
-      str_add(&out,"{\",\"fields\":[");
+      str_add(&out,"\",\"fields\":[");
 
       list_node_t* jt = stt->fields.head;
 
@@ -263,7 +263,7 @@ str_t expr_to_json(expr_t* expr, int indent){
   }else if (expr->key == EXPR_TERM){
     tok_t* tok = (tok_t*)(expr->term);
     str_add(&out,"{\"atom\":\"");
-    str_add(&out,(char*)tokens_desc[tok->tag]);
+    str_add(&out,(char*)tokens_desc[(int)(tok->tag)]);
     str_add(&out,"\",\"value\":\"");
     if (tok->tag == TOK_STR){
       tok->val.data[tok->val.len-1]=0;
