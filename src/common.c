@@ -332,6 +332,7 @@ str_t str_unquote(str_t src){
 
 
 #define INDENT2(x) for (int i = 0; i < (x); i++){str_add(&out, "  ");}
+#define INDENT4(x) for (int i = 0; i < (x); i++){str_add(&out, "    ");}
 
 #define CHILD1 ((expr->children.len>0)?((expr_t*)(expr->children.head->data)):NULL)
 #define CHILD2 ((expr->children.len>1)?((expr_t*)(expr->children.head->next->data)):NULL)

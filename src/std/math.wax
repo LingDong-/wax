@@ -24,3 +24,54 @@
 (extern random (result float))
 (extern INFINITY float)
 
+
+(@if TARGET_C 1
+	(asm "#define random() ((float)rand()/RAND_MAX)\n")
+)
+
+(@if TARGET_JAVA 1
+	(asm "public static float fabs(float x){return Math.abs(x);}\n")
+	(asm "public static float fmin(float x, float y){return Math.min(x,y);}\n")
+	(asm "public static float fmax(float x, float y){return Math.max(x,y);}\n")
+	(asm "public static final float INFINITY = Float.POSITIVE_INFINITY;\n")
+)
+
+(@if TARGET_TS 1
+	(asm "const acos  = Math.acos  ;\n")
+	(asm "const asin  = Math.asin  ;\n")
+	(asm "const atan  = Math.atan  ;\n")
+	(asm "const cos   = Math.cos   ;\n")
+	(asm "const sin   = Math.sin   ;\n")
+	(asm "const tan   = Math.tan   ;\n")
+	(asm "const exp   = Math.exp   ;\n")
+	(asm "const log   = Math.log   ;\n")
+	(asm "const sqrt  = Math.sqrt  ;\n")
+	(asm "const ceil  = Math.ceil  ;\n")
+	(asm "const floor = Math.floor ;\n")
+	(asm "const fabs  = Math.abs   ;\n")
+	(asm "const fmin  = Math.min   ;\n")
+	(asm "const fmax  = Math.max   ;\n")
+	(asm "const atan2 = Math.atan2 ;\n")
+	(asm "const pow   = Math.pow   ;\n")
+	(asm "const abs   = Math.abs   ;\n")
+	(asm "const round = Math.round ;\n")
+	(asm "const random= Math.random;\n")
+	(asm "const INFINITY = Infinity;\n")
+	(asm "// @ts-ignore\n")
+	(asm "const sinh  = Math.sinh ;\n")
+	(asm "// @ts-ignore\n")
+	(asm "const cosh  = Math.cosh ;\n")
+	(asm "// @ts-ignore\n")
+	(asm "const tanh  = Math.tanh ;\n")
+)
+
+(@if TARGET_PY 1
+	(asm "from math import *\n")
+	(asm "from random import random\n")
+	(asm "INFINITY = float('inf')\n")
+	(asm "fabs = abs\n")
+	(asm "fmin = min\n")
+	(asm "fmax = max\n")
+
+)
+

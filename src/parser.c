@@ -3351,9 +3351,69 @@ void tif_to_if(expr_t* tree){
   
 }
 
+void rename_identifier(expr_t* tree, char* rfrom, char* rto){
+  list_node_t* it = tree->children.head;
+  while (it){
+    expr_t* expr = (expr_t*)(it->data);
+    if (expr->key == EXPR_TERM){
+      tok_t* tok = (tok_t*)(expr->term);
+      if (tok->tag == TOK_IDT){
+        if (str_eq(&tok->val,rfrom)){
+          tok->val = str_from(rto,strlen(rto));
+        }
+      }
+    }else{
+      rename_identifier(expr,rfrom,rto);
+    }
+    it = it->next;
+  }
+}
 
 
+void lift_scope(expr_t* expr){
+  if (expr->key == EXPR_FUNCBODY || expr->key == EXPR_PRGM || expr->key == EXPR_FUNC || expr->key == EXPR_EXTERN || !expr->parent){
+    //ok
+  }else{
+    expr_t* root = expr;
+    while (root->key != EXPR_FUNCBODY && root->key != EXPR_PRGM){
+      root = root->parent;
+    }
 
+    if (expr->symtable.len){
+      char* pfx = tmp_name("__s").data;
+      int k = 0;
+      while (k < NUM_MAP_SLOTS){
+        while (!expr->symtable.slots[k] && k < NUM_MAP_SLOTS){
+          k++;
+        }
+        if (!expr->symtable.slots[k] || k >= NUM_MAP_SLOTS){
+          break;
+        }
+        list_node_t* jt = expr->symtable.slots[k]->head;
+        while (jt){
+          sym_t* sym = (sym_t*)(jt->data);
+          
+          str_t nname = str_from(sym->name.data,sym->name.len);
+          str_add(&nname,pfx);
+          rename_identifier(expr,sym->name.data,nname.data);
+          sym->name = nname;
+          map_add(&root->symtable, sym->name, sym);
+          jt = jt->next;
+        }
+        k++;
+      }
+      expr->symtable = map_new();
+    }
+
+  }
+
+  list_node_t* it = expr->children.head;
+  while (it){
+    expr_t* ex = (expr_t*)(it->data);
+    lift_scope(ex);
+    it = it->next;
+  }
+}
 
 
 

@@ -69,10 +69,12 @@
 		)
 	))
 	(for i 0 (< i n_clusters) 1 (do
-		(for j 0 (< j @DIM) 1 (do
-			(set (get centers i pos) j 
-				(/ (get centers i pos j) (get centers i cluster))
-			)
+		(if (get centers i cluster) (then
+			(for j 0 (< j @DIM) 1 (do
+				(set (get centers i pos) j 
+					(/ (get centers i pos j) (get centers i cluster))
+				)
+			))
 		))
 	))
 )

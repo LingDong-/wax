@@ -155,10 +155,10 @@ str_t expr_to_c(expr_t* expr, int indent){
     str_add(&out, "}");
 
   }else if (expr->key == EXPR_FORIN){
-    str_t mpname = tmp_name("tmp_mp_");
-    str_t lpname = tmp_name("tmp_lp_");
-    str_t itname = tmp_name("tmp_it_");
-    str_t lbname = tmp_name("tmp_lb_");
+    str_t mpname = tmp_name("tmp__mp_");
+    str_t lpname = tmp_name("tmp__lp_");
+    str_t itname = tmp_name("tmp__it_");
+    str_t lbname = tmp_name("tmp__lb_");
 
     str_add(&out, "w_map_t* ");
     str_add(&out, mpname.data);
@@ -755,6 +755,7 @@ str_t expr_to_c(expr_t* expr, int indent){
   }else if (expr->key == EXPR_ASM){
     
     str_add(&out,str_unquote(expr_to_c(CHILD1,-1)).data);
+    indent=-1;
 
   }else{
     str_add(&out,"/**");

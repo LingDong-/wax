@@ -414,7 +414,9 @@ str_t expr_to_ts(expr_t* expr, int indent){
         sprintf(s,"%d",typ->size);
         str_add(&out,"(new Array(");
         str_add(&out,s);
-        str_add(&out,")['fill'](0))");
+        str_add(&out,")['fill'](");
+        str_add(&out,zero_to_ts(typ->elem0).data);
+        str_add(&out,"))");
       }else{
         str_add(&out,"[");
         list_node_t* it = expr->children.head->next;
@@ -523,8 +525,9 @@ str_t expr_to_ts(expr_t* expr, int indent){
     str_add(&out,".length");
 
   }else if (expr->key == EXPR_MAPLEN){
+    str_add(&out,"Object.keys(");
     str_add(&out,expr_to_ts(CHILD1,-1).data);
-    str_add(&out,".length");
+    str_add(&out,").length");
 
   }else if (expr->key == EXPR_MAPGET){
     str_add(&out,"((");
@@ -603,6 +606,7 @@ str_t expr_to_ts(expr_t* expr, int indent){
   }else if (expr->key == EXPR_ASM){
     
     str_add(&out,str_unquote(expr_to_c(CHILD1,-1)).data);
+    indent=-1;
 
   }else{
     str_add(&out,"/**");
@@ -630,11 +634,11 @@ str_t tree_to_ts(str_t modname, expr_t* tree, map_t* functable, map_t* stttable,
   str_add(&out,modname.data);
   str_add(&out,"{\n");
 
-  if (included_lookup("math",included)){
-    str_add(&out,"/*=== WAX Standard Library BEGIN ===*/\n");
-    str_addconst(&out,TEXT_std_ts);
-    str_add(&out,"/*=== WAX Standard Library END   ===*/\n\n");
-  }
+  // if (included_lookup("math",included)){
+  //   str_add(&out,"/*=== WAX Standard Library BEGIN ===*/\n");
+  //   str_addconst(&out,TEXT_std_ts);
+  //   str_add(&out,"/*=== WAX Standard Library END   ===*/\n\n");
+  // }
 
   str_add(&out,"/*=== User Code            BEGIN ===*/\n\n");
   list_node_t* it = tree->children.head;

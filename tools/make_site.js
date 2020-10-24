@@ -50,7 +50,7 @@ var html = `
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.58.1/addon/comment/comment.min.js"></script>
 <script src="https://codemirror.net/mode/javascript/javascript.js"></script>
 <script src="https://codemirror.net/mode/clike/clike.js"></script>
-
+<script src="https://codemirror.net/mode/python/python.js"></script>
 
 <script src="https://unpkg.com/typescript@4.0.3/lib/typescriptServices.js"></script>
 
@@ -85,6 +85,7 @@ var html = `
         <option value="c">C</option>
         <option value="java">Java</option>
         <option selected="selected" value="ts">TypeScript</option>
+        <option value="py">Python</option>
         <option value="json">JSON</option>
         <!--<option value="ast">Syntax Tree</option>-->
       </select>
@@ -219,6 +220,7 @@ function main(){
           "ts":"javascript",
           "c":"text/x-csrc",
           "java":"text/x-java",
+          "py":"text/x-python",
           "json":"javascript",
         })[targ];
       // print(mode);

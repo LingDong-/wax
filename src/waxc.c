@@ -9,11 +9,13 @@ int WVERBOSE = 1;
 #include "to_java.c"
 #include "to_ts.c"
 #include "to_json.c"
+#include "to_py.c"
 
 #define TARG_C     0x1
 #define TARG_JAVA  0x2
 #define TARG_TS    0x4
 #define TARG_JSON  0x8
+#define TARG_PY    0x16
 
 void print_help(){
   printf(" _____                                          \n");
@@ -26,6 +28,7 @@ void print_help(){
   printf("--c    path/out.c     transpile to c            \n");
   printf("--java path/out.java  transpile to java         \n");
   printf("--ts   path/out.ts    transpile to typescript   \n");
+  printf("--py   path/out.py    transpile to python       \n");
   printf("--json path/out.json  syntax tree to JSON file  \n");
   printf("--tokens              print tokenization        \n");
   printf("--ast                 print abstract syntax tree\n");
@@ -50,6 +53,8 @@ void transpile(int targ, char* input_file, char* path, int print_tok, int print_
     defs_addbool(&defs,"TARGET_TS",0);
   }else if (targ == TARG_JSON){
     defs_addbool(&defs,"TARGET_JSON",0);
+  }else if (targ == TARG_PY){
+    defs_addbool(&defs,"TARGET_PY",0);
   }
 
   printinfo("[info] running preprocessor...\n");
@@ -64,7 +69,6 @@ void transpile(int targ, char* input_file, char* path, int print_tok, int print_
   map_t functable = map_new();
   map_t stttable = map_new();
   compile_syntax_tree(tree,&functable,&stttable);
-
 
   if (print_ast){
     print_stttable(&stttable);
@@ -83,6 +87,9 @@ void transpile(int targ, char* input_file, char* path, int print_tok, int print_
     out = tree_to_ts(modname,tree,&functable,&stttable,&included);
   }else if (targ == TARG_JSON){
     out = tree_to_json(modname,tree,&functable,&stttable,&included);
+  }else if (targ == TARG_PY){
+
+    out = tree_to_py(modname,tree,&functable,&stttable,&included);
   }
   write_file_ascii(path, out.data);
   freex();
@@ -94,7 +101,7 @@ int main(int argc, char** argv){
   char* path_java = 0;
   char* path_ts = 0;
   char* path_json = 0;
-  
+  char* path_py = 0;
   char* input_file = 0;
 
   int print_ast = 0;
@@ -113,6 +120,9 @@ int main(int argc, char** argv){
       i+=2;
     }else if (!strcmp(argv[i],"--json")){
       path_json = argv[i+1];
+      i+=2;
+    }else if (!strcmp(argv[i],"--py")){
+      path_py = argv[i+1];
       i+=2;
     }else if (!strcmp(argv[i],"--ast")){
       print_ast = 1;
@@ -161,6 +171,11 @@ int main(int argc, char** argv){
   if (path_json){
     printinfo("[info] transpiling '%s' to JSON...\n",input_file);
     transpile(TARG_JSON, input_file, path_json, print_tok, print_ast);
+  }
+
+  if (path_py){
+    printinfo("[info] transpiling '%s' to Python...\n",input_file);
+    transpile(TARG_PY, input_file, path_py, print_tok, print_ast);
   }
 
   return 0;

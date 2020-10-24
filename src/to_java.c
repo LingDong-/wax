@@ -239,7 +239,7 @@ str_t expr_to_java(expr_t* expr, int indent){
     str_add(&out, "}");
 
   }else if (expr->key == EXPR_FORIN){
-    str_t itname = tmp_name("tmp_it_");
+    str_t itname = tmp_name("tmp__it_");
 
     str_add(&out, "for(Map.Entry<");
     str_add(&out, type_to_java(CHILD3->type->elem0,1).data);
@@ -721,6 +721,7 @@ str_t expr_to_java(expr_t* expr, int indent){
   }else if (expr->key == EXPR_ASM){
     
     str_add(&out,str_unquote(expr_to_c(CHILD1,-1)).data);
+    indent=-1;
 
   }else{
     str_add(&out,"/**");
@@ -768,12 +769,12 @@ str_t tree_to_java(str_t modname, expr_t* tree, map_t* functable, map_t* stttabl
 
   str_add(&out,"/*=== WAX Standard Library BEGIN ===*/\n");
   str_addconst(&out,TEXT_std_java);
-  if (included_lookup("math",included)){
-    str_add(&out,"\npublic static float fabs(float x){return Math.abs(x);}\n");
-    str_add(&out,"\npublic static float fmin(float x, float y){return Math.min(x,y);}\n");
-    str_add(&out,"\npublic static float fmax(float x, float y){return Math.max(x,y);}\n");
-    str_add(&out,"\npublic static final float INFINITY = Float.POSITIVE_INFINITY;\n");
-  }
+  // if (included_lookup("math",included)){
+  //   str_add(&out,"\npublic static float fabs(float x){return Math.abs(x);}\n");
+  //   str_add(&out,"\npublic static float fmin(float x, float y){return Math.min(x,y);}\n");
+  //   str_add(&out,"\npublic static float fmax(float x, float y){return Math.max(x,y);}\n");
+  //   str_add(&out,"\npublic static final float INFINITY = Float.POSITIVE_INFINITY;\n");
+  // }
   str_add(&out,"/*=== WAX Standard Library END   ===*/\n\n");
   str_add(&out,"/*=== User Code            BEGIN ===*/\n");
 
