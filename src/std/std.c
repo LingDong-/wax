@@ -122,11 +122,11 @@ void w_arr_insert_impl(w_arr_t* arr,int i) {
   (arr)->len++;
 }
 #define w_arr_insert(type,arr,i,x) {\
-  type tmp_x_ = x;\
-  int tmp_i_ = i;\
-  w_arr_t* tmp_a_ = arr;\
-  w_arr_insert_impl((tmp_a_),(tmp_i_));\
-  (((type *)((tmp_a_)->data))[(tmp_i_)]=(tmp_x_));\
+  type tmp__x_ = x;\
+  int tmp__i_ = i;\
+  w_arr_t* tmp__a_ = arr;\
+  w_arr_insert_impl((tmp__a_),(tmp__i_));\
+  (((type *)((tmp__a_)->data))[(tmp__i_)]=(tmp__x_));\
 }
 
 

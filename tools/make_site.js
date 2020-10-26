@@ -83,6 +83,7 @@ var html = `
       </div>
       <select id="seltarg" style="position:absolute;left:620px;top:25px;" value="ts">
         <option value="c">C</option>
+        <option value="cpp">C++</option>
         <option value="java">Java</option>
         <option selected="selected" value="ts">TypeScript</option>
         <option value="py">Python</option>
@@ -220,6 +221,7 @@ function main(){
       var mode = ({
           "ts":"javascript",
           "c":"text/x-csrc",
+          "cpp":"text/x-c++src",
           "java":"text/x-java",
           "py":"text/x-python",
           "cs":"text/x-csharp",

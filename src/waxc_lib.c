@@ -13,6 +13,7 @@ int WVERBOSE = 0;
 #include "to_json.c"
 #include "to_py.c"
 #include "to_cs.c"
+#include "to_cpp.c"
 
 
 char* transpile(char* targ, char* filname, char* src, int print_ast){
@@ -35,6 +36,8 @@ char* transpile(char* targ, char* filname, char* src, int print_ast){
     defs_addbool(&defs,"TARGET_PY",0);
   }else if (!strcmp(targ,"cs")){
     defs_addbool(&defs,"TARGET_CS",0);
+  }else if (!strcmp(targ,"cpp")){
+    defs_addbool(&defs,"TARGET_CPP",0);
   }
 
   printinfo("[info] running preprocessor...\n");
@@ -72,6 +75,8 @@ char* transpile(char* targ, char* filname, char* src, int print_ast){
     out = tree_to_py(modname,tree,&functable,&stttable,&included);
   }else if (!strcmp(targ,"cs")){
     out = tree_to_cs(modname,tree,&functable,&stttable,&included);
+  }else if (!strcmp(targ,"cpp")){
+    out = tree_to_cpp(modname,tree,&functable,&stttable);
   }
   char* cout = (char*)malloc(out.len+1);
   memcpy(cout, out.data, out.len);

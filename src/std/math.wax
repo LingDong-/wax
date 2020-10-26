@@ -29,6 +29,10 @@
 	(asm "#define random() ((float)rand()/RAND_MAX)\n")
 )
 
+(@if TARGET_CPP 1
+	(asm "#define random() ((float)rand()/RAND_MAX)\n")
+)
+
 (@if TARGET_JAVA 1
 	(asm "public static float fabs(float x){return Math.abs(x);}\n")
 	(asm "public static float fmin(float x, float y){return Math.min(x,y);}\n")

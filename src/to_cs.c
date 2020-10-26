@@ -452,11 +452,11 @@ str_t expr_to_cs(expr_t* expr, int indent){
         str_add(&out,expr_to_cs(CHILD2,-1).data);
         str_add(&out,"=null");
       }else if (CHILD1->type->tag == TYP_ARR){
-        str_add(&out,"(");
+        str_add(&out,"((");
         str_add(&out,expr_to_cs(CHILD1,-1).data);
-        str_add(&out,").set(");
+        str_add(&out,")[");
         str_add(&out,expr_to_cs(CHILD2,-1).data);
-        str_add(&out,",null)");
+        str_add(&out,"]=null)");
       }else if (CHILD1->type->tag == TYP_VEC){
         str_add(&out,"((");
         str_add(&out,expr_to_cs(CHILD1,-1).data);

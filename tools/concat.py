@@ -50,6 +50,9 @@ def min_java(src):
 def min_cs(src):
 	return min_c(src)
 
+def min_cpp(src):
+	return min_c(src)
+
 def min_ts(src):
 	return src.replace("\n\n","\n");
 

@@ -11,6 +11,7 @@ int WVERBOSE = 1;
 #include "to_json.c"
 #include "to_py.c"
 #include "to_cs.c"
+#include "to_cpp.c"
 
 #define TARG_C     1
 #define TARG_JAVA  2
@@ -18,6 +19,7 @@ int WVERBOSE = 1;
 #define TARG_JSON  8
 #define TARG_PY    16
 #define TARG_CS    32
+#define TARG_CPP   64
 
 void print_help(){
   printf(" _____                                          \n");
@@ -32,6 +34,7 @@ void print_help(){
   printf("--ts   path/out.ts    transpile to typescript   \n");
   printf("--py   path/out.py    transpile to python       \n");
   printf("--cs   path/out.cs    transpile to c#           \n");
+  printf("--cpp  path/out.cpp   transpile to c++          \n");
   printf("--json path/out.json  syntax tree to JSON file  \n");
   printf("--tokens              print tokenization        \n");
   printf("--ast                 print abstract syntax tree\n");
@@ -60,6 +63,8 @@ void transpile(int targ, char* input_file, char* path, int print_tok, int print_
     defs_addbool(&defs,"TARGET_PY",0);
   }else if (targ == TARG_CS){
     defs_addbool(&defs,"TARGET_CS",0);
+  }else if (targ == TARG_CPP){
+    defs_addbool(&defs,"TARGET_CPP",0);
   }
 
   printinfo("[info] running preprocessor...\n");
@@ -96,6 +101,8 @@ void transpile(int targ, char* input_file, char* path, int print_tok, int print_
     out = tree_to_py(modname,tree,&functable,&stttable,&included);
   }else if (targ == TARG_CS){
     out = tree_to_cs(modname,tree,&functable,&stttable,&included);
+  }else if (targ == TARG_CPP){
+    out = tree_to_cpp(modname,tree,&functable,&stttable);
   }
   write_file_ascii(path, out.data);
   freex();
@@ -109,6 +116,7 @@ int main(int argc, char** argv){
   char* path_json = 0;
   char* path_py = 0;
   char* path_cs = 0;
+  char* path_cpp = 0;
   char* input_file = 0;
 
   int print_ast = 0;
@@ -133,6 +141,9 @@ int main(int argc, char** argv){
       i+=2;
     }else if (!strcmp(argv[i],"--cs")){
       path_cs = argv[i+1];
+      i+=2;
+    }else if (!strcmp(argv[i],"--cpp")){
+      path_cpp = argv[i+1];
       i+=2;
     }else if (!strcmp(argv[i],"--ast")){
       print_ast = 1;
@@ -191,6 +202,11 @@ int main(int argc, char** argv){
   if (path_cs){
     printinfo("[info] transpiling '%s' to C#...\n",input_file);
     transpile(TARG_CS, input_file, path_cs, print_tok, print_ast);
+  }
+
+  if (path_cpp){
+    printinfo("[info] transpiling '%s' to C++...\n",input_file);
+    transpile(TARG_CPP, input_file, path_cpp, print_tok, print_ast);
   }
 
   return 0;
