@@ -3,7 +3,7 @@
 
 # wax
 
-**wax** is a tiny language designed to transpile to other languages easily. Currently supported backends: **C**, **Java**, **TypeScript** and **Python**. (WIP: WebAssembly, Planned: C++, C#, ...)
+**wax** is a tiny language designed to transpile to other languages easily. Currently supported backends: **C**, **Java**, **TypeScript**, **Python** and **C#**. (WIP: WebAssembly, Planned: C++, Swift, Lua...)
 
 ### [Playground](https://waxc.netlify.app/) | [Quickstart](./QUICKSTART.md) | [Examples](./examples)
 
@@ -100,7 +100,7 @@ There're many more examples, check them out [here](./examples) or on the [online
 
 This repo contains a reference implementation of wax called `waxc`, written from scratch in C99.
 
-- Compiles from wax to C, Java, TypeScript and Python.
+- Compiles from wax to C, Java, TypeScript, Python and C#.
 - It seems pretty fast. Compiling a 700 lines file takes 0.015 seconds on Macbook Pro 2015. Comparison: the output TypeScript, which is also 700 lines long, took `tsc` 1.5 seconds to compile. 
 - Additionally, it can emit a very detailed and low-level syntax tree in JSON format. (If your favourite language is not a supported wax target yet, it's not too hard to go from this file and write a code generator :)
 - It can print the tokenization and the abstract syntax tree to terminal.
@@ -121,6 +121,7 @@ OPTIONS:
 --java path/out.java  transpile to java         
 --ts   path/out.ts    transpile to typescript  
 --py   path/out.py    transpile to python
+--cs   path/out.cs    transpile to c#
 --json path/out.json  syntax tree to JSON file   
 --tokens              print tokenization        
 --ast                 print abstract syntax tree
@@ -146,9 +147,9 @@ gcc fib.c
 Compile to all targets and compile all outputs with target languages' compilers and run all outputs of target languages' compilers:
 
 ```bash
-./waxc examples/fib.wax --c fib.c   --java fib.java   --ts fib.ts    --py fib.py;
-                        gcc fib.c;    javac fib.java;   tsc fib.ts;
-                        ./a.out;      java fib;         node fib.js;   python fib.py;
+./waxc examples/fib.wax --c fib.c   --java fib.java   --ts fib.ts    --py fib.py     --cs fib.cs;
+                        gcc fib.c;    javac fib.java;   tsc fib.ts;                    csc fib.cs;
+                        ./a.out;      java fib;         node fib.js;   python fib.py;  mono fib.exe;
 ```
 
 

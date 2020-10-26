@@ -75,3 +75,32 @@
 
 )
 
+
+(@if TARGET_CS 1
+	(asm "public static Func<double,double> acos     = Math.Acos   ;\n")
+	(asm "public static Func<double,double> asin     = Math.Asin   ;\n")
+	(asm "public static Func<double,double> atan     = Math.Atan   ;\n")
+	(asm "public static Func<double,double> cos      = Math.Cos    ;\n")
+	(asm "public static Func<double,double> sin      = Math.Sin    ;\n")
+	(asm "public static Func<double,double> tan      = Math.Tan    ;\n")
+	(asm "public static Func<double,double> exp      = Math.Exp    ;\n")
+	(asm "public static Func<double,double> log      = Math.Log    ;\n")
+	(asm "public static Func<double,double> sqrt     = Math.Sqrt   ;\n")
+	(asm "public static Func<double,double> ceil     = Math.Ceiling;\n")
+	(asm "public static Func<double,double> floor    = Math.Floor  ;\n")
+	(asm "public static Func<double,double> fabs     = Math.Abs    ;\n")
+	(asm "public static Func<double,double> sinh     = Math.Sinh   ;\n")
+	(asm "public static Func<double,double> cosh     = Math.Cosh   ;\n")
+	(asm "public static Func<double,double> tanh     = Math.Tanh   ;\n")
+	(asm "public static Func<double,double> round    = Math.Round  ;\n")
+	(asm "public static Func<int,int> abs            = Math.Abs    ;\n")
+	(asm "public static Func<double,double,double> atan2 = Math.Atan2 ;\n")
+	(asm "public static Func<double,double,double> pow   = Math.Pow   ;\n")
+	(asm "public static Func<double,double,double> fmin  = Math.Min   ;\n")
+	(asm "public static Func<double,double,double> fmax  = Math.Max   ;\n")
+	(asm "public static float INFINITY = Single.PositiveInfinity;\n")
+	(asm "public static Random w_RNG = new Random();\n")
+	(asm "public static float random(){ return (float)w_RNG.NextDouble(); }\n")
+
+)
+

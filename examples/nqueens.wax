@@ -6,7 +6,7 @@
 (@define N 8) ; board size / # of queens
 
 ; check if a position is unsafe (attackable)
-(func unsafe 
+(func attackable 
 	(param B (vec @N int)) 
 	(param y int)
 	(result int)
@@ -54,7 +54,7 @@
 		(set B y (+ (get B y) 1))
 		(while (&&
 			(< (get B y) @N)
-			(call unsafe B y)
+			(call attackable B y)
 		)(do
 			(set B y (+ (get B y) 1))
 		))
@@ -72,7 +72,7 @@
 	))
 )
 
-(func main
+(func main (result int)
 	(call solve)
-	
+	(return 0)
 )

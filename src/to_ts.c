@@ -605,7 +605,7 @@ str_t expr_to_ts(expr_t* expr, int indent){
     str_add(&out,"break");
   }else if (expr->key == EXPR_ASM){
     
-    str_add(&out,str_unquote(expr_to_c(CHILD1,-1)).data);
+    str_add(&out,str_unquote(expr_to_ts(CHILD1,-1)).data);
     indent=-1;
 
   }else{

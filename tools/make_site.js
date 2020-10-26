@@ -86,6 +86,7 @@ var html = `
         <option value="java">Java</option>
         <option selected="selected" value="ts">TypeScript</option>
         <option value="py">Python</option>
+        <option value="cs">C#</option>
         <option value="json">JSON</option>
         <!--<option value="ast">Syntax Tree</option>-->
       </select>
@@ -221,6 +222,7 @@ function main(){
           "c":"text/x-csrc",
           "java":"text/x-java",
           "py":"text/x-python",
+          "cs":"text/x-csharp",
           "json":"javascript",
         })[targ];
       // print(mode);

@@ -381,4 +381,59 @@ str_t base_name(char* path){
 
 }
 
+const char* censored[] = {
+  "auto","abstract","assert","arguments","and","as",
+  "boolean","bool","byte","base",
+  "case","char","const","catch","class","continue","checked",
+  "default","double","debugger","delete","def","del","delegate","decimal",
+  "entry","enum","extends","elif","except","event","explicit",
+  "final","finally","function","from","false","False","foreach","fixed",
+  "goto","global",
+  "implements","import","instanceof","interface","Infinity","in","is",
+  "long","lambda","lock",
+  "native","new","NaN","not","namespace",
+  "Object","or","out","override","object","operator","of",
+  "package","private","protected","public","prototype","pass","params",
+  "register","raise","readonly","ref",
+  "short","sizeof","static","swtich","signed","super","stackalloc","sealed","sbyte","string",
+  "typedef","this","throw","throws","try","typeof","true","True","template",
+  "union","unsigned","undefined","unsafe","using","uint","ulong","unchecked","ushort",
+  "volatile","var","virtual",
+  "with"
+};
+
+str_t censor(str_t src){
+  if (src.data[0] == '@'){
+    return src;
+  }
+  str_t out = str_new();
+
+  if (src.len <= 10){
+    int n = sizeof(censored)/sizeof(char*);
+    for (int i = 0; i < n; i++){
+      if (str_eq(&src,censored[i])){
+        str_add(&out,src.data);
+        str_addch(&out,'_');
+        // printf("%s\n",out.data);
+        return out;
+      }
+    }
+  }
+
+  for (int i = 0; i < src.len; i++){
+    if ((97 <= src.data[i] && src.data[i]<=122)
+      ||(65 <= src.data[i] && src.data[i]<=90)
+      ||(48 <= src.data[i] && src.data[i]<=57)
+      ||(src.data[i] == '.' || src.data[i] == '_' || src.data[i] == ':')
+      ){
+      str_addch(&out,src.data[i]);
+    }else{
+      char x[8];
+      sprintf(x,"U%02x__",src.data[i]);
+      str_add(&out,x);
+    }
+  }
+  return out;
+}
+
 #endif

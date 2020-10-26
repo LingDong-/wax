@@ -5,6 +5,8 @@
 #include "parser.c"
 #include "common.c"
 
+map_t* c_functable = NULL;
+
 str_t type_to_c(type_t* typ){
   str_t out = str_new();
   if (typ->tag == TYP_INT){
@@ -245,15 +247,7 @@ str_t expr_to_c(expr_t* expr, int indent){
 
     str_t funcname = ((tok_t*)(CHILD1->term))->val;
     if (str_eq(&funcname,"main")){
-      int num_params = 0;
-      it = expr->children.head->next;
-      while(it){
-        expr_t* ex = (expr_t*)(it->data);
-        if (ex->key != EXPR_PARAM){
-          break;
-        }
-        num_params++;
-      }
+      int num_params = func_lookup(&funcname,c_functable)->params.len;
       if (num_params != 0){
         funcname = str_from("main_",5);
       }
@@ -290,8 +284,12 @@ str_t expr_to_c(expr_t* expr, int indent){
   }else if (expr->key == EXPR_CALL){
     str_t funcname = ((tok_t*)(CHILD1->term))->val;
     if (str_eq(&funcname,"main")){
-      funcname = str_from("main_",5);
+      int num_params = func_lookup(&funcname,c_functable)->params.len;
+      if (num_params != 0){
+        funcname = str_from("main_",5);
+      }
     }
+
     str_add(&out, funcname.data);
 
     str_add(&out, "(");
@@ -768,6 +766,8 @@ str_t expr_to_c(expr_t* expr, int indent){
 }
 
 str_t tree_to_c(str_t modname, expr_t* tree, map_t* functable, map_t* stttable){
+  c_functable = functable;
+
   str_t out = str_new();
   str_add(&out,"/*****************************************\n * ");
   str_add(&out,modname.data);

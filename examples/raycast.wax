@@ -264,7 +264,6 @@
 		
 		(local e1 (vec 3 float) (call v_sub a b))
 		(local e2 (vec 3 float) (call v_sub b c))
-		(local e3 (vec 3 float) (call v_sub c a))
 
 		(let n  (vec 3 float) (call v_cross e1 e2))
 		(call normalize n)

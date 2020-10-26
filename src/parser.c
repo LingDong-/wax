@@ -328,7 +328,8 @@ tok_t* word_to_token(str_t s, int lino){
       }
     }
     tok_t* tok = tok_alloc(TOK_IDT,lino);
-    tok->val = s;
+
+    tok->val = censor(s);
     return tok;
   }
   printerr("syntax")("line %d: invalid token `%s`\n",lino,s.data);
@@ -343,7 +344,6 @@ tok_t* word_to_token(str_t s, int lino){
       printf("exiting with tokenization failure.\n");\
       freex();exit(1);\
     }\
-    tok->val = buf;\
     list_add(&tokens,tok);\
     buf = str_new();\
     isquote = 0;\
@@ -1078,7 +1078,7 @@ expr_t* syntax_tree(list_t* tokens){
     }
     if (toks->len == 1){
       tok_t* tok = (tok_t*)(toks->head->data);
-      printerr("syntax")("line %d: invalid terminal node at top level `%s`.",tok->lino,tok->val.data);
+      printerr("syntax")("line %d: invalid terminal node at top level `%s`.\n",tok->lino,tok->val.data);
       goto crash;
     }
     expr_t* expr = parse_expr(toks,0);
