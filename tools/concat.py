@@ -59,6 +59,10 @@ def min_ts(src):
 def min_py(src):
 	return src.replace("\n\n","\n");
 
+	
+def min_swift(src):
+	return src.replace("\n\n","\n");
+
 
 def to_cstr(src):
 	return '"'+src.replace('"','\\"').replace("\n",'\\n"\n"')+'\\n"'
