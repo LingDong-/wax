@@ -22,5 +22,3 @@ static func w_NOT(x:Int)->Int{return (x == 0) ? 1 : 0;}
 static func w_AND(x:Int,y:Int)->Int{return ((x != 0) && (y != 0)) ? 1 : 0;}
 static func w_OR(x:Int,y:Int)->Int{return ((x != 0) || (y != 0)) ? 1 : 0;}
 static func w_strBang(x:String?)->String{return x!;}
-
-

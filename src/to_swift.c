@@ -262,6 +262,9 @@ str_t expr_to_swift(expr_t* expr, int indent){
     str_add(&out, funcname.data);
     str_add(&out, "(");
     it = expr->children.head->next;
+
+    str_t varpar = str_new();
+
     while(it){
       expr_t* ex = (expr_t*)(it->data);
       if (ex->key != EXPR_PARAM){
@@ -271,9 +274,37 @@ str_t expr_to_swift(expr_t* expr, int indent){
         str_add(&out,",");
       }
     
-      str_add(&out, ((tok_t*)(((expr_t*)(((expr_t*)(it->data))->children.head->data))->term))->val.data);
+      str_t paname = ((tok_t*)(((expr_t*)(((expr_t*)(it->data))->children.head->data))->term))->val;
+      type_t* ptyp = (type_t*)(((expr_t*)(((expr_t*)(it->data))->children.head->next->data))->term);
+      str_t swname = tmp_name("tmp__swap_");
+
+      str_add(&out, paname.data);
       str_add(&out,":");
-      str_add(&out,type_to_swift(  (type_t*)(((expr_t*)(((expr_t*)(it->data))->children.head->next->data))->term) ).data);
+      str_add(&out,type_to_swift(  ptyp ).data);
+
+      for (int i = 0; i < indent+1; i++){str_add(&varpar, "  ");}
+
+      str_add(&varpar,"var ");
+      str_add(&varpar,paname.data);
+      str_add(&varpar," = ");
+      str_add(&varpar,paname.data);
+      str_add(&varpar,";");
+
+      str_add(&varpar,"let ");
+      str_add(&varpar,swname.data);
+      str_add(&varpar," = ");
+      str_add(&varpar,paname.data);
+      str_add(&varpar,";"); 
+
+      str_add(&varpar,paname.data);
+      str_add(&varpar," = ");
+      str_add(&varpar,zero_to_swift(ptyp).data);
+      str_add(&varpar,";");
+
+      str_add(&varpar,paname.data);
+      str_add(&varpar," = ");
+      str_add(&varpar,swname.data);
+      str_add(&varpar,";\n");   
 
       it = it->next;
     }
@@ -285,6 +316,9 @@ str_t expr_to_swift(expr_t* expr, int indent){
     }
 
     str_add(&out, "{\n");
+    // INDENT2(indent+1);
+    str_add(&out, varpar.data);
+    str_add(&out, "\n");
     str_add(&out, expr_to_swift(CHILDN,indent).data);
     INDENT2(indent);
     str_add(&out, "}");
@@ -394,9 +428,9 @@ str_t expr_to_swift(expr_t* expr, int indent){
     str_add(&out,"}");
 
   }else if (expr->key == EXPR_NOTNULL){
-    str_add(&out,"(");
+    str_add(&out,"w_INT(x: (");
     str_add(&out, expr_to_swift(CHILD1,-1).data);
-    str_add(&out," != nil)");
+    str_add(&out,") != nil)");
 
   }else if (expr->key == EXPR_SETNULL){
     if (!CHILD2){
@@ -658,7 +692,7 @@ str_t tree_to_swift(str_t modname, expr_t* tree, map_t* functable, map_t* stttab
   str_add(&out,__DATE__);
   str_add(&out,")*/\n\n");
 
-  str_add(&out,"import Darwin;\n");
+  str_add(&out,"import Foundation;\n");
 
   str_add(&out,"\nstruct ");
   str_add(&out,modname.data);

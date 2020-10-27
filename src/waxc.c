@@ -24,24 +24,25 @@ int WVERBOSE = 1;
 #define TARG_SWIFT 128
 
 void print_help(){
-  printf(" _____                                          \n");
-  printf("|||'  |                                         \n");
-  printf("|''   |                                         \n");
-  printf("|_WAX_| Compiler                                \n\n");
-  printf("built " __DATE__ "                              \n\n");
-  printf("USAGE: waxc [options] code.wax                  \n\n");
-  printf("OPTIONS:                                        \n");
-  printf("--c    path/out.c     transpile to c            \n");
-  printf("--java path/out.java  transpile to java         \n");
-  printf("--ts   path/out.ts    transpile to typescript   \n");
-  printf("--py   path/out.py    transpile to python       \n");
-  printf("--cs   path/out.cs    transpile to c#           \n");
-  printf("--cpp  path/out.cpp   transpile to c++          \n");
-  printf("--json path/out.json  syntax tree to JSON file  \n");
-  printf("--tokens              print tokenization        \n");
-  printf("--ast                 print abstract syntax tree\n");
-  printf("--silent              don't print info          \n");
-  printf("--help                print this message        \n");
+  printf(" _____                                           \n");
+  printf("|||'  |                                          \n");
+  printf("|''   |                                          \n");
+  printf("|_WAX_| Compiler                                 \n\n");
+  printf("built " __DATE__ "                               \n\n");
+  printf("USAGE: waxc [options] code.wax                   \n\n");
+  printf("OPTIONS:                                         \n");
+  printf("--c     path/out.c     transpile to c            \n");
+  printf("--java  path/out.java  transpile to java         \n");
+  printf("--ts    path/out.ts    transpile to typescript   \n");
+  printf("--py    path/out.py    transpile to python       \n");
+  printf("--cs    path/out.cs    transpile to c#           \n");
+  printf("--cpp   path/out.cpp   transpile to c++          \n");
+  printf("--swift path/out.swift transpile to swift        \n");
+  printf("--json  path/out.json  syntax tree to JSON file  \n");
+  printf("--tokens               print tokenization        \n");
+  printf("--ast                  print abstract syntax tree\n");
+  printf("--silent               don't print info          \n");
+  printf("--help                 print this message        \n");
 }
 
 
