@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <math.h>
 
 #define W_MIN(a,b) (((a)<(b))?(a):(b))
@@ -176,7 +177,7 @@ w_map_t* w_map_new(char key_is_ptr){
 int w_map_hash(void* ptr, size_t len){
   int x = 0;
   for (int i = 0; i < len; i++){
-    char y = *((char*)((char*)ptr+i));
+    unsigned char y = *((unsigned char*)((unsigned char*)ptr+i));
     x ^= y;
   }
   x %= W_NUM_MAP_SLOTS;
@@ -272,7 +273,10 @@ void w_map_remove(w_map_t* map, int64_t key){
 }
 
 int w_reinterp_f2i(float x){
-  return (int)((int *)&x);
+  return *((int *)&x);
+}
+float w_reinterp_i2f(int x){
+  return *((float *)&x);
 }
 
 typedef struct {

@@ -194,20 +194,38 @@ str_t expr_to_c(expr_t* expr, int indent){
     str_add(&out, type_to_c(CHILD3->type->elem0).data);
     str_add(&out, " ");
     str_add(&out, expr_to_c(CHILD1,-1).data);
-    str_add(&out, "=(");
-    str_add(&out, type_to_c(CHILD3->type->elem0).data);
-    str_add(&out, ")(");
-    str_add(&out, itname.data);
-    str_add(&out, "->key);\n");
+    str_add(&out, "=");
+    if (CHILD3->type->elem0->tag == TYP_FLT){
+      str_add(&out, "*((float*)(");
+      str_add(&out, itname.data);
+      str_add(&out, "->key));\n");
+    }else if (CHILD3->type->elem0->tag == TYP_INT){
+      str_add(&out, "*((int*)(");
+      str_add(&out, itname.data);
+      str_add(&out, "->key));\n");
+    }else{
+      str_add(&out, "(char*)(");
+      str_add(&out, itname.data);
+      str_add(&out, "->key);\n");
+    }
     INDENT2(indent+2);
     str_add(&out, type_to_c(CHILD3->type->elem1).data);
     str_add(&out, " ");
     str_add(&out, expr_to_c(CHILD2,-1).data);
-    str_add(&out, "=(");
-    str_add(&out, type_to_c(CHILD3->type->elem1).data);
-    str_add(&out, ")(");
-    str_add(&out, itname.data);
-    str_add(&out,"->data);\n");
+    str_add(&out, "=");
+
+    if (CHILD3->type->elem1->tag != TYP_FLT){
+      str_add(&out, "(");
+      str_add(&out, type_to_c(CHILD3->type->elem1).data);
+      str_add(&out, ")(");
+      str_add(&out, itname.data);
+      str_add(&out,"->data);\n");
+    }else{
+      str_add(&out, "w_reinterp_i2f(");
+      str_add(&out, "(int)(int64_t)(");
+      str_add(&out, itname.data);
+      str_add(&out, "->data));\n");
+    }
     INDENT2(indent+2);
     str_add(&out, "{\n");
     str_add(&out, expr_to_c(CHILDN,indent+2).data);
@@ -613,9 +631,14 @@ str_t expr_to_c(expr_t* expr, int indent){
 
 
   }else if (expr->key == EXPR_MAPGET){
-    str_add(&out,"((");
-    str_add(&out,type_to_c(CHILD1->type->elem1).data);
-    str_add(&out,")w_map_get((");
+    if (CHILD1->type->elem1->tag == TYP_FLT){
+      str_add(&out,"w_reinterp_i2f((int)");
+    }else{
+      str_add(&out,"((");
+      str_add(&out,type_to_c(CHILD1->type->elem1).data);
+      str_add(&out,")");
+    }
+    str_add(&out,"w_map_get((");
     str_add(&out,expr_to_c(CHILD1,-1).data);
     str_add(&out,"),");
     if (CHILD1->type->elem0->tag == TYP_STR){
@@ -626,7 +649,7 @@ str_t expr_to_c(expr_t* expr, int indent){
       str_add(&out,"(int64_t)(");
       str_add(&out,expr_to_c(CHILD2,-1).data);
       str_add(&out,")");
-    }else if (CHILD1->type->elem0->tag == TYP_INT){
+    }else if (CHILD1->type->elem0->tag == TYP_FLT){
       str_add(&out,"(int64_t)w_reinterp_f2i(");
       str_add(&out,expr_to_c(CHILD2,-1).data);
       str_add(&out,")");
@@ -646,7 +669,7 @@ str_t expr_to_c(expr_t* expr, int indent){
       str_add(&out,"(int64_t)(");
       str_add(&out,expr_to_c(CHILD2,-1).data);
       str_add(&out,")");
-    }else if (CHILD1->type->elem0->tag == TYP_INT){
+    }else if (CHILD1->type->elem0->tag == TYP_FLT){
       str_add(&out,"(int64_t)w_reinterp_f2i(");
       str_add(&out,expr_to_c(CHILD2,-1).data);
       str_add(&out,")");
@@ -665,7 +688,7 @@ str_t expr_to_c(expr_t* expr, int indent){
       str_add(&out,"(int64_t)(");
       str_add(&out,expr_to_c(CHILD2,-1).data);
       str_add(&out,")");
-    }else if (CHILD1->type->elem0->tag == TYP_INT){
+    }else if (CHILD1->type->elem0->tag == TYP_FLT){
       str_add(&out,"(int64_t)w_reinterp_f2i(");
       str_add(&out,expr_to_c(CHILD2,-1).data);
       str_add(&out,")");
