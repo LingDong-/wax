@@ -1418,6 +1418,30 @@ int type_eq(type_t* t0, type_t* t1){
   return 0;
 }
 
+
+int local_need_auto_free(list_node_t* it, expr_t* tree){
+  expr_t* expr = (expr_t*)(it->data);
+  for (int k = 0; k < NUM_MAP_SLOTS; k++){
+    if (tree->symtable.slots[k]){
+      list_node_t* jt = tree->symtable.slots[k]->head;
+      while(jt){
+        sym_t* sym = (sym_t*)(jt->data);
+        if (sym->is_local && (
+               sym->type.tag != TYP_INT
+            && sym->type.tag != TYP_FLT
+          )){
+          return 1;
+        }
+        jt = jt->next;
+      }
+    }
+  }
+  if (tree->key != EXPR_FUNCBODY && tree->parent){
+    return local_need_auto_free(it,tree->parent);
+  }
+  return 0;
+}
+
 void local_auto_free(void* it, expr_t* tree, int rec){
   expr_t* expr;
   if (rec){
@@ -1472,10 +1496,53 @@ void local_auto_free(void* it, expr_t* tree, int rec){
     }
   }
   if (rec){
-    if (tree->key != EXPR_FUNCBODY && tree->parent){
+    if (tree->key != rec && tree->parent){
       local_auto_free(it,tree->parent,rec);
     }
   }
+}
+
+
+tok_t* insert_tmp_var_l(list_node_t* it, expr_t* tree, expr_t* val){
+  expr_t* expr = (expr_t*)(it->data);
+
+  expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+  ex->key = EXPR_LET;
+  ex->rawkey = str_from("let",4);
+  ex->lino = expr->lino;
+  ex->parent = tree;
+  ex->children = list_new();
+  ex->symtable = map_new();
+  ex->type = prim_type(TYP_VOD);
+
+  expr_t* ex0 = (expr_t*)mallocx(sizeof(expr_t));
+  ex0->key = EXPR_TERM;
+  ex0->rawkey = str_from("",0);
+  ex0->lino = tree->lino;
+  ex0->parent = ex;
+  ex0->children = list_new();
+  ex0->symtable = map_new();
+  ex0->type = val->type;
+
+  tok_t* tok = (tok_t*)mallocx(sizeof(expr_t));
+  tok->tag = TOK_IDT;
+  tok->val = tmp_name("tmp__var_");
+  ex0->term = tok;
+
+  list_add(&ex->children,ex0);
+
+  expr_t* ex1 = type_expr(val->type,expr->lino);
+  ex1->parent = ex;
+
+  list_add(&ex->children,ex1);
+
+  val->parent = ex;
+  list_add(&ex->children,val);
+
+  ex->parent = expr->parent;
+  list_insert_l(&expr->parent->children,it,ex);
+
+  return tok;
 }
 
 void compile_syntax_tree(expr_t* tree, map_t* functable, map_t* stttable);
@@ -2425,8 +2492,6 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
   }else if (str_eq(&expr->rawkey,"return")){
 
-    local_auto_free(it,tree,1);
-
     expr_t* ex = expr->parent;
     while (ex->key != EXPR_FUNC){
       ex = ex->parent;
@@ -2469,6 +2534,29 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     }
 
+
+    if (local_need_auto_free(it,tree)){
+
+
+      if (expr->children.len && ((expr_t*)(expr->children.head->data))->key != EXPR_TERM ){
+        tok_t* t = insert_tmp_var_l(it,tree, (expr_t*)((expr->children).head->data));
+        compile_syntax_tree_node(it->prev,functable,stttable);
+
+        expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+        ex->key = EXPR_TERM;
+        ex->rawkey = str_from("",0);
+        ex->lino = expr->lino;
+        ex->parent = expr;
+        ex->children = list_new();
+        ex->symtable = map_new();
+        ex->type = rtyp;
+        ex->term = t;
+
+        expr->children.head->data = ex;
+
+      }
+      local_auto_free(it,tree,EXPR_FUNCBODY);
+    }
 
 
   }else if (str_eq(&expr->rawkey,"call")){
@@ -3173,6 +3261,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
     expr->type = ex1->type;
 
   }else if (str_eq(&expr->rawkey,"break")){
+    local_auto_free(it,tree,EXPR_DO);
     expr->key = EXPR_BREAK;
     expr->type = prim_type(TYP_VOD);
     expr->term = NULL;

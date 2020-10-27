@@ -68,7 +68,7 @@ const char* TEXT_std_java = "public static <T> void w_arrRemove(ArrayList<T> a, 
 "public static int w_NOT(int x){return (x==0)?1:0;}\n"
 "public static int w_AND(int x, int y){return ((x!=0) && (y!=0))?1:0;}\n"
 "public static int w_OR(int x, int y){return ((x!=0) || (y!=0))?1:0;}\n";
-const char* TEXT_std_ts = "\n";
+const char* TEXT_std_ts = "const w_slice=(x:Array<any>|string,i:number,n:number)=>x.slice(i,i+n);\n";
 const char* TEXT_std_cpp = "template <typename T>\n"
 "inline void w_arr_insert (std::vector<T>* arr, int i, T x){arr->insert(arr->begin()+i,x);}\n"
 "template <typename T>\n"

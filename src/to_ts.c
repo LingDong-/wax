@@ -512,9 +512,9 @@ str_t expr_to_ts(expr_t* expr, int indent){
     str_add(&out,"))");
 
   }else if (expr->key == EXPR_ARRCPY){
-    str_add(&out,"(");
+    str_add(&out,"w_slice((");
     str_add(&out,expr_to_ts(CHILD1,-1).data);
-    str_add(&out,").slice((");
+    str_add(&out,"),(");
     str_add(&out,expr_to_ts(CHILD2,-1).data);
     str_add(&out,"),(");
     str_add(&out,expr_to_ts(CHILD3,-1).data);
@@ -583,13 +583,13 @@ str_t expr_to_ts(expr_t* expr, int indent){
     str_add(&out,"))");
 
   }else if (expr->key == EXPR_STRCPY){
-    str_add(&out,"(");
+    str_add(&out,"w_slice((");
     str_add(&out,expr_to_ts(CHILD1,-1).data);
-    str_add(&out,").slice(");
+    str_add(&out,"),(");
     str_add(&out,expr_to_ts(CHILD2,-1).data);
-    str_add(&out,",");
+    str_add(&out,"),(");
     str_add(&out,expr_to_ts(CHILD3,-1).data);
-    str_add(&out,")");
+    str_add(&out,"))");
 
   }else if (expr->key == EXPR_PRINT){
     str_add(&out,"console.log(");
@@ -634,11 +634,10 @@ str_t tree_to_ts(str_t modname, expr_t* tree, map_t* functable, map_t* stttable,
   str_add(&out,modname.data);
   str_add(&out,"{\n");
 
-  // if (included_lookup("math",included)){
-  //   str_add(&out,"/*=== WAX Standard Library BEGIN ===*/\n");
-  //   str_addconst(&out,TEXT_std_ts);
-  //   str_add(&out,"/*=== WAX Standard Library END   ===*/\n\n");
-  // }
+  str_add(&out,"/*=== WAX Standard Library BEGIN ===*/\n");
+  str_addconst(&out,TEXT_std_ts);
+  str_add(&out,"/*=== WAX Standard Library END   ===*/\n\n");
+
 
   str_add(&out,"/*=== User Code            BEGIN ===*/\n\n");
   list_node_t* it = tree->children.head;
