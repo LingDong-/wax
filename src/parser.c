@@ -1420,7 +1420,7 @@ int type_eq(type_t* t0, type_t* t1){
 
 
 int local_need_auto_free(list_node_t* it, expr_t* tree){
-  expr_t* expr = (expr_t*)(it->data);
+  // expr_t* expr = (expr_t*)(it->data);
   for (int k = 0; k < NUM_MAP_SLOTS; k++){
     if (tree->symtable.slots[k]){
       list_node_t* jt = tree->symtable.slots[k]->head;
