@@ -135,4 +135,11 @@
 	(asm "static func abs  (x:Int)          ->Int  {return Swift.abs   (x);  }\n")
 )
 
-
+(@if TARGET_LUA 1
+	(asm "do for k,v in pairs(math) do _G[k]=v end end\n")
+	(asm "function round(x) return x>=0 and math.floor(x+0.5) or math.ceil(x-0.5) end\n")
+	(asm "local INFINITY = huge\n")
+	(asm "local fmax = max\n")
+	(asm "local fmin = min\n")
+	(asm "local fabs = abs\n\n")
+)

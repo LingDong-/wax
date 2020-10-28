@@ -108,18 +108,18 @@ str_t expr_to_py(expr_t* expr, int indent){
     str_add(&out, expr_to_py(CHILD2,-1).data );
     str_add(&out, "))");
   }else if (expr->key == EXPR_LAND){
-    str_add(&out, "((");
+    str_add(&out, "int(bool((");
     str_add(&out, expr_to_py(CHILD1,-1).data );
     str_add(&out, ") and (");
     str_add(&out, expr_to_py(CHILD2,-1).data );
-    str_add(&out, "))");
+    str_add(&out, ")))");
 
   }else if (expr->key == EXPR_LOR) {
-    str_add(&out, "((");
+    str_add(&out, "int(bool((");
     str_add(&out, expr_to_py(CHILD1,-1).data );
     str_add(&out, ") or (");
     str_add(&out, expr_to_py(CHILD2,-1).data );
-    str_add(&out, "))");
+    str_add(&out, ")))");
 
   }else if (expr->key == EXPR_IGEQ || expr->key == EXPR_FGEQ ||
             expr->key == EXPR_ILEQ || expr->key == EXPR_FLEQ ||
@@ -134,9 +134,9 @@ str_t expr_to_py(expr_t* expr, int indent){
     str_add(&out, expr_to_py(CHILD2,-1).data );
     str_add(&out, "))");
   }else if (expr->key == EXPR_IDIV){
-    str_add(&out, "((");
+    str_add(&out, "int(float(");
     str_add(&out, expr_to_py(CHILD1,-1).data );
-    str_add(&out, ")//(");
+    str_add(&out, ")/(");
     str_add(&out, expr_to_py(CHILD2,-1).data );
     str_add(&out, "))");
 

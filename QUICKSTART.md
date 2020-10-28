@@ -793,6 +793,7 @@ wax tries to give the genrated code an "idomatic" look & feel by mapping wax typ
 | C# | `int` | `float` | `string` | `T[]` | `List<T>` | `Dictionary<K,V>` |
 | C++ | `int` | `float` | `std::string` | `std::array` | `std::vector` | `std::map` |
 | Swift | `Int` | `Float` | `String?` | `w_Arr<T>?` (wraps `[T]`) | `w_Arr<T>?` (wraps `[T]`) | `w_Map<K,V>?` (wraps `Dictionary`) |
+| Lua | `number` | `number` | `string` | `table` | `table` | `table` |
 
 
 ### Reserved identifier names

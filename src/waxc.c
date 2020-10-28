@@ -13,6 +13,7 @@ int WVERBOSE = 1;
 #include "to_cs.c"
 #include "to_cpp.c"
 #include "to_swift.c"
+#include "to_lua.c"
 
 #define TARG_C     1
 #define TARG_JAVA  2
@@ -22,6 +23,7 @@ int WVERBOSE = 1;
 #define TARG_CS    32
 #define TARG_CPP   64
 #define TARG_SWIFT 128
+#define TARG_LUA   256
 
 void print_help(){
   printf(" _____                                           \n");
@@ -38,6 +40,7 @@ void print_help(){
   printf("--cs    path/out.cs    transpile to c#           \n");
   printf("--cpp   path/out.cpp   transpile to c++          \n");
   printf("--swift path/out.swift transpile to swift        \n");
+  printf("--lua   path/out.lua   transpile to lua          \n");
   printf("--json  path/out.json  syntax tree to JSON file  \n");
   printf("--tokens               print tokenization        \n");
   printf("--ast                  print abstract syntax tree\n");
@@ -70,6 +73,8 @@ void transpile(int targ, char* input_file, char* path, int print_tok, int print_
     defs_addbool(&defs,"TARGET_CPP",0);
   }else if (targ == TARG_SWIFT){
     defs_addbool(&defs,"TARGET_SWIFT",0);
+  }else if (targ == TARG_LUA){
+    defs_addbool(&defs,"TARGET_LUA",0);
   }
 
   printinfo("[info] running preprocessor...\n");
@@ -110,6 +115,8 @@ void transpile(int targ, char* input_file, char* path, int print_tok, int print_
     out = tree_to_cpp(modname,tree,&functable,&stttable);
   }else if (targ == TARG_SWIFT){
     out = tree_to_swift(modname,tree,&functable,&stttable,&included);
+  }else if (targ == TARG_LUA){
+    out = tree_to_lua(modname,tree,&functable,&stttable,&included);
   }
   write_file_ascii(path, out.data);
   freex();
@@ -125,6 +132,7 @@ int main(int argc, char** argv){
   char* path_cs = 0;
   char* path_cpp = 0;
   char* path_swift = 0;
+  char* path_lua = 0;
   char* input_file = 0;
 
   int print_ast = 0;
@@ -155,6 +163,9 @@ int main(int argc, char** argv){
       i+=2;
     }else if (!strcmp(argv[i],"--swift")){
       path_swift = argv[i+1];
+      i+=2;
+    }else if (!strcmp(argv[i],"--lua")){
+      path_lua = argv[i+1];
       i+=2;
     }else if (!strcmp(argv[i],"--ast")){
       print_ast = 1;
@@ -223,6 +234,11 @@ int main(int argc, char** argv){
   if (path_swift){
     printinfo("[info] transpiling '%s' to Swift...\n",input_file);
     transpile(TARG_SWIFT, input_file, path_swift, print_tok, print_ast);
+  }
+
+  if (path_lua){
+    printinfo("[info] transpiling '%s' to Lua...\n",input_file);
+    transpile(TARG_LUA, input_file, path_lua, print_tok, print_ast);
   }
 
   return 0;
