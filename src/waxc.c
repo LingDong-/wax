@@ -90,7 +90,10 @@ void transpile(int targ, char* input_file, char* path, int print_tok, int print_
   map_t functable = map_new();
   map_t stttable = map_new();
   compile_syntax_tree(tree,&functable,&stttable);
-  compile_tac_tree(tree);
+
+  #ifdef DO_TAC
+    compile_tac_tree(tree);
+  #endif
 
   if (print_ast){
     print_stttable(&stttable);
