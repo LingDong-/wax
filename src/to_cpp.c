@@ -316,6 +316,9 @@ str_t expr_to_cpp(expr_t* expr, int indent){
 
   }else if (expr->key == EXPR_THEN || expr->key == EXPR_ELSE || expr->key == EXPR_DO || expr->key == EXPR_FUNCBODY){
     list_node_t* it = expr->children.head;
+    if (!it){
+      str_add(&out,"\n");
+    }
     while(it){
       expr_t* ex = (expr_t*)(it->data);
       if (it==(expr->children.head)){

@@ -5,6 +5,7 @@ int WVERBOSE = 1;
 #define printinfo if(WVERBOSE)printf
 
 #include "parser.c"
+#include "tac.c"
 #include "to_c.c"
 #include "to_java.c"
 #include "to_ts.c"
@@ -89,6 +90,7 @@ void transpile(int targ, char* input_file, char* path, int print_tok, int print_
   map_t functable = map_new();
   map_t stttable = map_new();
   compile_syntax_tree(tree,&functable,&stttable);
+  compile_tac_tree(tree);
 
   if (print_ast){
     print_stttable(&stttable);

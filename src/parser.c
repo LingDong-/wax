@@ -1503,14 +1503,14 @@ void local_auto_free(void* it, expr_t* tree, int rec){
 }
 
 
-tok_t* insert_tmp_var_l(list_node_t* it, expr_t* tree, expr_t* val){
+tok_t* insert_tmp_var_l(list_node_t* it, expr_t* val){
   expr_t* expr = (expr_t*)(it->data);
 
   expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
   ex->key = EXPR_LET;
-  ex->rawkey = str_from("let",4);
+  ex->rawkey = str_from("let",3);
   ex->lino = expr->lino;
-  ex->parent = tree;
+  ex->parent = expr->parent;
   ex->children = list_new();
   ex->symtable = map_new();
   ex->type = prim_type(TYP_VOD);
@@ -1518,7 +1518,7 @@ tok_t* insert_tmp_var_l(list_node_t* it, expr_t* tree, expr_t* val){
   expr_t* ex0 = (expr_t*)mallocx(sizeof(expr_t));
   ex0->key = EXPR_TERM;
   ex0->rawkey = str_from("",0);
-  ex0->lino = tree->lino;
+  ex0->lino = expr->lino;
   ex0->parent = ex;
   ex0->children = list_new();
   ex0->symtable = map_new();
@@ -1544,6 +1544,9 @@ tok_t* insert_tmp_var_l(list_node_t* it, expr_t* tree, expr_t* val){
 
   return tok;
 }
+
+
+
 
 void compile_syntax_tree(expr_t* tree, map_t* functable, map_t* stttable);
 
@@ -2539,7 +2542,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
 
       if (expr->children.len && ((expr_t*)(expr->children.head->data))->key != EXPR_TERM ){
-        tok_t* t = insert_tmp_var_l(it,tree, (expr_t*)((expr->children).head->data));
+        tok_t* t = insert_tmp_var_l(it, (expr_t*)((expr->children).head->data));
         compile_syntax_tree_node(it->prev,functable,stttable);
 
         expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
@@ -3325,121 +3328,6 @@ void compile_syntax_tree(expr_t* tree, map_t* functable, map_t* stttable){
 
 
 
-expr_t* deep_copy_kinda(expr_t* tree){
-  print_syntax_tree(tree,0);
-  expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
-  ex->key = tree->key;
-  ex->rawkey = str_from(tree->rawkey.data,tree->rawkey.len);
-  ex->lino = tree->lino;
-  ex->parent = tree->parent;
-  ex->children = list_new();
-  // not so deep:
-  ex->symtable = tree->symtable;
-  ex->type = tree->type;
-  ex->term = tree->term;
-
-  list_node_t* it = tree->children.head;
-  while (it){
-    expr_t* expr = (expr_t*)(it->data);
-    expr_t* ex0 = deep_copy_kinda(expr);
-    ex0->parent = ex;
-    list_add(&ex->children,ex0);
-    it = it->next;
-  }
-  return ex;
-}
-
-void tif_to_if(expr_t* tree){
-  if (tree->key == EXPR_TERM || tree->key == EXPR_TYPE){
-    return;
-  }
-  if (tree->key == EXPR_TIF){
-    expr_t* root = tree->parent;
-    expr_t* rootch = tree;
-    while (root->key != EXPR_DO && root->key != EXPR_THEN && root->key != EXPR_ELSE && root->key != EXPR_FUNCBODY){
-      rootch = root;
-      root = root->parent;
-    }
-
-    list_node_t* it = root->children.head;
-    while (it){
-      expr_t* e = (expr_t*)(it->data);
-      if (e == rootch){
-        break;
-      }
-      it = it->next;
-    }
-
-    list_node_t* jt = tree->parent->children.head;
-    while (jt){
-      expr_t* e = (expr_t*)(jt->data);
-      if (e == tree){
-        break;
-      }
-      jt = jt->next;
-    }
-
-    expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
-    ex->key = EXPR_IF;
-    ex->rawkey = str_from("if",2);
-    ex->lino = tree->lino;
-    ex->parent = root;
-    ex->children = list_new();
-    ex->symtable = map_new();
-    ex->type = prim_type(TYP_VOD);
-    ex->term = NULL;
-
-    expr_t* ex0 = (expr_t*)mallocx(sizeof(expr_t));
-    ex0->key = EXPR_THEN;
-    ex0->rawkey = str_from("then",4);
-    ex0->lino = tree->lino;
-    ex0->parent = ex;
-    ex0->children = list_new();
-    ex0->symtable = map_new();
-    ex0->type = prim_type(TYP_VOD); 
-    ex0->term = NULL;  
-
-    jt->data = (tree->children.head->next->data);
-    rootch->parent = ex0;
-
-    list_add(&ex0->children,deep_copy_kinda(rootch));
-
-    jt->data = (tree->children.head->next->next->data);
-
-    expr_t* ex1 = (expr_t*)mallocx(sizeof(expr_t));
-    ex1->key = EXPR_ELSE;
-    ex1->rawkey = str_from("else",4);
-    ex1->lino = tree->lino;
-    ex1->parent = ex;
-    ex1->children = list_new();
-    ex1->symtable = map_new();
-    ex1->type = prim_type(TYP_VOD);  
-    ex1->term = NULL; 
-
-    rootch->parent = ex1;
-    list_add(&ex1->children,rootch);
-
-    list_add(&ex->children, (expr_t*)(tree->children.head->data));
-    list_add(&ex->children, ex0);
-    list_add(&ex->children, ex1);
-
-    it->data = ex;
-
-    tif_to_if((expr_t*)(ex->children.head->data));
-    tif_to_if((expr_t*)(ex->children.head->next->data));
-    tif_to_if((expr_t*)(ex->children.head->next->next->data));
-
-  }else{
-    list_node_t* it = tree->children.head;
-    while (it){
-      expr_t* expr = (expr_t*)(it->data);
-      tif_to_if(expr);
-      it = it->next;
-    }
-  }
-  
-}
-
 void rename_identifier(expr_t* tree, char* rfrom, char* rto){
   list_node_t* it = tree->children.head;
   while (it){
@@ -3503,8 +3391,6 @@ void lift_scope(expr_t* expr){
     it = it->next;
   }
 }
-
-
 
 
 #endif
