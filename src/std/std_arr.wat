@@ -5,8 +5,17 @@
 ;;                                  ;;
 ;;                                  ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; addapted from https://github.com/LingDong-/wasm-fun
 
-;; Continous, resizable storage for a sequence of values
+;;   Continous, resizable storage for a sequence of values,
+;;   similar to C++ vector<T>
+;;
+;;   +--------------------+
+;;   |data|length|capacity|
+;;   +-|------------------+
+;;     |        +---------------------------
+;;     `------> |elem 0|elem 1|elem 2|......
+;;              +---------------------------
 
 ;; struct arr {
 ;;   i32/f32/(void*) data
@@ -45,8 +54,8 @@
   (local $ptr i32)
   (local $cap i32)
   (local $data i32)
-  (if (i32.lt_u (local.get $len) (global.get $DEFAULT_CAPACITY)) (then
-    (local.set $cap (global.get $DEFAULT_CAPACITY))
+  (if (i32.lt_u (local.get $len) (global.get $wax::DEFAULT_CAPACITY)) (then
+    (local.set $cap (global.get $wax::DEFAULT_CAPACITY))
   )(else
     (local.set $cap (local.get $len))
   ))
@@ -64,36 +73,7 @@
   (call $wax::free (local.get $a))
 )
 
-;; add an element to the end of the array
-;; does not write the element, instead, returns a pointer
-;; to the new last element for the user to write at
-(func $wax::arr_push (param $a i32) (result i32)
-  (local $length i32)
-  (local $capacity i32)
-  (local $data i32)
-  (local $elem_size i32)
 
-  (local.set $length (call $wax::arr_length (local.get $a)))
-  (local.set $capacity (call $wax::_arr_get_capacity (local.get $a)))
-  (local.set $data (call $wax::_arr_get_data (local.get $a)))
-  (local.set $elem_size (i32.const 4))
-
-  (if (i32.lt_u (local.get $length) (local.get $capacity) ) (then) (else
-    (local.set $capacity (i32.add
-      (i32.add (local.get $capacity) (i32.const 1))
-      (i32.mul (local.get $capacity) (i32.const 2))
-    ))
-    (call $wax::_arr_set_capacity (local.get $a) (local.get $capacity))
-
-    (local.set $data 
-      (call $wax::realloc (local.get $data) (i32.mul (local.get $elem_size) (local.get $capacity) ))
-    )
-    (call $wax::_arr_set_data (local.get $a) (local.get $data))
-  ))
-  (call $wax::_arr_set_length (local.get $a) (i32.add (local.get $length) (i32.const 1)))
-  
-  (i32.add (local.get $data) (i32.mul (local.get $length) (local.get $elem_size)))
-)
 
 ;; get ith element of an array
 (func $wax::arr_get (param $a i32) (param $i i32) (result i32)
@@ -137,6 +117,39 @@
 )
 
 
+;; add an element to the end of the array
+;; does not write the element, instead, returns a pointer
+;; to the new last element for the user to write at
+(func $wax::arr_push (param $a i32) (result i32)
+  (local $length i32)
+  (local $capacity i32)
+  (local $data i32)
+  (local $elem_size i32)
+
+  (local.set $length (call $wax::arr_length (local.get $a)))
+  (local.set $capacity (call $wax::_arr_get_capacity (local.get $a)))
+  (local.set $data (call $wax::_arr_get_data (local.get $a)))
+  (local.set $elem_size (i32.const 4))
+
+  (if (i32.lt_u (local.get $length) (local.get $capacity) ) (then) (else
+    (local.set $capacity (i32.add
+      (i32.add (local.get $capacity) (i32.const 1))
+      (i32.mul (local.get $capacity) (i32.const 2))
+    ))
+    (call $wax::_arr_set_capacity (local.get $a) (local.get $capacity))
+
+    (local.set $data 
+      (call $wax::realloc (local.get $data) (i32.mul (local.get $elem_size) (local.get $capacity) ))
+    )
+    (call $wax::_arr_set_data (local.get $a) (local.get $data))
+  ))
+  (call $wax::_arr_set_length (local.get $a) (i32.add (local.get $length) (i32.const 1)))
+  
+  ;; (i32.store (i32.add (local.get $data) (i32.mul (local.get $length) (local.get $elem_size))) (i32.const 0))
+
+  (i32.add (local.get $data) (i32.mul (local.get $length) (local.get $elem_size)))
+)
+
 ;; insert into an array at given index
 (func $wax::arr_insert (param $a i32) (param $i i32) (param $v i32)
   (local $data i32)
@@ -145,10 +158,11 @@
   (local $offset i32)
 
   (local.set $length (call $wax::arr_length (local.get $a)))
-  (local.set $data (call $wax::_arr_get_data (local.get $a)))
-  (local.set $elem_size (i32.const 4))
 
   (drop (call $wax::arr_push (local.get $a)))
+
+  (local.set $data (call $wax::_arr_get_data (local.get $a)))
+  (local.set $elem_size (i32.const 4))
 
   (local.set $offset 
     (i32.add (local.get $data) (i32.mul (local.get $i) (local.get $elem_size) ))
@@ -158,7 +172,7 @@
     (i32.add (local.get $offset) (local.get $elem_size))
     (local.get $offset)
     (i32.mul 
-      (i32.sub (i32.sub (local.get $length) (i32.const 1)) (local.get $i) ) 
+      (i32.sub (local.get $length) (local.get $i) ) 
       (local.get $elem_size)
     )
   )

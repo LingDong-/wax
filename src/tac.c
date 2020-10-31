@@ -407,6 +407,7 @@ void compile_tac_node(list_node_t* it, expr_t* expr){
     expr_t* ex0 = (expr_t*)(jt->data);
 
     expr_t* ex = insert_tac_tmp(it,NULL,ex0);
+    ex->parent = expr;
 
     compile_tac_node(it->prev, (expr_t*)(((expr_t*)(it->prev->data))->children.tail->data)  );
 
@@ -435,6 +436,7 @@ void compile_tac_node(list_node_t* it, expr_t* expr){
     expr_t* ex0 = (expr_t*)(jt->data);
 
     expr_t* ex = insert_tac_tmp(it,NULL,ex0);
+    ex->parent = expr;
 
     compile_tac_node(it->prev, (expr_t*)(((expr_t*)(it->prev->data))->children.tail->data)  );
 

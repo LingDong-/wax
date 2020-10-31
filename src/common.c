@@ -436,4 +436,23 @@ str_t censor(str_t src){
   return out;
 }
 
+
+int char_literal(char* s){
+  // assume: s[0] is '\''
+  if (s[1] == '\\'){
+    if (s[2] == 'n'){
+      return 10;
+    }else if (s[2] == 't'){
+      return 9;
+    }else if (s[2] == '\\'){
+      return 92;
+    }else if (s[2] == '\''){
+      return 39;
+    }else{
+      return 63; // ?
+    }
+  }
+  return (int)s[1];
+}
+
 #endif

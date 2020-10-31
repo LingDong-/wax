@@ -90,6 +90,7 @@
 ;; - automatically invoked by first malloc() call
 ;; - can be manually called to nuke the whole heap
 (func $wax::init_heap
+  (i32.store (i32.const 0) (global.get $wax::min_addr) )
   ;; write payload_size to header and footer
   (call $wax::hdr_set_size (global.get $wax::min_addr) 
     (i32.sub (i32.sub (global.get $wax::max_addr) (global.get $wax::min_addr)) (i32.const 8))
@@ -362,7 +363,7 @@
   (local $offset i32)
   (local $data i32)
 
-  (if (i32.eqz (local.get $n_bytes))(
+  (if (i32.eqz (local.get $n_bytes))(then
     return
   ))
 
@@ -482,7 +483,7 @@
   (local $offset i32)
   (local $data i32)
 
-  (if (i32.eqz (local.get $n_bytes))(
+  (if (i32.eqz (local.get $n_bytes))(then
     return
   ))
   

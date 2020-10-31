@@ -187,10 +187,10 @@
 		(call v_sub sum (get B velocity))
 		(call v_limit sum (get B maxforce))
 		(return sum)
-	)(else
-		(call v_mult sum 0)
-		(return sum)
 	))
+	(call v_mult sum 0)
+	(return sum)
+	
 )
 
 ;; A method that calculates and applies a steering force towards a target
@@ -234,10 +234,10 @@
 		(call v_mult sum (/ 1.0 count))
 		(call boid_seek B sum) ; Steer towards the position
 		(return sum)
-	)(else
-		(call v_mult sum 0)
-		(return sum)
 	))
+	(call v_mult sum 0)
+	(return sum)
+	
 )
 
 

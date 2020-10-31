@@ -603,7 +603,7 @@ str_t expr_to_lua(expr_t* expr, int indent){
 
   }else if (expr->key == EXPR_EXTERN){
     //skip
-    out.len-=4;
+    out.len-=2;
     out.data[out.len] = 0;
     indent=-1;
   }else if (expr->key == EXPR_BREAK){

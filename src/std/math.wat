@@ -1,0 +1,31 @@
+(import "Math" "log"    (func $log   (param f32) (result f32)))
+(import "Math" "exp"    (func $exp   (param f32) (result f32)))
+(import "Math" "cos"    (func $cos   (param f32) (result f32)))
+(import "Math" "sin"    (func $sin   (param f32) (result f32)))
+(import "Math" "tan"    (func $tan   (param f32) (result f32)))
+(import "Math" "cosh"   (func $cosh  (param f32) (result f32)))
+(import "Math" "sinh"   (func $sinh  (param f32) (result f32)))
+(import "Math" "tanh"   (func $tanh  (param f32) (result f32)))
+(import "Math" "acos"   (func $acos  (param f32) (result f32)))
+(import "Math" "asin"   (func $asin  (param f32) (result f32)))
+(import "Math" "atan2"  (func $atan2 (param f32) (param  f32) (result f32)))
+(import "Math" "pow"    (func $pow   (param f32) (param  f32) (result f32)))
+(import "Math" "random" (func $random            (result f32)))
+
+(func $fmax (param $x f32) (param $y f32) (result f32) (f32.max (local.get $x) (local.get $y)))
+(func $fmin (param $x f32) (param $y f32) (result f32) (f32.min (local.get $x) (local.get $y)))
+(func $fabs (param $x f32) (result f32) (f32.abs (local.get $x)))
+(func $floor (param $x f32) (result f32) (f32.floor (local.get $x)))
+(func $ceil (param $x f32) (result f32) (f32.ceil (local.get $x)))
+(func $sqrt (param $x f32) (result f32) (f32.sqrt (local.get $x)))
+(func $round (param $x f32) (result f32) (f32.nearest (local.get $x)))
+
+(func $abs (param $x i32) (result i32)
+  (if (i32.lt_s (local.get $x) (i32.const 0))(then
+      (i32.sub (i32.const 0) (local.get $x))
+      return
+  ))
+  (local.get $x)
+)
+
+(global $INFINITY f32 (f32.const 340282346638528859811704183484516925440))

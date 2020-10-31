@@ -7,7 +7,7 @@ if (typeof window == "undefined"){
 function WAXWASMWRAP(wasmpath,onloaded){
   let prom;
   function getStr(offset,length){
-    var bytes = new Uint8Array(_wax_mem[wasmpath], offset, length);
+    var bytes = new Uint8Array(_wax_mem[wasmpath].buffer, offset, length);
     var str = new TextDecoder('utf8').decode(bytes);
     return str;
   }
@@ -17,6 +17,7 @@ function WAXWASMWRAP(wasmpath,onloaded){
         console.log(getStr(offset,length));
       }
     },
+    Math,
     debug:{logi32: function(x){console.log(x);}},
   }
   if (!_wax_is_node){
@@ -30,7 +31,7 @@ function WAXWASMWRAP(wasmpath,onloaded){
   }
   prom.then(results => {
     let lib = results.instance.exports;
-    _wax_mem[wasmpath] = lib.mem.buffer;
+    _wax_mem[wasmpath] = lib.mem;
     onloaded(lib);
   });
 }

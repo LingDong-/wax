@@ -283,17 +283,20 @@
 )
 
 ;; free allocated mesh
-(func destory_mesh
+(func destroy_mesh
 	(param m (struct mesh))
 	(for i 0 (< i (# (get m vertices))) 1 (do
 		(free (get m vertices i))
 	))
+	(free (get m vertices))
 	(for i 0 (< i (# (get m faces))) 1 (do
 		(free (get m faces i))
 	))
+	(free (get m faces))
 	(for i 0 (< i (# (get m facenorms))) 1 (do
 		(free (get m facenorms i))
 	))
+	(free (get m facenorms))
 	(free m)
 )
 
@@ -400,7 +403,7 @@
 	(local light (vec 3 float) (alloc (vec 3 float) 0.1 0.2 0.4))
 	(call render m light)
 
-	(call destory_mesh m)
+	(call destroy_mesh m)
 	(return 0)
 )
 

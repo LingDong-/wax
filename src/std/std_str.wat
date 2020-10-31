@@ -10,14 +10,13 @@
   (f32.sub (local.get $x) (f32.mul (local.get $y) (f32.trunc (f32.div (local.get $x) (local.get $y)) )))
 )
 
-(func $wax::str_new (param $ptr i32)
+(func $wax::str_new (param $ptr i32) (result i32)
   (if (i32.eqz (local.get $ptr))(then
     (call $wax::calloc (i32.const 1))
     return
-  )(else
-    (call $wax::str_slice (local.get $ptr) (i32.const 0) (call $wax::str_len (local.get $ptr)) )
-    return
   ))
+  (call $wax::str_slice (local.get $ptr) (i32.const 0) (call $wax::str_len (local.get $ptr)) )
+  return
 )
 
 (func $wax::str_get (param $ptr i32) (param $i i32) (result i32)
@@ -25,15 +24,18 @@
   return
 )
 
-(func $wax::str_add (param $ptr i32) (param $c i32)
+(func $wax::str_add (param $ptr i32) (param $c i32) (result i32)
   (local $l i32)
   (local.set $l (call $wax::str_len (local.get $ptr)))
   (local.set $ptr (call $wax::realloc (local.get $ptr) (i32.add (local.get $l) (i32.const 2) ) ) )
   (i32.store8 (i32.add (local.get $ptr) (local.get $l)) (local.get $c)  )
   (i32.store8 (i32.add (i32.add (local.get $ptr) (local.get $l)) (i32.const 1)) (i32.const 0)  )
+
+  (local.get $ptr)
+  (return)
 )
 
-(func $wax::str_cat (param $s0 i32) (param $s1 i32)
+(func $wax::str_cat (param $s0 i32) (param $s1 i32) (result i32)
   (local $l0 i32)
   (local $l1 i32)
   (local.set $l0 (call $wax::str_len (local.get $s0)))
@@ -41,6 +43,8 @@
   (local.set $s0 (call $wax::realloc (local.get $s0) (i32.add (i32.add (local.get $l0) (local.get $l1) ) (i32.const 1)) ))
   (call $wax::memcpy (i32.add (local.get $s0) (local.get $l0)) (local.get $s1) (local.get $l1) )
   (i32.store8 (i32.add (i32.add (local.get $s0) (local.get $l0)) (local.get $l1)) (i32.const 0)  )
+  (local.get $s0)
+  return
 )
 
 (func $wax::str_cmp (param $s0 i32) (param $s1 i32) (result i32)
@@ -158,7 +162,7 @@
   loop $digits
     (local.set $ptr (i32.sub (local.get $ptr) (i32.const 1)))
 
-    (local.set $rem (i32.trunc_f32_s (f32.nearest (call $wax::fmod (local.get $x) (f32.const 10.0)))))
+    (local.set $rem (i32.trunc_f32_s (call $wax::fmod (local.get $x) (f32.const 10.0))))
     (i32.store8 (local.get $ptr) (i32.add (local.get $rem) (i32.const 48)))
 
     (local.set $x (f32.div (local.get $x) (f32.const 10.0)))

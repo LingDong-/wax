@@ -261,6 +261,7 @@ void w_map_remove(w_map_t* map, int64_t key){
         }else{
           map->slots[k] = it->next;
         }
+        map->len--;
         free(it->key);
         free(it);
         return;
