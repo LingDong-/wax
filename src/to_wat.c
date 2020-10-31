@@ -1063,7 +1063,7 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
 
   str_add(&out,"(module \n");
   str_add(&out,"(import \"console\" \"log\" (func $wax::js::console.log (param i32) (param i32)))\n");
-  // str_add(&out,"(import \"debug\" \"logi32\" (func $__logi32 (param i32)))\n");
+  str_add(&out,"(import \"debug\" \"logi32\" (func $__logi32 (param i32)))\n");
   if (included_lookup("math",included)){
     str_addconst(&out,TEXT_math_wat);
   }

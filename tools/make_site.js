@@ -99,19 +99,19 @@ var html = `
       </select>
 
 
-      <div style="position:absolute;left:715px;top:27px;${lblselstyle}">
+      <div style="position:absolute;left:730px;top:27px;${lblselstyle}">
         Realtime:
       </div>
-      <select id="selreal" style="position:absolute;left:770px;top:25px;">
+      <select id="selreal" style="position:absolute;left:785px;top:25px;">
         <option>yes</option>
         <option>no</option>
       </select>
 
-      <button id="butcomp" style="position:absolute;left:850px;top:25px;">
+      <button id="butcomp" style="position:absolute;left:865px;top:25px;">
         Compile
       </button>
 
-      <button id="butrunc" style="position:absolute;left:910px;top:25px;">
+      <button id="butrunc" style="position:absolute;left:925px;top:25px;">
         Run
       </button>
 

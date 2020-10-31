@@ -456,7 +456,7 @@
   ;; Method II: allocate a new block and copy over
 
   (local.set $new_ptr (call $wax::malloc (local.get $n_bytes)))
-  (call $wax::memcpy (local.get $new_ptr) (local.get $ptr) (local.get $n_bytes))
+  (call $wax::memcpy (local.get $new_ptr) (local.get $ptr) (local.get $size))
   (call $wax::free (local.get $ptr))
   (local.get $new_ptr)
 
