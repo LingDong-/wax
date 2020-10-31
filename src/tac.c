@@ -563,7 +563,7 @@ void compile_tac_node(list_node_t* it, expr_t* expr){
 
   }
 
-  if (expr->key == EXPR_WHILE || expr->key == EXPR_FUNC){
+  if (expr->key == EXPR_WHILE || expr->key == EXPR_FUNC || expr->key == EXPR_FORIN){
     //...
     compile_tac_tree((expr_t*)((expr->children).tail->data));
     return;

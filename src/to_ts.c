@@ -622,6 +622,7 @@ str_t expr_to_ts(expr_t* expr, int indent){
 }
 
 str_t tree_to_ts(str_t modname, expr_t* tree, map_t* functable, map_t* stttable, map_t* included){
+  // compile_tac_tree(tree);
   str_t out = str_new();
   str_add(&out,"/*****************************************\n * ");
   str_add(&out,modname.data);

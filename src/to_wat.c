@@ -3,11 +3,19 @@
 
 #include "text.c"
 #include "parser.c"
+#include "tac.c"
 #include "common.c"
 
 
+map_t* wat_functable = NULL;
+
 list_t wat_strs;
 int wat_str_ptr;
+
+typedef struct wat_data_st {
+  int offset;
+  str_t data;
+} wat_data_t;
 
 str_t type_to_wat(type_t* typ){
   str_t out = str_new();
@@ -26,10 +34,33 @@ str_t type_to_wat(type_t* typ){
   }else if (typ->tag == TYP_STR){
     str_add(&out,"i32");
   }else{
-    str_add(&out,"/*type?*/");
+    str_add(&out,";;type?;;");
   }
   return out;
 }
+
+str_t wat_mat_iter_predecl(expr_t* expr){
+  str_t out = str_new();
+
+  list_node_t* it = expr->children.head;
+  while(it){
+    expr_t* ex = (expr_t*)(it->data);
+    
+    if (ex->key == EXPR_FORIN){
+      str_add(&out, "(local $tmp__it_");
+      char s[32];
+      sprintf(s,"%p",(void*)ex);
+      str_add(&out, s);
+      str_add(&out, " i32)");
+    }
+
+    str_add(&out,wat_mat_iter_predecl(ex).data);
+
+    it = it->next;
+  }
+  return out;
+}
+
 
 #define WAT_CALL2  str_add(&out, expr_to_wat(CHILD1,-1,'r').data );\
                    str_add(&out, " ");\
@@ -109,17 +140,23 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     }else if (tok->tag == TOK_STR){
       char s[32];
       sprintf(s, "%d", wat_str_ptr);
-      wat_str_ptr += tok->val.len-1;
+      
       str_add(&out, "(i32.const ");
       str_add(&out, s);
       str_add(&out, ")");
+      wat_data_t* d = (wat_data_t*)malloc(sizeof(wat_data_t));
+      d->data = tok->val;
+      d->offset = wat_str_ptr;
+
+      list_add(&wat_strs, d);
+      wat_str_ptr += tok->val.len-1; // +1 for null-term, -2 for quotes
     }
 
   }else if (expr->key == EXPR_IADD){ str_add(&out, "(i32.add "); WAT_CALL2
   }else if (expr->key == EXPR_ISUB){ str_add(&out, "(i32.sub "); WAT_CALL2
   }else if (expr->key == EXPR_IMUL){ str_add(&out, "(i32.mul "); WAT_CALL2 
   }else if (expr->key == EXPR_IDIV){ str_add(&out, "(i32.div_s "); WAT_CALL2 
-  }else if (expr->key == EXPR_IGT ){ str_add(&out, "(i32.gt " ); WAT_CALL2 
+  }else if (expr->key == EXPR_IGT ){ str_add(&out, "(i32.gt_s " ); WAT_CALL2 
   }else if (expr->key == EXPR_ILT ){ str_add(&out, "(i32.lt_s " ); WAT_CALL2 
   }else if (expr->key == EXPR_FADD){ str_add(&out, "(f32.add "); WAT_CALL2
   }else if (expr->key == EXPR_FSUB){ str_add(&out, "(f32.sub "); WAT_CALL2
@@ -135,37 +172,32 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
   }else if (expr->key == EXPR_FEQ ){ str_add(&out, "(f32.eq "); WAT_CALL2 
   }else if (expr->key == EXPR_PTREQL){ str_add(&out, "(i32.eq "); WAT_CALL2 
   }else if (expr->key == EXPR_LNOT){ str_add(&out, "(i32.eqz "); WAT_CALL2 
+  }else if (expr->key == EXPR_IGEQ){ str_add(&out, "(i32.ge_s "); WAT_CALL2 
+  }else if (expr->key == EXPR_ILEQ){ str_add(&out, "(i32.le_s "); WAT_CALL2 
+  }else if (expr->key == EXPR_FGEQ){ str_add(&out, "(f32.ge "); WAT_CALL2 
+  }else if (expr->key == EXPR_FLEQ){ str_add(&out, "(f32.le "); WAT_CALL2 
+  }else if (expr->key == EXPR_INEQ){ str_add(&out, "(i32.ne "); WAT_CALL2 
+  }else if (expr->key == EXPR_FNEQ){ str_add(&out, "(f32.ne "); WAT_CALL2 
+  }else if (expr->key == EXPR_PTRNEQ){ str_add(&out, "(i32.ne "); WAT_CALL2 
 
   }else if (expr->key == EXPR_FMOD){  
+    str_add(&out, "(call $wax::fmod ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out, " ");
+    str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
+    str_add(&out, ")");
 
   }else if (expr->key == EXPR_LAND){
-    str_add(&out, "(i32.eqz (i32.eqz (i32.and ");
-    str_add(&out, expr_to_wat(CHILD1,-1,'r').data );\
-    str_add(&out, " ");\
-    str_add(&out, expr_to_wat(CHILD2,-1,'r').data );\
-    str_add(&out, ")))");
+    // tac'ed out
   }else if (expr->key == EXPR_LOR){
-    str_add(&out, "(i32.eqz (i32.eqz (i32.or ");
-    str_add(&out, expr_to_wat(CHILD1,-1,'r').data );\
-    str_add(&out, " ");\
-    str_add(&out, expr_to_wat(CHILD2,-1,'r').data );\
-    str_add(&out, ")))");
-  }else if (expr->key == EXPR_IGEQ){
-
-  }else if (expr->key == EXPR_ILEQ){
-
-  }else if (expr->key == EXPR_FGEQ){
-
-  }else if (expr->key == EXPR_FLEQ){
-
-  }else if (expr->key == EXPR_INEQ || expr->key == EXPR_PTRNEQ){  
-
-
-  }else if (expr->key == EXPR_FNEQ){
-
+    // tac'ed out
 
   }else if (expr->key == EXPR_BNEG ){
-
+    str_add(&out, "(i32.sub (i32.const -1) ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out," ");
+    str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
+    str_add(&out,"))");
 
   }else if (expr->key == EXPR_IF){
     str_add(&out, "(if ");
@@ -184,10 +216,16 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     str_add(&out, ")");
 
   }else if (expr->key == EXPR_TIF){
-
+    // tac'ed out
 
   }else if (expr->key == EXPR_WHILE){
-    str_t lpname = tmp_name("tmp_lp_");
+    char s[64];
+    sprintf(s,"tmp__block_%p",(void*)expr);
+    str_add(&out, "block $");
+    str_add(&out, s);
+    str_add(&out, "\n");
+    INDENT2(indent);
+    str_t lpname = tmp_name("tmp__lp_");
     str_add(&out, "loop $");
     str_add(&out, lpname.data);
     str_add(&out, "\n");
@@ -204,113 +242,85 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     INDENT2(indent+1);
     str_add(&out, "))\n");
     INDENT2(indent);
+    str_add(&out, "end\n");
+    INDENT2(indent);
     str_add(&out, "end");
 
   }else if (expr->key == EXPR_FOR){
-    str_t lpname = tmp_name("tmp_lp_");
-    str_add(&out, "(block \n");
-    INDENT2(indent+1)
-    str_add(&out, "(local ");
-    str_add(&out, expr_to_wat(CHILD1,-1,'l').data);
-    str_add(&out, " i32)\n");
-    INDENT2(indent+1)
-    str_add(&out, "(local.set ");
-    str_add(&out, expr_to_wat(CHILD1,-1,'l').data);
+    // tac'ed out
+
+  }else if (expr->key == EXPR_FORIN){
+    char s[64];
+    sprintf(s,"tmp__it_%p",(void*)expr);
+
+    char sb[64];
+    sprintf(sb,"tmp__block_%p",(void*)expr);
+    
+    str_add(&out, "(local.set $");
+    str_add(&out, s);
     str_add(&out, " ");
-    str_add(&out, expr_to_wat(CHILD2,-1,'r').data);
-    str_add(&out, ")\n");
-    INDENT2(indent+1)
+    str_add(&out, "(call $w_map_iter_new ");
+    str_add(&out, expr_to_wat(CHILD3,-1,'r').data);
+    str_add(&out, "))\n");
+
+    INDENT2(indent);
+    str_add(&out, "block $");
+    str_add(&out, sb);
+    str_add(&out, "\n");
+
+    INDENT2(indent);
+    str_t lpname = tmp_name("tmp_lp_");
     str_add(&out, "loop $");
     str_add(&out, lpname.data);
-    str_add(&out, "\n");
+    str_add(&out, "\n");    
+    INDENT2(indent+1);
+    str_add(&out, "(if (local.get $");
+    str_add(&out, s);
+    str_add(&out, ") (then\n");
+
     INDENT2(indent+2);
-    str_add(&out, "(if ");
-    str_add(&out, expr_to_wat(CHILD3,-1,'r').data);
-    str_add(&out, " (then\n");
-    str_add(&out, expr_to_wat(CHILDN,indent+2,'r').data);
-    str_add(&out, "\n");
-    INDENT2(indent+3);
     str_add(&out, "(local.set ");
     str_add(&out, expr_to_wat(CHILD1,-1,'l').data);
-    str_add(&out, " (i32.add ");
-    str_add(&out, expr_to_wat(CHILD1,-1,'r').data);
     str_add(&out, " ");
-    str_add(&out, expr_to_wat(CHILD4,-1,'r').data);
-    str_add(&out, "))\n");
-    INDENT2(indent+3);
+    str_add(&out, "(call $map_iter_key_h ");
+    str_add(&out, expr_to_wat(CHILD3,-1,'r').data);
+    str_add(&out, " (local.get $");
+    str_add(&out, s);
+    str_add(&out, ")))\n");
+
+    INDENT2(indent+2);
+    str_add(&out, "(local.set ");
+    str_add(&out, expr_to_wat(CHILD2,-1,'l').data);
+    str_add(&out, " ");
+    str_add(&out, "(call $map_iter_val ");
+    str_add(&out, expr_to_wat(CHILD3,-1,'r').data);
+    str_add(&out, " (local.get $");
+    str_add(&out, s);
+    str_add(&out, ")))\n");
+
+    str_add(&out, expr_to_wat(CHILDN,indent+2,'r').data);
+    INDENT2(indent+2);
+    str_add(&out, "(local.set $");
+    str_add(&out, s);
+    str_add(&out, " ");
+    str_add(&out, "(call $map_iter_next ");
+    str_add(&out, expr_to_wat(CHILD3,-1,'r').data);
+    str_add(&out, " (local.get $");
+    str_add(&out, s);
+    str_add(&out, ")))\n");
+
+
+    str_add(&out, "\n");
+    INDENT2(indent+2);
     str_add(&out, "(br $");
     str_add(&out, lpname.data);
     str_add(&out, ")\n");
-    INDENT2(indent+2);
-    str_add(&out, "))\n");
     INDENT2(indent+1);
+    str_add(&out, "))\n");
+    INDENT2(indent);
     str_add(&out, "end\n");
     INDENT2(indent);
-    str_add(&out,")");
-
-  // }else if (expr->key == EXPR_FORIN){
-  //   str_t mpname = tmp_name("tmp_mp_");
-  //   str_t lpname = tmp_name("tmp_lp_");
-  //   str_t itname = tmp_name("tmp_it_");
-
-  //   str_add(&out, "w_map_t* ");
-  //   str_add(&out, mpname.data);
-  //   str_add(&out, "=");
-  //   str_add(&out, expr_to_wat(CHILD3,-1).data);
-  //   str_add(&out, ";\n");
-  //   INDENT2(indent);
-  //   str_add(&out, "for(int ");
-  //   str_add(&out, lpname.data);
-  //   str_add(&out,"=0;");
-  //   str_add(&out, lpname.data);
-  //   str_add(&out,"<W_NUM_MAP_SLOTS;");
-  //   str_add(&out, lpname.data);
-  //   str_add(&out, "++){\n");
-  //   INDENT2(indent+1);
-  //   str_add(&out, "w_slot_t* ");
-  //   str_add(&out, itname.data);
-  //   str_add(&out, "=");
-  //   str_add(&out, mpname.data);
-  //   str_add(&out, "->slots[");
-  //   str_add(&out, lpname.data);
-  //   str_add(&out, "];\n");
-  //   INDENT2(indent+1);
-  //   str_add(&out, "while(");
-  //   str_add(&out, itname.data);
-  //   str_add(&out, "){\n");
-  //   INDENT2(indent+2);
-  //   str_add(&out, type_to_wat(CHILD3->type->elem0).data);
-  //   str_add(&out, " ");
-  //   str_add(&out, expr_to_wat(CHILD1,-1).data);
-  //   str_add(&out, "=(");
-  //   str_add(&out, type_to_wat(CHILD3->type->elem0).data);
-  //   str_add(&out, ")(");
-  //   str_add(&out, itname.data);
-  //   str_add(&out, "->key);\n");
-  //   INDENT2(indent+2);
-  //   str_add(&out, type_to_wat(CHILD3->type->elem1).data);
-  //   str_add(&out, " ");
-  //   str_add(&out, expr_to_wat(CHILD2,-1).data);
-  //   str_add(&out, "=(");
-  //   str_add(&out, type_to_wat(CHILD3->type->elem1).data);
-  //   str_add(&out, ")(");
-  //   str_add(&out, itname.data);
-  //   str_add(&out,"->data);\n");
-  //   INDENT2(indent+2);
-  //   str_add(&out, "{\n");
-  //   str_add(&out, expr_to_wat(CHILDN,indent+2).data);
-  //   INDENT2(indent+2);
-  //   str_add(&out, "}\n");
-  //   INDENT2(indent+2);
-  //   str_add(&out, itname.data);
-  //   str_add(&out, "=");
-  //   str_add(&out, itname.data);
-  //   str_add(&out, "->next;\n");
-  //   INDENT2(indent+1);
-  //   str_add(&out, "}\n");
-  //   INDENT2(indent);
-  //   str_add(&out, "}");
-
+    str_add(&out, "end\n");
 
   }else if (expr->key == EXPR_FUNC){
     list_node_t* it = expr->children.head;
@@ -320,6 +330,11 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     str_t funcname = ((tok_t*)(CHILD1->term))->val;
 
     str_add(&out, funcname.data);
+
+    str_add(&out, " (export \"");
+    str_add(&out, funcname.data);
+    str_add(&out, "\")");
+
     it = expr->children.head->next;
     while(it){
       expr_t* ex = (expr_t*)(it->data);
@@ -349,7 +364,20 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
   }else if (expr->key == EXPR_CALL){
     str_t funcname = ((tok_t*)(CHILD1->term))->val;
 
-    str_add(&out, "(call ");
+    
+    int drp = 0;
+    func_t* fun = func_lookup(&funcname,wat_functable);
+    if (fun->result->tag != TYP_VOD){
+      if (!expr->parent || expr->parent->key == EXPR_THEN || expr->parent->key == EXPR_ELSE
+        || expr->parent->key == EXPR_DO || expr->parent->key == EXPR_FUNCBODY
+      ){
+        str_add(&out,"(drop ");
+        drp = 1;
+      }
+
+    }
+    
+    str_add(&out, "(call $");
     str_add(&out, funcname.data);
 
 
@@ -366,6 +394,9 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
       it = it->next;
     }
     str_add(&out, ")");
+    if (drp){
+      str_add(&out, ")");
+    }
 
   }else if (expr->key == EXPR_THEN || expr->key == EXPR_ELSE || expr->key == EXPR_DO || expr->key == EXPR_FUNCBODY){
     for (int k = 0; k < NUM_MAP_SLOTS; k++){
@@ -385,8 +416,22 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
         it = it->next;
       }
     }
+    if (expr->key == EXPR_FUNCBODY){
+      INDENT2(indent);
+      str_add(&out,wat_mat_iter_predecl(expr).data);
+      str_add(&out,"\n");
+    }
+
+    if (expr->key == EXPR_FUNCBODY){
+      INDENT2(indent+1);
+      str_add(&out,"(call $wax::push_stack)\n");
+      INDENT2(indent);
+    }
 
     list_node_t* it = expr->children.head;
+    if (!it){
+      str_add(&out,"\n");
+    }
     while(it){
       expr_t* ex = (expr_t*)(it->data);
       if (it==(expr->children.head)){
@@ -395,6 +440,11 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
         str_add(&out,expr_to_wat(ex,indent+1,'r').data);
       }
       it = it->next;
+    }
+
+    if (expr->key == EXPR_FUNCBODY){
+      INDENT2(indent+1);
+      str_add(&out,"(call $wax::pop_stack)\n");
     }
 
     indent=-1;
@@ -411,19 +461,19 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
       str_add(&out, expr_to_wat(CHILD1,-1,'r').data);
       str_add(&out, ")");
     }else if (typl->tag == TYP_INT && typr->tag == TYP_STR){
-      str_add(&out, "(call $w_int2str ");
+      str_add(&out, "(call $wax::int2str ");
       str_add(&out, expr_to_wat(CHILD1,-1,'r').data);
       str_add(&out, ")");
     }else if (typl->tag == TYP_FLT && typr->tag == TYP_STR){
-      str_add(&out, "(call $w_flt2str ");
+      str_add(&out, "(call $wax::flt2str ");
       str_add(&out, expr_to_wat(CHILD1,-1,'r').data);
       str_add(&out, ")");
     }else if (typl->tag == TYP_STR && typr->tag == TYP_INT){
-      str_add(&out, "(call $w_str2int ");
+      str_add(&out, "(call $wax::str2int ");
       str_add(&out, expr_to_wat(CHILD1,-1,'r').data);
       str_add(&out, ")");
     }else if (typl->tag == TYP_STR && typr->tag == TYP_FLT){
-      str_add(&out, "(call $w_flt2str");
+      str_add(&out, "(call $wax::str2flt ");
       str_add(&out, expr_to_wat(CHILD1,-1,'r').data);
       str_add(&out, ")");
     }else{
@@ -431,6 +481,11 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
       str_add(&out, expr_to_wat(CHILD1,-1,'r').data);
     }
   }else if (expr->key == EXPR_RETURN){
+
+    str_add(&out,"(call $wax::pop_stack)\n");
+
+    INDENT2(indent);
+
     if (CHILD1){
       str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
     }
@@ -447,7 +502,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     int offs = 0;
     char s[32];
     while(it){
-      expr_t* ex = (expr_t*)(it->data);
+      // expr_t* ex = (expr_t*)(it->data);
 
       sprintf(s,"%d",offs);
 
@@ -475,7 +530,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
       str_add(&out,typstr);
       str_add(&out,".store (i32.add (local.get $ptr) (i32.const ");
       str_add(&out,s);
-      str_add(&out,")) (local.get $v))))\n");
+      str_add(&out,")) (local.get $v)))\n");
       INDENT2(indent);
 
       it = it->next;
@@ -511,28 +566,28 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
 
     if (typ->tag == TYP_STT){
 
-      str_add(&out,"(call $w_calloc (global.get $sizeof__");
+      str_add(&out,"(call $wax::calloc (global.get $sizeof__");
       str_add(&out,typ->name.data);
       str_add(&out,"))");
 
     }else if (typ->tag == TYP_ARR){
       if (expr->children.len == 1){
-        str_add(&out,"(call $w_arr_new (i32.const 4))");
+        str_add(&out,"(call $wax::arr_new (i32.const 0))");
       }else{
         char s[32];
         sprintf(s,"%d",expr->children.len-1);
-        if (((type_t*)CHILD1->term)->elem0->tag == TYP_INT){
-          str_add(&out,"(call $w_arr_new_ints");
-        }else if (((type_t*)CHILD1->term)->elem0->tag == TYP_FLT){
-          str_add(&out,"(call $w_arr_new_flts");
-        }else{
-          str_add(&out,"(call $w_arr_new_strs");
-        }
+        str_add(&out,"(call $w__arr_lit");
         str_add(&out,s);
         list_node_t* it = expr->children.head->next;
         while (it){
           str_add(&out," ");
-          str_add(&out,expr_to_wat((expr_t*)(it->data),-1,'r').data);
+          if (((type_t*)CHILD1->term)->elem0->tag == TYP_FLT){
+            str_add(&out,"(i32.reinterpret_f32 ");
+            str_add(&out,expr_to_wat((expr_t*)(it->data),-1,'r').data);
+            str_add(&out,")");
+          }else{
+            str_add(&out,expr_to_wat((expr_t*)(it->data),-1,'r').data);
+          }
           it = it->next;
         }
         str_add(&out,")");
@@ -543,9 +598,9 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
       sprintf(s, "%d", typ->size*4);
 
       if (expr->children.len == 1){
-        str_add(&out,"(call $w_calloc (i32.const ");
+        str_add(&out,"(call $wax::calloc (i32.mul (i32.const 4) (i32.const ");
         str_add(&out,s);
-        str_add(&out,"))");
+        str_add(&out,")))");
       }else{
         int typtag = ((type_t*)CHILD1->term)->elem0->tag;
         if (typtag == TYP_INT){
@@ -553,7 +608,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
         }else if (typtag == TYP_FLT){
           str_add(&out,"(call $w_vec_new_flts");
         }else{
-          str_add(&out,"(call $w_vec_new_strs");
+          str_add(&out,"(call $w_vec_new_ints");
         }
         str_add(&out,s);
         list_node_t* it = expr->children.head->next;
@@ -569,7 +624,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
       str_add(&out,"(call $w_map_new (i32.const 64))");
 
     }else if (typ->tag == TYP_STR){
-      str_add(&out,"(call $w_str_new ");
+      str_add(&out,"(call $wax::str_new ");
       if (CHILD2){
         str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
       }else{
@@ -579,7 +634,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     }
   }else if (expr->key == EXPR_FREE){
     if (CHILD1->type->tag == TYP_ARR){
-      str_add(&out,"(call $w_arr_free ");
+      str_add(&out,"(call $wax::arr_free ");
       str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
       str_add(&out,")");
     }else if (CHILD1->type->tag == TYP_MAP){
@@ -587,7 +642,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
       str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
       str_add(&out,")");
     }else{
-      str_add(&out,"(call $w_free ");
+      str_add(&out,"(call $wax::free ");
       str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
       str_add(&out,")");
     }
@@ -627,23 +682,34 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRGET){
-    str_add(&out,"(call $w_arr_get ");
+    if (expr->type->tag == TYP_FLT){
+      str_add(&out,"(f32.reinterpret_i32 ");
+    }
+    str_add(&out,"(call $wax::arr_get ");
     str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
     str_add(&out," ");
     str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
     str_add(&out,")");
-
+    if (expr->type->tag == TYP_FLT){
+      str_add(&out,")");
+    }
   }else if (expr->key == EXPR_ARRSET){
-    str_add(&out,"(call $w_arr_set ");
+    str_add(&out,"(call $wax::arr_set ");
     str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
     str_add(&out," ");
     str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
     str_add(&out," ");
+    if (CHILD3->type->tag == TYP_FLT){
+      str_add(&out,"(i32.reinterpret_f32 ");
+    }
     str_add(&out,expr_to_wat(CHILD3,-1,'r').data);
+    if (CHILD3->type->tag == TYP_FLT){
+      str_add(&out,")");
+    }
     str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRINS){
-    str_add(&out,"(call $w_arr_insert ");
+    str_add(&out,"(call $wax::arr_insert ");
     str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
     str_add(&out," ");
     str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
@@ -652,7 +718,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRREM){
-    str_add(&out,"(call $w_arr_remove ");
+    str_add(&out,"(call $wax::arr_remove ");
     str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
     str_add(&out," ");
     str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
@@ -661,7 +727,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRCPY){
-    str_add(&out,"(call $w_arr_slice ");
+    str_add(&out,"(call $wax::arr_slice ");
     str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
     str_add(&out," ");
     str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
@@ -670,7 +736,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRLEN){
-    str_add(&out,"(call $w_arr_len ");
+    str_add(&out,"(call $wax::arr_length ");
     str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
     str_add(&out,")");
 
@@ -683,105 +749,106 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
   }else if (expr->key == EXPR_MAPGET){
     str_add(&out,"(call $w_map_get ");
     str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out," ");
+    str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
     str_add(&out,")");
 
   }else if (expr->key == EXPR_MAPREM){
 
     str_add(&out,"(call $w_map_remove ");
     str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out," ");
+    str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
     str_add(&out,")");
 
-  // }else if (expr->key == EXPR_MAPSET){
-  //   str_add(&out,"w_map_set((");
-  //   str_add(&out,expr_to_wat(CHILD1,-1).data);
-  //   str_add(&out,"),(");
-  //   if (CHILD1->type->elem0->tag == TYP_STR){
-  //     str_add(&out,"&(");
-  //     str_add(&out,expr_to_wat(CHILD2,-1).data);
-  //     str_add(&out,")),0");
-  //   }else{
-  //     str_add(&out,expr_to_wat(CHILD2,-1).data);
-  //     str_add(&out,"),sizeof(");
-  //     str_add(&out,type_to_wat(CHILD1->type->elem0).data);
-  //     str_add(&out,")");
-  //   }
-  //   str_add(&out,",(");
-  //   if (CHILD1->type->elem1->tag == TYP_FLT){
-  //     str_add(&out,"(int64_t)reinterpret_f2i(");
-  //     str_add(&out,expr_to_wat(CHILD3,-1).data);
-  //     str_add(&out,")");
-  //   }else if (CHILD1->type->elem1->tag == TYP_INT){
-  //     str_add(&out,"(int64_t)(");
-  //     str_add(&out,expr_to_wat(CHILD3,-1).data);
-  //     str_add(&out,")");
-  //   }else{
-  //     str_add(&out,"(int64_t)(");
-  //     str_add(&out,expr_to_wat(CHILD3,-1).data);
-  //     str_add(&out,")");
-  //   }
-  //   str_add(&out,"))");
+  }else if (expr->key == EXPR_MAPSET){
+    str_add(&out,"(call $w_map_set ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out," ");
+    str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
+    str_add(&out," ");
+    str_add(&out,expr_to_wat(CHILD3,-1,'r').data);
+    str_add(&out,")");
 
-
-  // }else if (expr->key == EXPR_STRLEN){
-  //   str_add(&out,"strlen(");
-  //   str_add(&out,expr_to_wat(CHILD1,-1).data);
-  //   str_add(&out,")");
-
-  // }else if (expr->key == EXPR_STRGET){
-  //   str_add(&out,"(");
-  //   str_add(&out,expr_to_wat(CHILD1,-1).data);
-  //   str_add(&out,")[");
-  //   str_add(&out,expr_to_wat(CHILD2,-1).data);
-  //   str_add(&out,"]");
-
-  // }else if (expr->key == EXPR_STRADD){
-  //   str_add(&out,"(");
-  //   str_add(&out,expr_to_wat(CHILD1,-1).data);
-  //   str_add(&out,"=w_str_add(");
-  //   str_add(&out,expr_to_wat(CHILD1,-1).data);
-  //   str_add(&out,",");
-  //   str_add(&out,expr_to_wat(CHILD2,-1).data);
-  //   str_add(&out,"))");
-
-  // }else if (expr->key == EXPR_STRCAT){
-  //   str_add(&out,"(");
-  //   str_add(&out,expr_to_wat(CHILD1,-1).data);
-  //   str_add(&out,"=w_str_cat(");
-  //   str_add(&out,expr_to_wat(CHILD1,-1).data);
-  //   str_add(&out,",");
-  //   str_add(&out,expr_to_wat(CHILD2,-1).data);
-  //   str_add(&out,"))");
-
-  // }else if (expr->key == EXPR_STRCPY){
-  //   str_add(&out,"w_str_cpy((");
-  //   str_add(&out,expr_to_wat(CHILD1,-1).data);
-  //   str_add(&out,"),(");
-  //   str_add(&out,expr_to_wat(CHILD2,-1).data);
-  //   str_add(&out,"),(");
-  //   str_add(&out,expr_to_wat(CHILD3,-1).data);
-  //   str_add(&out,"))");
-
-  // }else if (expr->key == EXPR_STREQL){
-  //   str_add(&out,"(strcmp((");
-  //   str_add(&out,expr_to_wat(CHILD1,-1).data);
-  //   str_add(&out,"),(");
-  //   str_add(&out,expr_to_wat(CHILD2,-1).data);
-  //   str_add(&out,"))==0)");
-
-  // }else if (expr->key == EXPR_STRNEQ){
-  //   str_add(&out,"(strcmp((");
-  //   str_add(&out,expr_to_wat(CHILD1,-1).data);
-  //   str_add(&out,"),(");
-  //   str_add(&out,expr_to_wat(CHILD2,-1).data);
-  //   str_add(&out,"))!=0)");
-
-  }else if (expr->key == EXPR_PRINT){
-    str_add(&out,"(call $w_print ");
+  }else if (expr->key == EXPR_MAPSET){
+    str_add(&out,"(call $wax::str_len ");
     str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
     str_add(&out,")");
 
-  // }else if (expr->key == EXPR_BREAK){
-  //   str_add(&out,"break");
+  }else if (expr->key == EXPR_STRGET){
+    str_add(&out,"(call $wax::str_get ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out,")");
+
+  }else if (expr->key == EXPR_STRADD){
+    tok_t* tok = ((tok_t*)(CHILD1->term));
+
+    if (sym_lookup_nonglobal(&tok->val,expr)){
+      str_add(&out,"(local.set ");
+    }else{
+      str_add(&out,"(global.set ");
+    }
+    str_add(&out, expr_to_wat(CHILD1,-1,'l').data);
+    str_add(&out," (call $wax::str_add ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out," ");
+    str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
+    str_add(&out,"))");
+
+  }else if (expr->key == EXPR_STRCAT){
+    tok_t* tok = ((tok_t*)(CHILD1->term));
+
+    if (sym_lookup_nonglobal(&tok->val,expr)){
+      str_add(&out,"(local.set ");
+    }else{
+      str_add(&out,"(global.set ");
+    }
+    str_add(&out, expr_to_wat(CHILD1,-1,'l').data);
+    str_add(&out," (call $wax::str_cat ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out," ");
+    str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
+    str_add(&out,"))");
+
+  }else if (expr->key == EXPR_STRCPY){
+    str_add(&out,"(call $wax::str_slice ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out," ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out," ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out,")");
+
+  }else if (expr->key == EXPR_STREQL){
+    str_add(&out,"(call $wax::str_cmp ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out," ");
+    str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
+    str_add(&out,")");
+
+  }else if (expr->key == EXPR_STRNEQ){
+    str_add(&out,"(i32.eqz (call $wax::str_cmp ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out," ");
+    str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
+    str_add(&out,"))");
+
+  }else if (expr->key == EXPR_PRINT){
+    str_add(&out,"(call $wax::print ");
+    str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+    str_add(&out,")");
+
+  }else if (expr->key == EXPR_BREAK){
+    expr_t* rt = expr->parent;
+    while (rt && rt->key != EXPR_WHILE && rt->key != EXPR_FORIN && rt->key != EXPR_FOR){
+      rt = rt->parent;
+    }
+    char s[64];
+    sprintf(s,"tmp__block_%p",(void*)rt);
+
+    str_add(&out,"(br $");
+    str_add(&out,s);
+    str_add(&out,")");
 
   }else if (expr->key == EXPR_ASM){
     
@@ -789,9 +856,9 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     indent=-1;
 
   }else{
-    str_add(&out,"/**");
+    str_add(&out,";;");
     str_add(&out,expr->rawkey.data);
-    str_add(&out,"**/");
+    str_add(&out,";;\n");
   }
 
   if (indent>=0){str_add(&out,"\n");}
@@ -799,23 +866,31 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
 }
 
 str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable, map_t* included){
+  compile_tac_tree(tree);
   lift_scope(tree);
 
+  wat_functable = functable;
+  wat_strs = list_new();
+
   str_t out = str_new();
-  // str_add(&out,"/*****************************************\n * ");
-  // str_add(&out,modname.data);
-  // for (int i = 0; i < 38-modname.len; i++){
-  //   str_addch(&out,' ');
-  // }
-  // str_add(&out,"*\n *****************************************/\n");
-  // str_add(&out,"/* Compiled by WAXC (Version ");
-  // str_add(&out,__DATE__);
-  // str_add(&out,")*/\n\n");
-  // str_add(&out,"/*=== WAX Standard Library BEGIN ===*/\n");
-  // str_addconst(&out,TEXT_std_c);
-  // str_add(&out,"/*=== WAX Standard Library END   ===*/\n\n");
-  // str_add(&out,"/*=== User Code            BEGIN ===*/\n");
+  str_add(&out,";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;\n;; ");
+  str_add(&out,modname.data);
+  for (int i = 0; i < 37-modname.len; i++){
+    str_addch(&out,' ');
+  }
+  str_add(&out,";;\n;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;\n");
+  str_add(&out,";;Compiled by WAXC (Version ");
+  str_add(&out,__DATE__);
+  str_add(&out,");;\n\n");
+
+
   str_add(&out,"(module \n");
+
+  str_addconst(&out,TEXT_std_import_wat);
+  str_add(&out,"\n");
+
+  str_add(&out,";;=== User Code            BEGIN ===;;\n");
+
   list_node_t* it = tree->children.head;
 
   while(it){
@@ -849,10 +924,36 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
 
     it = it->next;
   }
-  str_add(&out,")");
 
-  // str_add(&out,"/*=== User Code            END   ===*/\n");
+  it = wat_strs.head;
+  while (it){
+    wat_data_t* s = (wat_data_t*)(it->data);
+    str_add(&out,"(data (i32.const ");
+    char offs[32];
+    sprintf(offs,"%d",s->offset);
+    str_add(&out,offs);
+    str_add(&out,") ");
+    str_add(&out,s->data.data);
+    str_add(&out,")\n");
+    it = it->next;
+  }
 
+  char wsps[32];
+  sprintf(wsps, "%d", wat_str_ptr+3 & (-4)); //align4
+  str_add(&out,"(global $wax::min_addr (mut i32) (i32.const ");
+  str_add(&out, wsps);
+  str_add(&out,"))\n");
+  
+  str_add(&out,";;=== User Code            END   ===;;\n\n");
+
+  str_add(&out,";;=== WAX Standard Library BEGIN ===;;\n");
+  str_addconst(&out,TEXT_std_malloc_wat);
+  str_addconst(&out,TEXT_std_stack_wat);
+  str_addconst(&out,TEXT_std_str_wat);
+  str_addconst(&out,TEXT_std_arr_wat);
+  str_add(&out,";;=== WAX Standard Library END   ===;;\n\n");
+
+  str_add(&out,")\n");
   return out;
 
 }

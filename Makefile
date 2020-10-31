@@ -18,3 +18,6 @@ emlib: _
 	-s EXPORTED_FUNCTIONS='["_transpile"]' \
 	-s EXPORTED_RUNTIME_METHODS='["cwrap"]' \
 	-s MODULARIZE=1 -s 'EXPORT_NAME="WAXC"'
+
+text: _
+	cd tools; python3 concat.py; cd ../

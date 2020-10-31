@@ -134,7 +134,7 @@ void w_arr_insert_impl(w_arr_t* arr,int i) {
 void w_arr_remove(w_arr_t* arr,int i,int n) {
   memmove((char*)((arr)->data)+(i)*(arr)->elem_size, 
           (char*)((arr)->data)+((i)+(n))*(arr)->elem_size,
-          ((arr->len)-(i)+(n))*(arr)->elem_size );
+          ((arr->len)-(i)-(n))*(arr)->elem_size );
   (arr)->len-=(n);
 }
 
