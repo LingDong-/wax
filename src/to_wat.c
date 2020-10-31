@@ -180,6 +180,8 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
   }else if (expr->key == EXPR_BAND){ str_add(&out, "(i32.and "); WAT_CALL2 
   }else if (expr->key == EXPR_BOR ){ str_add(&out, "(i32.or "); WAT_CALL2 
   }else if (expr->key == EXPR_XOR ){ str_add(&out, "(i32.xor "); WAT_CALL2 
+  }else if (expr->key == EXPR_SHL ){ str_add(&out, "(i32.shl "); WAT_CALL2 
+  }else if (expr->key == EXPR_SHR ){ str_add(&out, "(i32.shr_s "); WAT_CALL2 
   }else if (expr->key == EXPR_IEQ ){ str_add(&out, "(i32.eq "); WAT_CALL2 
   }else if (expr->key == EXPR_FEQ ){ str_add(&out, "(f32.eq "); WAT_CALL2 
   }else if (expr->key == EXPR_PTREQL){ str_add(&out, "(i32.eq "); WAT_CALL2 
@@ -512,9 +514,15 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
       str_add(&out, expr_to_wat(CHILD1,-1,'r').data);
     }
   }else if (expr->key == EXPR_RETURN){
-
+    expr_t* rt = expr->parent;
+    while (rt && rt->key != EXPR_FUNCBODY){
+      if (rt->key == EXPR_DO){
+        str_add(&out,"(call $wax::pop_stack)\n");
+        INDENT2(indent);
+      }
+      rt = rt->parent;
+    }
     str_add(&out,"(call $wax::pop_stack)\n");
-
     INDENT2(indent);
 
     if (CHILD1){
@@ -576,21 +584,45 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     str_add(&out,"))");
 
   }else if (expr->key == EXPR_NOTNULL){
-    str_add(&out,"(i32.eqz ");
+    str_add(&out,"(i32.eqz (i32.eqz ");
     str_add(&out, expr_to_wat(CHILD1,-1,'r').data);
-    str_add(&out,")");
+    str_add(&out,"))");
 
   }else if (expr->key == EXPR_SETNULL){
-    tok_t* tok = ((tok_t*)(CHILD1->term));
-
-    if (sym_lookup_nonglobal(&tok->val,expr)){
-      str_add(&out,"(local.set ");
+    if (!CHILD2){
+      tok_t* tok = ((tok_t*)(CHILD1->term));
+      if (sym_lookup_nonglobal(&tok->val,expr)){
+        str_add(&out,"(local.set ");
+      }else{
+        str_add(&out,"(global.set ");
+      }
+      str_add(&out, expr_to_wat(CHILD1,-1,'l').data);
+      str_add(&out," (i32.const 0))");
     }else{
-      str_add(&out,"(global.set ");
+      if (CHILD1->type->tag == TYP_STT){
+        str_add(&out,"(call $set__");
+        str_add(&out,CHILD1->type->name.data);
+        str_add(&out,"__");
+        str_add(&out,((tok_t*)(CHILD2->term))->val.data);
+        str_add(&out," ");
+        str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+        str_add(&out," (i32.const 0))");
+      }else if (CHILD1->type->tag == TYP_ARR){
+        str_add(&out,"(call $wax::arr_set ");
+        str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+        str_add(&out," ");
+        str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
+        str_add(&out," (i32.const 0))");
+      }else if (CHILD1->type->tag == TYP_VEC){
+        str_add(&out,"(i32.store (i32.add ");
+        str_add(&out,expr_to_wat(CHILD1,-1,'r').data);
+        str_add(&out," (i32.mul ");
+        str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
+        str_add(&out," (i32.const 4))) (i32.const 0))");
+      }
     }
 
-    str_add(&out, expr_to_wat(CHILD1,-1,'l').data);
-    str_add(&out," (i32.const 0))");
+
 
   }else if (expr->key == EXPR_ALLOC){
     type_t* typ = (type_t*)(CHILD1->term);
@@ -1031,7 +1063,7 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
 
   str_add(&out,"(module \n");
   str_add(&out,"(import \"console\" \"log\" (func $wax::js::console.log (param i32) (param i32)))\n");
-  str_add(&out,"(import \"debug\" \"logi32\" (func $__logi32 (param i32)))\n");
+  // str_add(&out,"(import \"debug\" \"logi32\" (func $__logi32 (param i32)))\n");
   if (included_lookup("math",included)){
     str_addconst(&out,TEXT_math_wat);
   }

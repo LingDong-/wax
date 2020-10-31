@@ -16,6 +16,7 @@ int WVERBOSE = 0;
 #include "to_cpp.c"
 #include "to_swift.c"
 #include "to_lua.c"
+#include "to_wat.c"
 
 
 char* transpile(char* targ, char* filname, char* src, int print_ast){
@@ -44,6 +45,8 @@ char* transpile(char* targ, char* filname, char* src, int print_ast){
     defs_addbool(&defs,"TARGET_SWIFT",0);
   }else if (!strcmp(targ,"lua")){
     defs_addbool(&defs,"TARGET_LUA",0);
+  }else if (!strcmp(targ,"wat")){
+    defs_addbool(&defs,"TARGET_WAT",0);
   }
 
   printinfo("[info] running preprocessor...\n");
@@ -87,6 +90,8 @@ char* transpile(char* targ, char* filname, char* src, int print_ast){
     out = tree_to_swift(modname,tree,&functable,&stttable,&included);
   }else if (!strcmp(targ,"lua")){
     out = tree_to_lua(modname,tree,&functable,&stttable,&included);
+  }else if (!strcmp(targ,"wat")){
+    out = tree_to_wat(modname,tree,&functable,&stttable,&included);
   }
   char* cout = (char*)malloc(out.len+1);
   memcpy(cout, out.data, out.len);

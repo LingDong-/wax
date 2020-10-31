@@ -44,6 +44,7 @@ void print_help(){
   printf("--cpp   path/out.cpp   transpile to c++          \n");
   printf("--swift path/out.swift transpile to swift        \n");
   printf("--lua   path/out.lua   transpile to lua          \n");
+  printf("--wat   path/out.wat   transpile to webassembly  \n");
   printf("--json  path/out.json  syntax tree to JSON file  \n");
   printf("--tokens               print tokenization        \n");
   printf("--ast                  print abstract syntax tree\n");

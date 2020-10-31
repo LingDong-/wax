@@ -45,7 +45,7 @@
 
 ; solve N-Queens puzzle (exhaustive)
 (func solve
-	(let B (vec @N int) (alloc (vec @N int))) ; chessboard
+	(local B (vec @N int) (alloc (vec @N int))) ; chessboard
 	(let s int 0)  ; solution ID
 	(let y int 0)  ; current row
 	(set B 0 -1)

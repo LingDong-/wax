@@ -40,7 +40,9 @@
   (local $l1 i32)
   (local.set $l0 (call $wax::str_len (local.get $s0)))
   (local.set $l1 (call $wax::str_len (local.get $s1)))
+
   (local.set $s0 (call $wax::realloc (local.get $s0) (i32.add (i32.add (local.get $l0) (local.get $l1) ) (i32.const 1)) ))
+
   (call $wax::memcpy (i32.add (local.get $s0) (local.get $l0)) (local.get $s1) (local.get $l1) )
   (i32.store8 (i32.add (i32.add (local.get $s0) (local.get $l0)) (local.get $l1)) (i32.const 0)  )
   (local.get $s0)

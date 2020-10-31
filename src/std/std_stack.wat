@@ -14,20 +14,20 @@
 (global $wax::stack_size    (mut i32) (i32.const 128))
 (global $wax::stack_index   (mut i32) (i32.const 0))
 (global $wax::stack_now     (mut i32) (i32.const 0))
+(global $wax::stack_did_init(mut i32) (i32.const 0))
 
 (func $wax::init_stack
   (global.set $wax::stack_indices_ptr (call $wax::calloc (i32.mul (global.get $wax::stack_count) (i32.const 4))))
   (global.set $wax::stack_content_ptr (call $wax::malloc (global.get $wax::stack_size)))
   (global.set $wax::stack_index (i32.const 0))
+  (global.set $wax::stack_did_init (i32.const 1))
 )
 (func $wax::stack_index_offset (result i32)
   (i32.add (global.get $wax::stack_indices_ptr) (i32.mul (global.get $wax::stack_index) (i32.const 4)))
 )
 (func $wax::push_stack
-  ;; (call $__logi32 (i32.const 11))
-  ;; (call $__logi32 (global.get $wax::stack_index))
 
-  (if (i32.eqz (global.get $wax::stack_indices_ptr)) (then (call $wax::init_stack) ))
+  (if (i32.eqz (global.get $wax::stack_did_init)) (then (call $wax::init_stack) ))
 
   (global.set $wax::stack_index (i32.add (global.get $wax::stack_index) (i32.const 1) ))
 
@@ -41,11 +41,10 @@
   (i32.store (call $wax::stack_index_offset) (global.get $wax::stack_now) )
 )
 (func $wax::pop_stack
-  ;; (call $__logi32 (i32.const 22))
-  ;; (call $__logi32 (global.get $wax::stack_index))
 
-  (global.set $wax::stack_index (i32.sub (global.get $wax::stack_index) (i32.const 1) ))
   (global.set $wax::stack_now (i32.load (call $wax::stack_index_offset) ))
+  (global.set $wax::stack_index (i32.sub (global.get $wax::stack_index) (i32.const 1) ))
+  
 )
 (func $wax::alloca (param $n_bytes i32) (result i32)
   (local $inc i32)

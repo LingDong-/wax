@@ -53,6 +53,7 @@ var html = `
 <script src="https://codemirror.net/mode/python/python.js"></script>
 <script src="https://codemirror.net/mode/swift/swift.js"></script>
 <script src="https://codemirror.net/mode/lua/lua.js"></script>
+<script src="https://codemirror.net/mode/wast/wast.js"></script>
 
 <script src="https://unpkg.com/typescript@4.0.3/lib/typescriptServices.js"></script>
 
@@ -92,6 +93,7 @@ var html = `
         <option value="cs">C#</option>
         <option value="swift">Swift</option>
         <option value="lua">Lua</option>
+        <option value="wat">WebAssembly</option>
         <option value="json">JSON</option>
         <!--<option value="ast">Syntax Tree</option>-->
       </select>
@@ -232,6 +234,7 @@ function main(){
           "swift":"text/x-swift",
           "json":"javascript",
           "lua":"text/x-lua",
+          "wat":"text/webassembly",
         })[targ];
       // print(mode);
       try{
