@@ -77,7 +77,7 @@ var html = `
       </div>
       <select id="selexam" style="position:absolute;left:420px;top:25px;">
         ${
-          Object.keys(examples).map(x=>`<option>${x}</option>`).join("")
+          Object.keys(examples).map(x=>`<option value="${x}">${x}</option>`).join("")
         }
       </select>
 
@@ -183,17 +183,30 @@ function main(){
 
 
   
-
-  window.console_content = "";
-  window.print = console.log;
-  window.console.log = function(x){console_content+=x+"\n"}
-
-
   var seltarg = document.getElementById("seltarg");
   var selexam = document.getElementById("selexam");
   var selreal = document.getElementById("selreal");
   var butcomp = document.getElementById("butcomp");
   var butrunc = document.getElementById("butrunc");
+
+  selexam.value = "turing.wax";
+
+  try{
+    if (window.location.href.split("?")[1]){
+      var args = {};
+      window.location.href.split("?")[1].split("&").map(x=>x.split("=")).map(x=>{args[x[0]]=x[1]})
+      console.log(args);
+      if (args.example){
+        document.querySelector('#selexam [value="' + args.example + '"]').selected = true;
+      }
+      if (args.to){
+        document.querySelector('#seltarg [value="' + args.to + '"]').selected = true;
+      }
+    }
+  }catch(e){
+    console.log("cannot parse url query")
+  }
+
 
   CML.on("change",function(e){
     if (selreal.value == "yes"){
@@ -213,12 +226,19 @@ function main(){
     doCompile();
   }
 
-  selexam.value = "turing.wax";
-  selexam.onchange();
-
   seltarg.onchange = function(){
     doCompile();
   }
+
+
+  selexam.onchange();
+
+  window.console_content = "";
+  window.print = console.log;
+  window.console.log = function(x){console_content+=x+"\n"}
+
+
+
 
   function doCompile(){
     if (window.transpile){

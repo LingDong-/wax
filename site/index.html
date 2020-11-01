@@ -90,7 +90,7 @@
         Example:
       </div>
       <select id="selexam" style="position:absolute;left:420px;top:25px;">
-        <option>fib.wax</option><option>flocking.wax</option><option>helloworld.wax</option><option>kmeans.wax</option><option>line.wax</option><option>nqueens.wax</option><option>quicksort.wax</option><option>quine.wax</option><option>raycast.wax</option><option>traceskeleton.wax</option><option>turing.wax</option>
+        <option value="fib.wax">fib.wax</option><option value="flocking.wax">flocking.wax</option><option value="helloworld.wax">helloworld.wax</option><option value="kmeans.wax">kmeans.wax</option><option value="line.wax">line.wax</option><option value="nqueens.wax">nqueens.wax</option><option value="quicksort.wax">quicksort.wax</option><option value="quine.wax">quine.wax</option><option value="raycast.wax">raycast.wax</option><option value="traceskeleton.wax">traceskeleton.wax</option><option value="turing.wax">turing.wax</option>
       </select>
 
       <div style="position:absolute;left:550px;top:27px;position:absolute;font-size:11px;color:gray">
@@ -195,17 +195,30 @@ function main(){
 
 
   
-
-  window.console_content = "";
-  window.print = console.log;
-  window.console.log = function(x){console_content+=x+"\n"}
-
-
   var seltarg = document.getElementById("seltarg");
   var selexam = document.getElementById("selexam");
   var selreal = document.getElementById("selreal");
   var butcomp = document.getElementById("butcomp");
   var butrunc = document.getElementById("butrunc");
+
+  selexam.value = "turing.wax";
+
+  try{
+    if (window.location.href.split("?")[1]){
+      var args = {};
+      window.location.href.split("?")[1].split("&").map(x=>x.split("=")).map(x=>{args[x[0]]=x[1]})
+      console.log(args);
+      if (args.example){
+        document.querySelector('#selexam [value="' + args.example + '"]').selected = true;
+      }
+      if (args.to){
+        document.querySelector('#seltarg [value="' + args.to + '"]').selected = true;
+      }
+    }
+  }catch(e){
+    console.log("cannot parse url query")
+  }
+
 
   CML.on("change",function(e){
     if (selreal.value == "yes"){
@@ -225,12 +238,19 @@ function main(){
     doCompile();
   }
 
-  selexam.value = "turing.wax";
-  selexam.onchange();
-
   seltarg.onchange = function(){
     doCompile();
   }
+
+
+  selexam.onchange();
+
+  window.console_content = "";
+  window.print = console.log;
+  window.console.log = function(x){console_content+=x+"\n"}
+
+
+
 
   function doCompile(){
     if (window.transpile){
