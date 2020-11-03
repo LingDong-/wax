@@ -101,7 +101,7 @@ str_t expr_to_lua(expr_t* expr, int indent){
     str_add(&out, ")");
 
   }else if (expr->key == EXPR_XOR){
-    str_add(&out, "(bit or bit32).xor((");
+    str_add(&out, "(bit or bit32).bxor((");
     str_add(&out, expr_to_lua(CHILD1,-1).data );
     str_add(&out, "),(");
     str_add(&out, expr_to_lua(CHILD2,-1).data );

@@ -394,8 +394,10 @@ void compile_tac_node(list_node_t* it, expr_t* expr){
 
       compile_tac_node(it->prev, (expr_t*)(((expr_t*)(it->prev->data))->children.tail->data)  );
     }
-
-    compile_tac_tree((expr_t*)((expr->children).tail->data));
+    compile_tac_tree((expr_t*)((expr->children).head->next->data));
+    if ((expr->children).head->next->next){
+      compile_tac_tree((expr_t*)((expr->children).head->next->next->data));
+    }
     return;
   }
 

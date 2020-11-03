@@ -1,0 +1,93 @@
+;; Hilbert Curve
+;; The space-filling curve desribed by David Hilbert in 1891
+;; ported from:
+;; https://en.wikipedia.org/wiki/Hilbert_curve
+;; http://www.rosettacode.org/wiki/Hilbert_curve#Java
+
+;; rotate/flip a quadrant appropriately
+(func rot (param n int) (param xy (vec 2 int)) (param rx int) (param ry int)
+  (if (= ry 0) (then
+    (if (= rx 1) (then
+      (set xy 0 (- (- n 1) (get xy 0)))
+      (set xy 1 (- (- n 1) (get xy 1)))
+    ))
+    ; swap x and y
+    (let t int (get xy 0))
+    (set xy 0 (get xy 1))
+    (set xy 1 t)
+  ))
+)
+
+;; convert d to (x,y)
+(func d2xy (param n int) (param d int) (param xy (vec 2 int))
+  (let rx int)
+  (let ry int)
+  (let t int d)
+  (set xy 0 0)
+  (set xy 1 0)
+  (for s 1 (< s n) s (do
+    (set rx (& 1 (/ t 2)))
+    (set ry (& 1 (^ t rx)))
+    (call rot s xy rx ry)
+    (set xy 0 (+ (get xy 0) (* s rx)))
+    (set xy 1 (+ (get xy 1) (* s ry)))
+    (set t (/ t 4))
+  ))
+)
+
+(func hilbert_curve (param n int) (result (arr (vec 2 int)))
+  (let pts (arr (vec 2 int)) (alloc (arr (vec 2 int))))
+  (for d 0 (< d (* n n)) 1 (do
+    (let xy (vec 2 int) (alloc (vec 2 int)))
+    (call d2xy n d xy)
+    (insert pts (# pts) xy)
+  ))
+  (return pts)
+)
+
+(func draw_curve (param pts (arr (vec 2 int))) (param n int) (result str)
+  (local canv (arr int) (alloc (arr int)))
+  (let m int (- (* n 3) 2))
+  (for i 0 (< i (* n m)) 1 (do
+    (insert canv (# canv) ' ')
+  ))
+  (for i 1 (< i (# pts)) 1 (do
+    (let p0 (vec 2 int) (get pts (- i 1)))
+    (let p1 (vec 2 int) (get pts i))
+    (let dx int (- (get p1 0) (get p0 0)))
+    (if (= dx 0) (then
+      ; vertical line
+      (let row int (? (> (get p1 1) (get p0 1)) (get p1 1) (get p0 1) ))
+      (let col int (* (get p1 0) 3))
+      (set canv (+ (* row m) col) '|')
+    )(else
+      (let row int (get p1 1))
+      ; horizontal line
+      (let col int (? (< (get p1 0) (get p0 0)) (get p1 0) (get p0 0) ))
+      (set col (+ (* col 3) 1))
+      (set canv (+ (* row m) col  ) '_')
+      (set canv (+ (* row m) col 1) '_')
+    ))
+  ))
+  (let s str (alloc str))
+  (for i 0 (< i n) 1 (do
+    (for j 0 (< j m) 1 (do
+      (<< s (get canv (+ (* i m) j)))
+    ))
+    (<< s '\n')
+  ))
+  (return s)
+)
+
+(func main (result int)
+  (for order 1 (<= order 5) 1 (do
+    (let n int (<< 1 order))
+    (local pts (arr (vec 2 int)) (call hilbert_curve n))
+    (local s str (call draw_curve pts n))
+    (print s) 
+    (for i 0 (< i (# pts)) 1 (do
+      (free (get pts i))
+    ))
+  ))
+  (return 0)
+)

@@ -134,7 +134,7 @@
   (if (i32.lt_u (local.get $length) (local.get $capacity) ) (then) (else
     (local.set $capacity (i32.add
       (i32.add (local.get $capacity) (i32.const 1))
-      (i32.mul (local.get $capacity) (i32.const 2))
+      (local.get $capacity)
     ))
     (call $wax::_arr_set_capacity (local.get $a) (local.get $capacity))
 

@@ -1040,6 +1040,8 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
 str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable, map_t* included){
   compile_tac_tree(tree);
   lift_scope(tree);
+  
+  // print_syntax_tree(tree,0);
 
   wat_functable = functable;
   wat_strs = list_new();
