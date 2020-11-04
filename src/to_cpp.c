@@ -87,7 +87,16 @@ str_t expr_to_cpp(expr_t* expr, int indent){
 
   }else if (expr->key == EXPR_TERM){
 
-    str_add(&out, ((tok_t*)(expr->term))->val.data);
+    tok_t* tok = ((tok_t*)(expr->term));
+    if (tok->tag == TOK_INT){
+      if (tok->val.data[0] == '\''){
+        str_add(&out, "(int)");
+      }
+    }
+    str_add(&out, tok->val.data);
+    if (tok->tag == TOK_FLT){
+      str_add(&out, "f");
+    }
   
   }else if (expr->key == EXPR_IADD || expr->key == EXPR_FADD ||
             expr->key == EXPR_ISUB || expr->key == EXPR_FSUB ||

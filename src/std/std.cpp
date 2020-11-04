@@ -5,7 +5,7 @@ inline void w_arr_insert (std::vector<T>* arr, int i, T x){
 
 template <typename T>
 inline void w_arr_remove (std::vector<T>* arr, int i, int n){
-  arr->remove(arr->begin()+i,arr->begin()+i+n);
+  arr->erase(arr->begin()+i,arr->begin()+i+n);
 }
 
 template <typename T>

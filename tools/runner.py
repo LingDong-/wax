@@ -10,7 +10,10 @@ try:
   perf = "time"
 except:
   pass
-cmd = f'cd ../; make text; make c; ./waxc examples/{name}.wax --{targ} out/{name}.{targ}; cd out;'
+folder = "examples"
+if not os.path.isfile(folder+"/"+name+".wax"):
+  folder = "tests"
+cmd = f'cd ../; make -s text; make -s c; ./waxc {folder}/{name}.wax --{targ} out/{name}.{targ} --silent; cd out;'
 if (targ == 'ts'):
   cmd += f'tsc {name}.{targ}; {perf} node {name}.js;'
 elif (targ == 'c'):

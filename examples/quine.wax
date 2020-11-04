@@ -23,7 +23,7 @@
   "    (<< s (get l i)) (<< s 10)"
   "  ))"
   "  (print s)"
-  "  (print 0)"
+  "  (return 0)"
   ")"
   ))
   (for i 0 (< i 6) 1 (do

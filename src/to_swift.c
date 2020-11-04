@@ -550,7 +550,7 @@ str_t expr_to_swift(expr_t* expr, int indent){
     str_add(&out,expr_to_swift(CHILD1,-1).data);
     str_add(&out,")!.data[");
     str_add(&out,expr_to_swift(CHILD2,-1).data);
-    str_add(&out,"]=");
+    str_add(&out,"] = ");
     str_add(&out,expr_to_swift(CHILD3,-1).data);
     str_add(&out,")");
 
@@ -571,7 +571,7 @@ str_t expr_to_swift(expr_t* expr, int indent){
     str_add(&out,")!.remove(i:");
     str_add(&out,expr_to_swift(CHILD2,-1).data);
     str_add(&out,",n:");
-    str_add(&out,expr_to_swift(CHILD1,-1).data);
+    str_add(&out,expr_to_swift(CHILD3,-1).data);
     str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRCPY){
@@ -580,7 +580,7 @@ str_t expr_to_swift(expr_t* expr, int indent){
     str_add(&out,")!.slice(i:");
     str_add(&out,expr_to_swift(CHILD2,-1).data);
     str_add(&out,",n:");
-    str_add(&out,expr_to_swift(CHILD1,-1).data);
+    str_add(&out,expr_to_swift(CHILD3,-1).data);
     str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRLEN){

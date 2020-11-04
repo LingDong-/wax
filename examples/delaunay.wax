@@ -1,0 +1,346 @@
+;; Delaunay Triangulation
+;; ported from Paul Bourke original C version:
+;; http://paulbourke.net/papers/triangulate/triangulate.c
+;; with original comments
+
+(@include math)
+
+(@define X 0)
+(@define Y 1)
+(@define FALSE 0)
+(@define TRUE 1)
+(@define P1 0)
+(@define P2 1)
+(@define P3 2)
+(@define EPSILON 0.0000001)
+
+;; Return TRUE if a point (xp,yp) is inside the circumcircle made up
+;; of the points (x1,y1), (x2,y2), (x3,y3)
+;; The circumcircle centre is returned in (xc,yc) and the radius r
+;; NOTE: A point on the edge is inside the circumcircle
+(func circumcircle (param xp float) (param yp float)
+	(param x1 float) (param y1 float) (param x2 float) (param y2 float) (param x3 float) (param y3 float)
+	(param xcycr (vec 3 float)) (result int)
+
+	(let m1 float) (let m2 float)
+	(let mx1 float) (let mx2 float)
+	(let my1 float) (let my2 float)
+	(let dx float) (let dy float) (let drsqr float)
+	(let fabsy1y2 float (call fabs (- y1 y2)))
+	(let fabsy2y3 float (call fabs (- y2 y3)))
+	(let xc float)
+	(let yc float)
+	(let rsqr float)
+
+	(if (&& (< fabsy1y2 @EPSILON) (< fabsy2y3 @EPSILON)) (then
+		(return 0)
+	))
+	(if (< fabsy1y2 @EPSILON) (then
+		(set m2 (- (/ (- x3 x2) (- y3 y2))))
+		(set mx2 (/ (+ x2 x3) 2.0))
+		(set my2 (/ (+ y2 y3) 2.0))
+		(set xc (/ (+ x2 x1) 2.0))
+		(set yc (+ (* m2 (- xc mx2)) my2))
+	)(else (if (< fabsy2y3 @EPSILON) (then
+		(set m1 (- (/ (- x2 x1) (- y2 y1))))
+		(set mx1 (/ (+ x1 x2) 2.0))
+		(set my1 (/ (+ y1 y2) 2.0))
+		(set xc (/ (+ x3 x2) 2.0))
+		(set yc (+ (* m1 (- xc mx1)) my1))
+	)(else
+		(set m1 (- (/ (- x2 x1) (- y2 y1))))
+		(set m2 (- (/ (- x3 x2) (- y3 y2))))
+		(set mx1 (/ (+ x1 x2) 2.0))
+		(set mx2 (/ (+ x2 x3) 2.0))
+		(set my1 (/ (+ y1 y2) 2.0))
+		(set my2 (/ (+ y2 y3) 2.0))
+		(set xc (/ (+ (* m1 mx1) (- (* m2 mx2)) my2 (- my1) ) (- m1 m2) ))
+		(if (> fabsy1y2 fabsy2y3) (then
+			(set yc (+ (* m1 (- xc mx1)) my1))
+		)(else
+			(set yc (+ (* m2 (- xc mx2)) my2))
+		))
+	))))
+	(set dx (- x2 xc))
+	(set dy (- y2 yc))
+	(set rsqr (+ (* dx dx) (* dy dy)))
+	(set dx (- xp xc))
+	(set dy (- yp yc))
+	(set drsqr (+ (* dx dx) (* dy dy)))
+
+	(set xcycr @X xc)
+	(set xcycr @Y yc)
+	(set xcycr 2 rsqr)
+
+	(return (<= (- drsqr rsqr) @EPSILON))
+)
+
+;; Triangulation subroutine
+;; Takes as input vertices in array pxyz
+;; Returned is a list of triangular faces
+;; These triangles are arranged in a consistent clockwise order.
+;; The vertex array must be sorted in increasing x values
+(func delaunaytriangulate (param pxyz (arr (vec 2 float))) (result (arr (vec 3 int)))
+	(let nv int (# pxyz))
+	(let inside int)
+	(let xp float) (let yp float)
+	(let x1 float) (let y1 float)
+	(let x2 float) (let y2 float)
+	(let x3 float) (let y3 float)
+	(let xmin float) (let xmax float)
+	(let ymin float) (let ymax float)
+	(let xmid float) (let ymid float)
+	(let dx float) (let dy float) (let dmax float)
+
+	(local xcycr (vec 3 float) (alloc (vec 3 float)))
+	(local complete (arr int) (alloc (arr int)))
+
+	(let v (arr (vec 3 int)) (alloc (arr (vec 3 int))))
+
+	(if (< (# pxyz) 3) (then
+		(return v)
+	))
+
+	;; Find the maximum and minimum vertex bounds.
+	;; This is to allow calculation of the bounding triangle
+	(set xmin (get pxyz 0 @X))
+	(set ymin (get pxyz 0 @Y))
+	(set xmax xmin)
+	(set ymax ymin)
+	(for i 1 (< i nv) 1 (do
+		(if (< (get pxyz i @X) xmin) (then (set xmin (get pxyz i @X)) ))
+		(if (> (get pxyz i @X) xmax) (then (set xmax (get pxyz i @X)) ))
+		(if (< (get pxyz i @Y) ymin) (then (set ymin (get pxyz i @Y)) ))
+		(if (> (get pxyz i @Y) ymax) (then (set ymax (get pxyz i @Y)) ))
+	))
+
+	(set dx (- xmax xmin))
+	(set dy (- ymax ymin))
+	(set dmax (? (> dx dy) dx dy))
+	(set xmid (/ (+ xmax xmin) 2))
+	(set ymid (/ (+ ymax ymin) 2))
+	
+	;; Set up the supertriangle
+	;; This is a triangle which encompasses all the sample points.
+	;; The supertriangle coordinates are added to the end of the
+	;; vertex list. The supertriangle is the first triangle in
+	;; the triangle list.
+
+	(insert pxyz (# pxyz) (alloc (vec 2 float) 
+		(- xmid (* 2.0 dmax))
+		(- ymid dmax)
+	))
+	(insert pxyz (# pxyz) (alloc (vec 2 float)
+		xmid
+		(+ ymid (* 2.0 dmax))
+	))
+	(insert pxyz (# pxyz) (alloc (vec 2 float)
+		(+ xmid (* 2.0 dmax))
+		(- ymid dmax)
+	))
+	(insert v 0 (alloc (vec 3 int)
+		nv
+		(+ nv 1)
+		(+ nv 2)
+	))
+
+	(insert complete 0 @FALSE)
+	
+	;; Include each point one at a time into the existing mesh
+	(for i 0 (< i nv) 1 (do
+		(set xp (get pxyz i @X))
+		(set yp (get pxyz i @Y))
+		
+		(local edges (arr (vec 2 int)) (alloc (arr (vec 2 int))))
+
+		;; Set up the edge buffer.
+		;; If the point (xp,yp) lies inside the circumcircle then the
+		;; three edges of that triangle are added to the edge buffer
+		;; and that triangle is removed.
+
+		(for j (- (# v) 1) (>= j 0) -1 (do
+			(if (! (get complete j)) (then
+				(set x1 (get pxyz (get v j @P1) @X))
+				(set y1 (get pxyz (get v j @P1) @Y))
+				(set x2 (get pxyz (get v j @P2) @X))
+				(set y2 (get pxyz (get v j @P2) @Y))
+				(set x3 (get pxyz (get v j @P3) @X))
+				(set y3 (get pxyz (get v j @P3) @Y))
+				(set inside (call circumcircle xp yp x1 y1 x2 y2 x3 y3 xcycr))
+
+				(let xc float (get xcycr @X))
+				(let r float (get xcycr 2))
+				(if (&& (< xc xp) (> (* (- xp xc) (- xp xc)) r) ) (then
+					(set complete j @TRUE)
+				))
+				(if inside (then
+					(insert edges (# edges) (alloc (vec 2 int) (get v j @P1) (get v j @P2)))
+					(insert edges (# edges) (alloc (vec 2 int) (get v j @P2) (get v j @P3)))
+					(insert edges (# edges) (alloc (vec 2 int) (get v j @P3) (get v j @P1))) 
+					(free (get v j))
+					(remove v j 1)
+					(remove complete j 1)
+				))
+			))
+		))
+		;; Tag multiple edges
+		;; Note: if all triangles are specified anticlockwise then all
+		;;       interior edges are opposite pointing in direction.
+		(for j 0 (< j (- (# edges) 1)) 1 (do
+			(for k (+ j 1) (< k (# edges)) 1 (do
+				(if (&&
+					(= (get edges j @P1) (get edges k @P2))
+					(= (get edges j @P2) (get edges k @P1))
+				) (then
+					(set (get edges j) @P1 -1)
+					(set (get edges j) @P2 -1)
+					(set (get edges k) @P1 -1)
+					(set (get edges k) @P2 -1)
+				))
+				;; Shouldn't need the following, see note above
+				(if (&&
+					(= (get edges j @P1) (get edges k @P1))
+					(= (get edges j @P2) (get edges k @P2))
+				) (then
+					(set (get edges j) @P1 -1)
+					(set (get edges j) @P2 -1)
+					(set (get edges k) @P1 -1)
+					(set (get edges k) @P2 -1)
+				))
+			))
+		))
+		
+		;; Form new triangles for the current point
+		;; Skipping over any tagged edges.
+		;; All edges are arranged in clockwise order.
+		(for j 0 (< j (# edges)) 1 (do
+			(if (||
+				(< (get edges j @P1) 0)
+				(< (get edges j @P2) 0)
+			) (then) (else
+				(insert v (# v) (alloc (vec 3 int)
+					(get edges j @P1)
+					(get edges j @P2)
+					i
+				))
+				(insert complete (# complete) @FALSE)
+			))
+			(free (get edges j))
+		))
+	))
+	;; Remove triangles with supertriangle vertices
+	;; These are triangles which have a vertex number greater than nv
+	(for i (- (# v) 1) (>= i 0) -1 (do
+		(if (||
+			(>= (get v i @P1) nv)
+			(>= (get v i @P2) nv)
+			(>= (get v i @p3) nv)
+		)(then
+			(free (get v i))
+			(remove v i 1)
+		))
+	))
+
+	(return v)
+)
+
+(func comparex (param v1 (vec 2 float)) (param v2 (vec 2 float)) (result int)
+	(if (< (get v1 @X) (get v2 @X)) (then
+		(return -1)
+	)(else (if (> (get v1 @X) (get v2 @X)) (then
+		(return 1)
+	))))
+	(return 0)
+)
+
+; qucksort by ascending x coordinate
+(func sortbyx (param A (arr (vec 2 float))) (param lo int) (param hi int)
+	(if (>= lo hi) (then
+		(return)
+	))
+	(let pivot (vec 2 float) (get A lo))
+	(let left  int lo)
+	(let right int hi)
+	(while (<= left right) (do
+		(while (< (call comparex (get A left) pivot) 0) (do
+			(set left (+ left 1))
+		))
+		(while (> (call comparex (get A right) pivot) 0) (do
+			(set right (- right 1))
+		))
+		(if (<= left right) (then
+			(let tmp (vec 2 float) (get A left))
+			(set A left (get A right))
+			(set A right tmp)
+			(set left  (+ left 1))
+			(set right (- right 1))
+		))
+	))
+	(call sortbyx A lo right)
+	(call sortbyx A left hi)
+)
+
+; render triangulation result to SVG string
+(func render_svg (param w int) (param h int) 
+	(param pxyz (arr (vec 2 float))) 
+	(param triangles (arr (vec 3 int))) 
+	(result str)
+
+	(let s str (alloc str "<svg version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" width=\""))
+	(<< s (cast w str))
+	(<< s "\" height=\"")
+	(<< s (cast h str))
+	(<< s "\">")
+
+	(for i 0 (< i (# pxyz)) 1 (do
+		(<< s "<circle cx=\"")
+		(<< s (cast (get pxyz i @X) str))
+		(<< s "\" cy=\"")
+		(<< s (cast (get pxyz i @Y) str))
+		(<< s "\" r=\"2\" />")
+	))
+
+	(for i 0 (< i (# triangles)) 1 (do
+		(<< s "<path d=\"M")
+		(<< s (cast (get pxyz (get triangles i @P1) @X) str))
+		(<< s ",")
+		(<< s (cast (get pxyz (get triangles i @P1) @Y) str))
+		(<< s " L")
+		(<< s (cast (get pxyz (get triangles i @P2) @X) str))
+		(<< s ",")
+		(<< s (cast (get pxyz (get triangles i @P2) @Y) str))
+		(<< s " L")
+		(<< s (cast (get pxyz (get triangles i @P3) @X) str))
+		(<< s ",")
+		(<< s (cast (get pxyz (get triangles i @P3) @Y) str))
+		(<< s " z\" fill=\"rgba(0,0,0,0.1)\" stroke-width=\"1\" stroke=\"black\"/>")
+	))
+
+	(<< s "</svg>")
+	(return s)
+)
+
+;; test triangulation
+(func main (result int)
+	(local pxyz (arr (vec 2 float)) (alloc (arr (vec 2 float))))
+	(let w int 400)
+	(let h int 400)
+	(for i 0 (< i 200) 1 (do
+		(insert pxyz (# pxyz) (alloc (vec 2 float)
+			(* (call random) w)
+			(* (call random) h)
+		))
+	))
+	(call sortbyx pxyz 0 (- (# pxyz) 1))
+	(local triangles (arr (vec 3 int)) (call delaunaytriangulate pxyz))
+	(local s str (call render_svg w h pxyz triangles))
+	(print s)
+	(for i 0 (< i (# triangles)) 1 (do
+		(free (get triangles i))
+	))
+	(for i 0 (< i (# pxyz)) 1 (do
+		(free (get pxyz i))
+	))
+	(return 0)
+)
+
