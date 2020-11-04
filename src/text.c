@@ -4,9 +4,7 @@
 const char* TEXT_std_cs = "public static V w_mapGet<K,V>(Dictionary<K,V> map, K key, V defaultValue) {V v;if (map.TryGetValue(key,out v)){return v;}return defaultValue;}\n"
 "public static bool w_BOOL(int x){return x!=0;}\n"
 "public static int w_INT(bool x){return x?1:0;}\n"
-"public static int w_NOT(int x){return (x==0)?1:0;}\n"
-"public static int w_AND(int x, int y){return ((x!=0) && (y!=0))?1:0;}\n"
-"public static int w_OR(int x, int y){return ((x!=0) || (y!=0))?1:0;}\n";
+"public static int w_NOT(int x){return (x==0)?1:0;}\n";
 const char* TEXT_std_lua = "function w_trunc(x)         if x < 0 then return math.ceil(x) else return math.floor(x) end end\n"
 "function w_vec_init(z,n)    local x = {} for i=1,n do x[i]=z end return x end\n"
 "function w_arr_slice(x,i,n) local y = {} for j=(i+1),(i+n) do y[j-i]=x[j] end return y end\n"
@@ -73,9 +71,7 @@ const char* TEXT_std_java = "public static <T> void w_arrRemove(ArrayList<T> a, 
 "public static <K,V> V w_mapGet(HashMap<K,V> map, K key, V defaultValue) {V v;return (((v = map.get(key)) != null) || map.containsKey(key))? v: defaultValue;}\n"
 "public static boolean w_BOOL(int x){return x!=0;}\n"
 "public static int w_INT(boolean x){return x?1:0;}\n"
-"public static int w_NOT(int x){return (x==0)?1:0;}\n"
-"public static int w_AND(int x, int y){return ((x!=0) && (y!=0))?1:0;}\n"
-"public static int w_OR(int x, int y){return ((x!=0) || (y!=0))?1:0;}\n";
+"public static int w_NOT(int x){return (x==0)?1:0;}\n";
 const char* TEXT_std_ts = "const w_slice=(x:Array<any>|string,i:number,n:number)=>x.slice(i,i+n);\n";
 const char* TEXT_std_swift = "class w_Arr<T>{\n"
 "  var data : Array<T> = [];\n"
@@ -98,8 +94,6 @@ const char* TEXT_std_swift = "class w_Arr<T>{\n"
 "static func w_INT(x:Bool)->Int{return x ? 1 : 0;}\n"
 "static func w_BOOL(x:Int)->Bool{return x != 0;}\n"
 "static func w_NOT(x:Int)->Int{return (x == 0) ? 1 : 0;}\n"
-"static func w_AND(x:Int,y:Int)->Int{return ((x != 0) && (y != 0)) ? 1 : 0;}\n"
-"static func w_OR(x:Int,y:Int)->Int{return ((x != 0) || (y != 0)) ? 1 : 0;}\n"
 "static func w_strBang(x:String?)->String{return x!;}\n";
 const char* TEXT_std_cpp = "template <typename T>\n"
 "inline void w_arr_insert (std::vector<T>* arr, int i, T x){arr->insert(arr->begin()+i,x);}\n"

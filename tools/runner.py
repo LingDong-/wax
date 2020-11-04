@@ -11,8 +11,9 @@ try:
 except:
   pass
 folder = "examples"
-if not os.path.isfile(folder+"/"+name+".wax"):
+if not os.path.isfile("../"+folder+"/"+name+".wax"):
   folder = "tests"
+
 cmd = f'cd ../; make -s text; make -s c; ./waxc {folder}/{name}.wax --{targ} out/{name}.{targ} --silent; cd out;'
 if (targ == 'ts'):
   cmd += f'tsc {name}.{targ}; {perf} node {name}.js;'

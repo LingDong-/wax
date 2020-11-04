@@ -17,5 +17,3 @@ public static <K,V> V w_mapGet(HashMap<K,V> map, K key, V defaultValue) {
 public static boolean w_BOOL(int x){return x!=0;}
 public static int w_INT(boolean x){return x?1:0;}
 public static int w_NOT(int x){return (x==0)?1:0;}
-public static int w_AND(int x, int y){return ((x!=0) && (y!=0))?1:0;}
-public static int w_OR(int x, int y){return ((x!=0) || (y!=0))?1:0;}

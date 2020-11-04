@@ -19,6 +19,4 @@ static func w_strSlice(x:String,i:Int,n:Int)->String{
 static func w_INT(x:Bool)->Int{return x ? 1 : 0;}
 static func w_BOOL(x:Int)->Bool{return x != 0;}
 static func w_NOT(x:Int)->Int{return (x == 0) ? 1 : 0;}
-static func w_AND(x:Int,y:Int)->Int{return ((x != 0) && (y != 0)) ? 1 : 0;}
-static func w_OR(x:Int,y:Int)->Int{return ((x != 0) || (y != 0)) ? 1 : 0;}
 static func w_strBang(x:String?)->String{return x!;}

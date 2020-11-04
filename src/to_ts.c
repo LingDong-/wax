@@ -208,9 +208,9 @@ str_t expr_to_ts(expr_t* expr, int indent){
     str_add(&out, expr_to_ts(CHILD1,-1).data);
     str_add(&out, ",");
     str_add(&out, expr_to_ts(CHILD2,-1).data);
-    str_add(&out, "] of ");
+    str_add(&out, "] of Object['entries'](");
     str_add(&out, expr_to_ts(CHILD3,-1).data);
-    str_add(&out, "){\n");
+    str_add(&out, ")){\n");
 
     str_add(&out, expr_to_ts(CHILDN,indent+1).data);
 
