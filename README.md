@@ -5,7 +5,7 @@
 
 **wax** is a tiny language designed to transpile to other languages easily. Currently supported backends: **C**, **C++**, **Java**, **TypeScript**, **Python**, **C#**, **Swift**, **Lua**, as well as directly to **WebAssembly**.
 
-### [Playground](https://waxc.netlify.app/) | [Quickstart](./QUICKSTART.md) | [Examples](./examples) | [VSCode Extension](https://github.com/LingDong-/wax4vscode)
+### [Playground](https://waxc.netlify.app/) | [Quickstart](./QUICKSTART.md) | [Examples](./examples) | [IDE](https://github.com/LingDong-/wax4vscode)
 
 The goal of wax is to be a "common subset" of most major imperative programming languages. By lacking the unique fancy features in each of these languages and being as boring as possible, wax transpiles to all of them seamlessly, producing outputs that are:
 
@@ -239,7 +239,7 @@ Alternatively you can run the Makefile:
 
 ### [VSCode Extension](https://github.com/LingDong-/wax4vscode)
 
-Syntax Highlighting + Transpile + Compile + Run
+Syntax Highlighting + Transpile + Compile + Run + Render
 
 [![](https://raw.githubusercontent.com/LingDong-/wax4vscode/main/screenshots/00.png)](https://github.com/LingDong-/wax4vscode)
 
