@@ -297,7 +297,7 @@ w_shortstr_t w_flt2str(float x){
 
 char* w_str_new(char* x){
   int l = strlen(x);
-  char* str = malloc(l);
+  char* str = (char*)malloc(l);
   strncpy(str,x,l);
   str[l] = 0;
   return str;

@@ -5,7 +5,7 @@
 
 **wax** is a tiny language designed to transpile to other languages easily. Currently supported backends: **C**, **C++**, **Java**, **TypeScript**, **Python**, **C#**, **Swift**, **Lua**, as well as directly to **WebAssembly**.
 
-### [Playground](https://waxc.netlify.app/) | [Quickstart](./QUICKSTART.md) | [Examples](./examples)
+### [Playground](https://waxc.netlify.app/) | [Quickstart](./QUICKSTART.md) | [Examples](./examples) | [VSCode Extension](https://github.com/LingDong-/wax4vscode)
 
 The goal of wax is to be a "common subset" of most major imperative programming languages. By lacking the unique fancy features in each of these languages and being as boring as possible, wax transpiles to all of them seamlessly, producing outputs that are:
 
@@ -165,6 +165,7 @@ g++ fib.cpp -std=c++11;
 ./a.out;
 ```
 
+
 ### Compiling to WebAssembly
 
 waxc also supports compiling to WebAssembly Text Format (`.wat`). As the output needs to be further transformed to binary (`.wasm`) and wrapped with JS for calling, there's a couple more steps:
@@ -234,6 +235,14 @@ Alternatively you can run the Makefile:
 - `make co`. Compile it with `-std=c99 -O3 -std=c99 -pedantic -Wall`.
 - `make em`. Compile it with emscripten as a node.js app. (You might need to edit the rule based on how/when/where you installed emscripten.)
 - `make emlib`. Compile it as a javascript library with emscripten, without filesystem dependencies. This is what powers the [online playground](https://waxc.netlify.app/).
+
+
+### [VSCode Extension](https://github.com/LingDong-/wax4vscode)
+
+Syntax Highlighting + Transpile + Compile + Run
+
+[![](https://raw.githubusercontent.com/LingDong-/wax4vscode/main/screenshots/00.png)](https://github.com/LingDong-/wax4vscode)
+
 
 ### Get Started
 

@@ -105,7 +105,9 @@
 		(<< s (cast (get samples i 0) str))
 		(<< s "\" cy=\"")
 		(<< s (cast (get samples i 1) str))
-		(<< s "\" r=\"1\" />")
+		(<< s "\" r=\"1\" fill=\"hsl(")
+		(<< s (cast (/ i 5) str))
+		(<< s ",100%,30%)\"/>")
 	))
 
 	(<< s "</svg>")
