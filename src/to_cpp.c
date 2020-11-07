@@ -115,6 +115,8 @@ str_t expr_to_cpp(expr_t* expr, int indent){
             expr->key == EXPR_SHL  || expr->key == EXPR_SHR
     ){
     str_add(&out, "(");
+    str_add(&out, type_to_cpp(expr->type).data );
+    str_add(&out, ")(");
     str_add(&out, expr_to_cpp(CHILD1,-1).data );
     str_add(&out, expr->rawkey.data);
     str_add(&out, expr_to_cpp(CHILD2,-1).data );
