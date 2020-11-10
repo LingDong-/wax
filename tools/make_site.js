@@ -34,6 +34,10 @@ var html = `
     outline: none;
     background:rgba(255,255,255,0.1);
   }
+  option{
+    background:rgb(30,30,35);
+    color:silver;
+  }
   div::-webkit-scrollbar {
     display: none;
   }
@@ -157,7 +161,7 @@ function main(){
       comment: ';',
     },
     start: [
-      {regex: /"(?:[^\\]|\\.)*?(?:"|$)/smi, token: "string"},
+      {regex: /"(?:[^\\]|\\.)*?(?:"|$)/mi, token: "string"},
       {regex: /(?:return|result|insert|remove|extern|param|local|while|alloc|slice|print|break|func|then|else|call|cast|free|null|get|set|let|for|asm|if|do)\b/,
        token: "keyword"},
       {regex: /(?:@include|@if|@define|@pragma)\b/,
