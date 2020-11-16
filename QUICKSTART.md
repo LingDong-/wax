@@ -90,6 +90,7 @@ which the compiler will read as:
 (&& (&& a b) c)
 ```
 
+
 ### Ternary operator
 
 `?` is the ternary operator in wax. e.g., `y = (x==0) ? 1 : 2` is:
@@ -109,6 +110,8 @@ These operators work just like their namesakes in other languages.
 ```
 
 Note: `<>` is `!=`. `=` is `==`. `^` is xor.
+
+Note: Wax ensures that `&&` and `||` are shortcircuited on all targets.
 
 ## Arrays and Vectors
 
