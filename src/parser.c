@@ -148,6 +148,7 @@ const char* keywords[NUM_KEYWORDS] = {
 };
 
 
+#define TYP_NONE 0
 #define TYP_INT 1
 #define TYP_FLT 2
 #define TYP_STR 3
@@ -166,7 +167,7 @@ const char* types[NUM_TYPES] = {
 
 
 typedef struct tok_st {
-  char tag;
+  int tag;
   int lino; // line no.
   str_t val;
 } tok_t;
@@ -175,20 +176,16 @@ typedef struct tok_st {
 typedef struct type_st {
   int tag;
   struct type_st *elem0;
-  #ifdef __GNUC__
   union{
-  #endif
-    str_t name;
     int size;
+    str_t name;
     struct type_st *elem1;
-  #ifdef __GNUC__
-  };
-  #endif
+  } u;
 } type_t;
 
 
 typedef struct sym_st {
-  char is_local;
+  int is_local;
   str_t name;
   type_t type;
 } sym_t;
@@ -206,7 +203,7 @@ typedef struct func_st {
 
 
 typedef struct expr_st {
-  short key;
+  int key;
   int lino;
   str_t rawkey;
   void* term;
@@ -239,9 +236,10 @@ int tok_eq(tok_t* tok, const char* cs){
 }
 
 
-str_t read_file_ascii(char* filename){
+str_t read_file_ascii(const char* filename){
   char * buffer = 0;
   long length;
+  size_t sz;
   FILE * f = fopen (filename, "r");
   if (f){
     fseek(f, 0, SEEK_END);
@@ -249,7 +247,8 @@ str_t read_file_ascii(char* filename){
     fseek(f, 0, SEEK_SET);
     buffer = malloc(length+1);
     if (buffer){
-      fread(buffer, 1, length, f);
+      sz = fread(buffer, 1, length, f);
+      if(sz != length) goto failed;
     }
     fclose(f);
   
@@ -258,6 +257,7 @@ str_t read_file_ascii(char* filename){
     free(buffer);
     return s;
   }
+failed:
   printerr("file")("cannot read file %s.\n",filename);
   printf("exiting with file reading failure.\n");
   freex();exit(1);
@@ -265,7 +265,7 @@ str_t read_file_ascii(char* filename){
 }
 
 
-void write_file_ascii(char* filename, char* content){
+void write_file_ascii(const char* filename, char* content){
   FILE *fp;
   fp = fopen(filename, "w");
   fputs(content, fp);
@@ -490,7 +490,7 @@ void defs_addbool(map_t* defs, char* name_, int lino){
   map_add(defs,name,d);
 }
 
-void preprocess(char* filename, list_t* tokens, map_t* included, map_t* defs){
+void preprocess(const char* filename, list_t* tokens, map_t* included, map_t* defs){
 
   str_t fnstr = str_from(filename,strlen(filename));
 
@@ -651,7 +651,7 @@ void preprocess(char* filename, list_t* tokens, map_t* included, map_t* defs){
         if (is_std){
           inc = str_new();
           if (str_eq(&name,"math")){
-            str_addconst(&inc, TEXT_math_wax);
+            str_add(&inc, TEXT_math_wax);
           }else{
             printerr("file")("stdlib not found: '%s'.\n",fname);
             goto crash;
@@ -931,8 +931,8 @@ type_t* parse_type(list_t* tokens){
     if (!typ->elem0){
       return NULL;
     }
-    typ->elem1 = parse_type(toks1);
-    if (!typ->elem1){
+    typ->u.elem1 = parse_type(toks1);
+    if (!typ->u.elem1){
       return NULL;
     }
   
@@ -971,7 +971,7 @@ type_t* parse_type(list_t* tokens){
       printerr("syntax")("line %d: vec size must be a positive int (parsed: %d).\n",tok->lino,size);
       return NULL;
     }
-    typ->size = size;
+    typ->u.size = size;
   }else if (tok_eq(tok,"struct")){
     if (groups->len != 1){
       printerr("syntax")("line %d: invalid struct type name.\n",tok->lino);
@@ -984,7 +984,7 @@ type_t* parse_type(list_t* tokens){
       return NULL;
     }
     typ->tag = TYP_STT;
-    typ->name = tok0->val;
+    typ->u.name = tok0->val;
 
   }
   return typ;
@@ -1111,7 +1111,7 @@ void print_type(type_t* typ){
   }
   printf("%s",types[typ->tag-1]);
   if (typ->tag == TYP_VEC){
-    printf("%d",typ->size);
+    printf("%d",typ->u.size);
     printf("<");
     print_type(typ->elem0);
     printf(">");
@@ -1123,10 +1123,10 @@ void print_type(type_t* typ){
     printf("<");
     print_type(typ->elem0);
     printf(":");
-    print_type(typ->elem1);
+    print_type(typ->u.elem1);
     printf(">");
   }else if (typ->tag == TYP_STT){
-    printf(" %s",typ->name.data);
+    printf(" %s",typ->u.name.data);
   }else if (typ->tag == TYP_TYP){
     printf("<type>");
   }
@@ -1410,10 +1410,10 @@ int type_eq(type_t* t0, type_t* t1){
     return type_eq(t0->elem0,t1->elem0);
   }
   if (t0->tag == TYP_MAP && t1->tag == TYP_MAP){
-    return type_eq(t0->elem0,t1->elem0) && type_eq(t0->elem1,t1->elem1);
+    return type_eq(t0->elem0,t1->elem0) && type_eq(t0->u.elem1,t1->u.elem1);
   }
   if (t0->tag == TYP_STT && t1->tag == TYP_STT){
-    return str_eq(&t0->name,t1->name.data);
+    return str_eq(&t0->u.name,t1->u.name.data);
   }
   return 0;
 }
@@ -1679,9 +1679,9 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
             printerr("syntax")("line %d: 'set' expecting a struct field name.\n",expr->lino);
             goto crash;
           }
-          type_t* typ = struct_lookup(&ex0->type->name,&((tok_t*)ex1->term)->val,stttable);
+          type_t* typ = struct_lookup(&ex0->type->u.name,&((tok_t*)ex1->term)->val,stttable);
           if (typ == NULL){
-            printerr("syntax")("line %d: struct '%s' has no field '%s' to 'set'.\n",expr->lino,ex0->type->name.data,((tok_t*)ex1->term)->val.data);
+            printerr("syntax")("line %d: struct '%s' has no field '%s' to 'set'.\n",expr->lino,ex0->type->u.name.data,((tok_t*)ex1->term)->val.data);
             goto crash;
           }
           if (!type_eq(typ,ex2->type)){
@@ -1774,7 +1774,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
               printf(".\n");
               goto crash;
             }
-            expr->type = ex0->type->elem1;
+            expr->type = ex0->type->u.elem1;
           }
 
         }else{
@@ -1835,9 +1835,9 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
           printerr("syntax")("line %d: 'get' expecting a struct field name.\n",expr->lino);
           goto crash;
         }
-        type_t* typ = struct_lookup(&ex0->type->name,&((tok_t*)ex1->term)->val,stttable);
+        type_t* typ = struct_lookup(&ex0->type->u.name,&((tok_t*)ex1->term)->val,stttable);
         if (typ == NULL){
-          printerr("syntax")("line %d: struct '%s' has no field '%s' to 'get'.\n",expr->lino,ex0->type->name.data,((tok_t*)ex1->term)->val.data);
+          printerr("syntax")("line %d: struct '%s' has no field '%s' to 'get'.\n",expr->lino,ex0->type->u.name.data,((tok_t*)ex1->term)->val.data);
           goto crash;
         }
 
@@ -1924,7 +1924,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
             printf(".\n");
             goto crash;
           }
-          expr->type = ex0->type->elem1;
+          expr->type = ex0->type->u.elem1;
         }
 
       }else{
@@ -1983,7 +1983,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
       ex->key = EXPR_STRUCTFLD;
       jt = jt->next;
     }
-    typ->name = ((tok_t*)ex0->term)->val;
+    typ->u.name = ((tok_t*)ex0->term)->val;
     ex0->type = typ;      
 
   }else if (str_eq(&expr->rawkey,"func")){
@@ -2344,8 +2344,8 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
     ex0 = (expr_t*)((expr->children).head->data);
     ex1 = (expr_t*)((expr->children).head->next->data);
 
-    int intver;
-    int fltver;
+    int intver = 0;
+    int fltver = 0;
     int ispred = 0;
          if (str_eq(&expr->rawkey,"+" )){ intver = EXPR_IADD; fltver = EXPR_FADD;}
     else if (str_eq(&expr->rawkey,"-" )){ intver = EXPR_ISUB; fltver = EXPR_FSUB;}
@@ -2729,7 +2729,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
       }
 
       ex0->type = ex2->type->elem0;
-      ex1->type = ex2->type->elem1;
+      ex1->type = ex2->type->u.elem1;
 
       str_t name0 = ((tok_t*)ex0->term)->val;
       str_t name1 = ((tok_t*)ex1->term)->val;
@@ -2852,8 +2852,8 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
         printf(".\n");
         goto crash;
       }
-      if (typ->tag == TYP_VEC && typ->size != expr->children.len-1){
-        printerr("syntax")("line %d: number of elements in 'alloc' literal does not agree with vec size: expecting %d, got %d.\n",expr->lino,typ->size,expr->children.len-1);
+      if (typ->tag == TYP_VEC && typ->u.size != expr->children.len-1){
+        printerr("syntax")("line %d: number of elements in 'alloc' literal does not agree with vec size: expecting %d, got %d.\n",expr->lino,typ->u.size,expr->children.len-1);
         goto crash;
       }
 
@@ -2942,9 +2942,9 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
             printerr("syntax")("line %d: 'null' expecting a struct field name.\n",expr->lino);
             goto crash;
           }
-          type_t* typ = struct_lookup(&ex0->type->name,&((tok_t*)ex1->term)->val,stttable);
+          type_t* typ = struct_lookup(&ex0->type->u.name,&((tok_t*)ex1->term)->val,stttable);
           if (typ == NULL){
-            printerr("syntax")("line %d: struct '%s' has no field '%s' to nullify.\n",expr->lino,ex0->type->name.data,((tok_t*)ex1->term)->val.data);
+            printerr("syntax")("line %d: struct '%s' has no field '%s' to nullify.\n",expr->lino,ex0->type->u.name.data,((tok_t*)ex1->term)->val.data);
             goto crash;
           }
           ex1->type = prim_type(TYP_VOD);
@@ -3156,11 +3156,11 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
         
       }else if (ex0->type->tag == TYP_MAP){
         expr->key = EXPR_MAPSET;
-        if (!type_eq(ex1->type,ex0->type->elem0) || !type_eq(ex2->type,ex0->type->elem1)){
+        if (!type_eq(ex1->type,ex0->type->elem0) || !type_eq(ex2->type,ex0->type->u.elem1)){
           printerr("syntax")("line %d: map 'insert' expecting ",expr->lino);
           print_type(ex0->type->elem0);
           printf(" and ");
-          print_type(ex0->type->elem1);
+          print_type(ex0->type->u.elem1);
           printf(", got ");
           print_type(ex1->type);
           printf(" and ");

@@ -132,12 +132,12 @@ str_t str_new(){
   return s;
 }
 
-str_t str_from(char* cs, int l){
+str_t str_from(const char* cs, int l){
   str_t s;
   s.cap = l;
   s.len = l;
   s.data = (char*)mallocx(l+1);
-  strncpy(s.data,cs,l);
+  memcpy(s.data,cs,l);
   s.data[l] = 0;
   return s;
 }
@@ -153,26 +153,14 @@ str_t str_fromch(char c){
 }
 
 
-void str_add (str_t* s, char* cs){
+void str_add (str_t* s, const char* cs){
   int l = strlen(cs);
   if (s->cap < s->len + l){
     int hs = s->cap/2;
     s->cap = s->len+MAX(l,hs);
     s->data = (char*)reallocx(s->data, s->cap+1 );
   }
-  strcpy(&s->data[s->len],cs);
-  s->len += l;
-  s->data[s->len] = 0;
-}
-
-void str_addconst (str_t* s, const char* cs){
-  int l = strlen(cs);
-  if (s->cap < s->len + l){
-    int hs = s->cap/2;
-    s->cap = s->len+MAX(l,hs);
-    s->data = (char*)reallocx(s->data, s->cap+1 );
-  }
-  strcpy(&s->data[s->len],cs);
+  memcpy(&s->data[s->len],cs, l);
   s->len += l;
   s->data[s->len] = 0;
 }
@@ -347,14 +335,14 @@ str_t tmp_name(char* prefix){
   //   str_addch(&out, RAND%26+97);
   // }
   char x[16];
-  sprintf(x,"%02x",tmp_name_cnt);
+  snprintf(x,sizeof(x),"%02x",tmp_name_cnt);
   tmp_name_cnt ++;
   str_add(&out,x);
   return out;
 }
 
 
-str_t base_name(char* path){
+str_t base_name(const char* path){
 	int l = strlen(path);
 	if (!l){
 		return str_new();
@@ -429,7 +417,7 @@ str_t censor(str_t src){
       str_addch(&out,src.data[i]);
     }else{
       char x[8];
-      sprintf(x,"U%02x__",src.data[i]);
+      snprintf(x,sizeof(x),"U%02x__",src.data[i]);
       str_add(&out,x);
     }
   }

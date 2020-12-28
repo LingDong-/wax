@@ -14,7 +14,7 @@ str_t type_to_cs(type_t* typ){
   }else if (typ->tag == TYP_FLT){
     str_add(&out,"float");
   }else if (typ->tag == TYP_STT){
-    str_add(&out,typ->name.data);
+    str_add(&out,typ->u.name.data);
   }else if (typ->tag == TYP_ARR){
     str_add(&out,"List<");
     str_add(&out,type_to_cs(typ->elem0).data);
@@ -26,7 +26,7 @@ str_t type_to_cs(type_t* typ){
     str_add(&out,"Dictionary<");
     str_add(&out,type_to_cs(typ->elem0).data);
     str_add(&out,",");
-    str_add(&out,type_to_cs(typ->elem1).data);
+    str_add(&out,type_to_cs(typ->u.elem1).data);
     str_add(&out,">");
   }else if (typ->tag == TYP_STR){
     str_add(&out,"string");
@@ -68,7 +68,7 @@ str_t vec_init_cs(type_t* typ){
   str_add(&out,type_to_cs(t).data);
   str_addch(&out,'[');
   char s[32];
-  sprintf(s,"%d",typ->size);
+  snprintf(s,sizeof(s),"%d",typ->u.size);
   str_add(&out,s);
   str_addch(&out,']');
   for (int i = 0; i < num_br; i++){
@@ -246,7 +246,7 @@ str_t expr_to_cs(expr_t* expr, int indent){
     str_add(&out, "foreach (KeyValuePair<");
     str_add(&out, type_to_cs(CHILD3->type->elem0).data);
     str_add(&out, ",");
-    str_add(&out, type_to_cs(CHILD3->type->elem1).data);
+    str_add(&out, type_to_cs(CHILD3->type->u.elem1).data);
     str_add(&out, "> ");
     str_add(&out, itname.data);
     str_add(&out, " in ");
@@ -264,11 +264,11 @@ str_t expr_to_cs(expr_t* expr, int indent){
     str_add(&out, ".Key);\n");
 
     INDENT2(indent+1);
-    str_add(&out, type_to_cs(CHILD3->type->elem1).data);
+    str_add(&out, type_to_cs(CHILD3->type->u.elem1).data);
     str_add(&out, " ");
     str_add(&out, expr_to_cs(CHILD2,-1).data);
     str_add(&out, "=(");
-    str_add(&out, type_to_cs(CHILD3->type->elem1).data);
+    str_add(&out, type_to_cs(CHILD3->type->u.elem1).data);
     str_add(&out, ")(");
     str_add(&out, itname.data);
     str_add(&out, ".Value);\n");
@@ -474,7 +474,7 @@ str_t expr_to_cs(expr_t* expr, int indent){
 
     if (typ->tag == TYP_STT){
       str_add(&out,"(new ");
-      str_add(&out,typ->name.data);
+      str_add(&out,typ->u.name.data);
       str_add(&out,"())");
 
     }else if (typ->tag == TYP_ARR){
@@ -635,7 +635,7 @@ str_t expr_to_cs(expr_t* expr, int indent){
     str_add(&out,"),(");
     str_add(&out,expr_to_cs(CHILD2,-1).data);
     str_add(&out,"),(");
-    str_add(&out,zero_to_cs(CHILD1->type->elem1).data);
+    str_add(&out,zero_to_cs(CHILD1->type->u.elem1).data);
     str_add(&out,"))");
 
   }else if (expr->key == EXPR_MAPREM){
@@ -761,7 +761,7 @@ str_t tree_to_cs(str_t modname, expr_t* tree, map_t* functable, map_t* stttable,
   str_add(&out,"{\n");
 
   str_add(&out,"/*=== WAX Standard Library BEGIN ===*/\n");
-  str_addconst(&out,TEXT_std_cs);
+  str_add(&out,TEXT_std_cs);
 
   str_add(&out,"/*=== WAX Standard Library END   ===*/\n\n");
   str_add(&out,"/*=== User Code            BEGIN ===*/\n");

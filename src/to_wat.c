@@ -53,7 +53,7 @@ str_t wat_mat_iter_predecl(expr_t* expr){
     if (ex->key == EXPR_FORIN){
       str_add(&out, "(local $tmp__it_");
       char s[32];
-      sprintf(s,"%p",(void*)ex);
+      snprintf(s,sizeof(s),"%p",(void*)ex);
       str_add(&out, s);
       str_add(&out, " i32)");
     }
@@ -138,8 +138,8 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     }else if (tok->tag == TOK_INT){
       str_add(&out, "(i32.const ");
       if (tok->val.data[0] == '\''){
-        char s[4];
-        sprintf(s,"%d",char_literal(tok->val.data));
+        char s[8];
+        snprintf(s,sizeof(s),"%d",char_literal(tok->val.data));
         str_add(&out, s);
       }else{
         str_add(&out, (tok->val.data));
@@ -151,7 +151,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
       str_add(&out, ")");
     }else if (tok->tag == TOK_STR){
       char s[32];
-      sprintf(s, "%d", wat_str_ptr);
+      snprintf(s, sizeof(s), "%d", wat_str_ptr);
       
       str_add(&out, "(i32.const ");
       str_add(&out, s);
@@ -237,7 +237,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
 
   }else if (expr->key == EXPR_WHILE){
     char s[64];
-    sprintf(s,"tmp__block_%p",(void*)expr);
+    snprintf(s, sizeof(s), "tmp__block_%p",(void*)expr);
     str_add(&out, "block $");
     str_add(&out, s);
     str_add(&out, "\n");
@@ -268,10 +268,10 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
 
   }else if (expr->key == EXPR_FORIN){
     char s[64];
-    sprintf(s,"tmp__it_%p",(void*)expr);
+    snprintf(s,sizeof(s),"tmp__it_%p",(void*)expr);
 
     char sb[64];
-    sprintf(sb,"tmp__block_%p",(void*)expr);
+    snprintf(sb,sizeof(sb),"tmp__block_%p",(void*)expr);
     
     str_add(&out, "(local.set $");
     str_add(&out, s);
@@ -318,14 +318,14 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     str_add(&out, "(local.set ");
     str_add(&out, expr_to_wat(CHILD2,-1,'l').data);
     str_add(&out, " ");
-    if (CHILD3->type->elem1->tag == TYP_FLT){
+    if (CHILD3->type->u.elem1->tag == TYP_FLT){
       str_add(&out, "(f32.reinterpret_i32 ");
     }
     str_add(&out, "(call $wax::map_iter_val ");
     str_add(&out, expr_to_wat(CHILD3,-1,'r').data);
     str_add(&out, " (local.get $");
     str_add(&out, s);
-    if (CHILD3->type->elem1->tag == TYP_FLT){
+    if (CHILD3->type->u.elem1->tag == TYP_FLT){
       str_add(&out, ")");
     }
     str_add(&out, ")))\n");
@@ -543,7 +543,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     while(it){
       // expr_t* ex = (expr_t*)(it->data);
 
-      sprintf(s,"%d",offs);
+      snprintf(s,sizeof(s),"%d",offs);
 
       char* typstr = type_to_wat( (type_t*)(((expr_t*)(((expr_t*)(it->data))->children.head->next->data))->term) ).data;
 
@@ -579,7 +579,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     str_add(&out,"(global $sizeof__");
     str_add(&out,sttname.data);
     str_add(&out," i32 (i32.const ");
-    sprintf(s,"%d",offs);
+    snprintf(s,sizeof(s),"%d",offs);
     str_add(&out,s);
     str_add(&out,"))");
 
@@ -601,7 +601,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     }else{
       if (CHILD1->type->tag == TYP_STT){
         str_add(&out,"(call $set__");
-        str_add(&out,CHILD1->type->name.data);
+        str_add(&out,CHILD1->type->u.name.data);
         str_add(&out,"__");
         str_add(&out,((tok_t*)(CHILD2->term))->val.data);
         str_add(&out," ");
@@ -630,7 +630,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     if (typ->tag == TYP_STT){
 
       str_add(&out,"(call $wax::calloc (global.get $sizeof__");
-      str_add(&out,typ->name.data);
+      str_add(&out,typ->u.name.data);
       str_add(&out,"))");
 
     }else if (typ->tag == TYP_ARR){
@@ -638,7 +638,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
         str_add(&out,"(call $wax::arr_new (i32.const 0))");
       }else{
         char s[32];
-        sprintf(s,"%d",expr->children.len-1);
+        snprintf(s,sizeof(s),"%d",expr->children.len-1);
         str_add(&out,"(call $w__arr_lit");
         str_add(&out,s);
         int need = 1;
@@ -673,7 +673,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
 
     }else if (typ->tag == TYP_VEC){
       char s[32];
-      sprintf(s, "%d", typ->size*4);
+      snprintf(s, sizeof(s),"%d", typ->u.size*4);
 
       if (expr->children.len == 1){
         str_add(&out,"(call $wax::calloc (i32.mul (i32.const 4) (i32.const ");
@@ -681,7 +681,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
         str_add(&out,")))");
       }else{
         char s[32];
-        sprintf(s,"%d",expr->children.len-1);
+        snprintf(s,sizeof(s),"%d",expr->children.len-1);
         str_add(&out,"(call $w__vec_lit");
         str_add(&out,s);
         int need = 1;
@@ -743,7 +743,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     }
   }else if (expr->key == EXPR_STRUCTGET){
     str_add(&out,"(call $get__");
-    str_add(&out,CHILD1->type->name.data);
+    str_add(&out,CHILD1->type->u.name.data);
     str_add(&out,"__");
     str_add(&out,((tok_t*)(CHILD2->term))->val.data);
     str_add(&out," ");
@@ -752,7 +752,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
 
   }else if (expr->key == EXPR_STRUCTSET){
     str_add(&out,"(call $set__");
-    str_add(&out,CHILD1->type->name.data);
+    str_add(&out,CHILD1->type->u.name.data);
     str_add(&out,"__");
     str_add(&out,((tok_t*)(CHILD2->term))->val.data);
     str_add(&out," ");
@@ -924,7 +924,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
       str_add(&out," ");
       str_add(&out,expr_to_wat(CHILD2,-1,'r').data);
     }
-    if (CHILD1->type->elem1->tag == TYP_FLT){
+    if (CHILD1->type->u.elem1->tag == TYP_FLT){
       str_add(&out," (i32.reinterpret_f32 ");
       str_add(&out,expr_to_wat(CHILD3,-1,'r').data);
       str_add(&out,")");
@@ -1010,7 +1010,7 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
       rt = rt->parent;
     }
     char s[64];
-    sprintf(s,"tmp__block_%p",(void*)rt);
+    snprintf(s,sizeof(s),"tmp__block_%p",(void*)rt);
 
     str_add(&out,"(call $wax::pop_stack)\n");
 
@@ -1069,7 +1069,7 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
   str_add(&out,"(import \"debug\" \"logi32\" (func $__logi32 (param i32)))\n");
   #endif
   if (included_lookup("math",included)){
-    str_addconst(&out,TEXT_math_wat);
+    str_add(&out,TEXT_math_wat);
   }
   str_add(&out,"\n");
 
@@ -1114,7 +1114,7 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
     wat_data_t* s = (wat_data_t*)(it->data);
     str_add(&out,"(data (i32.const ");
     char offs[32];
-    sprintf(offs,"%d",s->offset);
+    snprintf(offs,sizeof(offs),"%d",s->offset);
     str_add(&out,offs);
     str_add(&out,") ");
     str_add(&out,s->data.data);
@@ -1126,12 +1126,12 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
     char s[32];
 
     if (wat_lits[i]>0){
-      sprintf(s,"%d",wat_lits[i]);
+      snprintf(s,sizeof(s),"%d",wat_lits[i]);
       str_add(&out,"(func $w__arr_lit");
       str_add(&out,s);
       for (int j = 0; j < wat_lits[i]; j++){
         char s2[32];
-        sprintf(s2,"%d",j);
+        snprintf(s2,sizeof(s2),"%d",j);
         str_add(&out," (param $_");
         str_add(&out,s2);
         str_add(&out," i32)");
@@ -1141,7 +1141,7 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
       str_add(&out,")))");
       for (int j = 0; j < wat_lits[i]; j++){
         char s2[32];
-        sprintf(s2,"%d",j);
+        snprintf(s2,sizeof(s2),"%d",j);
         str_add(&out,"\n  (call $wax::arr_set (local.get $a) ");
         str_add(&out,"(i32.const ");
         str_add(&out,s2);
@@ -1151,14 +1151,14 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
       }
       str_add(&out,"\n  (return (local.get $a))\n)\n");
     }else{
-      sprintf(s,"%d",-wat_lits[i]);
+      snprintf(s,sizeof(s),"%d",-wat_lits[i]);
       char s1[32];
-      sprintf(s1,"%d",-wat_lits[i]*4);
+      snprintf(s1,sizeof(s1),"%d",-wat_lits[i]*4);
       str_add(&out,"(func $w__vec_lit");
       str_add(&out,s);
       for (int j = 0; j < -wat_lits[i]; j++){
         char s2[32];
-        sprintf(s2,"%d",j);
+        snprintf(s2,sizeof(s2),"%d",j);
         str_add(&out," (param $_");
         str_add(&out,s2);
         str_add(&out," i32)");
@@ -1169,8 +1169,8 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
       for (int j = 0; j < -wat_lits[i]; j++){
         char s2[32];
         char s3[32];
-        sprintf(s2,"%d",j);
-        sprintf(s3,"%d",j*4);
+        snprintf(s2,sizeof(s2),"%d",j);
+        snprintf(s3,sizeof(s3),"%d",j*4);
         str_add(&out,"\n  (i32.store (i32.add (local.get $a) ");
         str_add(&out,"(i32.const ");
         str_add(&out,s3);
@@ -1183,7 +1183,7 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
   }
 
   char wsps[32];
-  sprintf(wsps, "%d", wat_str_ptr+3 & (-4)); //align4
+  snprintf(wsps, sizeof(wsps),"%d", (wat_str_ptr+3) & (-4)); //align4
   str_add(&out,"(global $wax::min_addr (mut i32) (i32.const ");
   str_add(&out, wsps);
   str_add(&out,"))\n");
@@ -1191,11 +1191,11 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
   str_add(&out,";;=== User Code            END   ===;;\n\n");
 
   str_add(&out,";;=== WAX Standard Library BEGIN ===;;\n");
-  str_addconst(&out,TEXT_std_malloc_wat);
-  str_addconst(&out,TEXT_std_stack_wat);
-  str_addconst(&out,TEXT_std_str_wat);
-  str_addconst(&out,TEXT_std_arr_wat);
-  str_addconst(&out,TEXT_std_map_wat);
+  str_add(&out,TEXT_std_malloc_wat);
+  str_add(&out,TEXT_std_stack_wat);
+  str_add(&out,TEXT_std_str_wat);
+  str_add(&out,TEXT_std_arr_wat);
+  str_add(&out,TEXT_std_map_wat);
   str_add(&out,";;=== WAX Standard Library END   ===;;\n\n");
 
   str_add(&out,")\n");

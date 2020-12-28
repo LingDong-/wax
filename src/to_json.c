@@ -99,7 +99,7 @@ str_t type_to_json(type_t* typ){
     str_add(&out,"{\"type\":\"float\"}");
   }else if (typ->tag == TYP_STT){
     str_add(&out,"{\"type\":\"struct\",\"name\":\"");
-    str_add(&out,typ->name.data);
+    str_add(&out,typ->u.name.data);
     str_add(&out,"\"}");
   }else if (typ->tag == TYP_ARR){
     str_add(&out,"{\"type\":\"arr\",\"elem\":");
@@ -113,7 +113,7 @@ str_t type_to_json(type_t* typ){
     str_add(&out,"{\"type\":\"arr\",\"key\":");
     str_add(&out,type_to_json(typ->elem0).data);
     str_add(&out,",\"value\":");
-    str_add(&out,type_to_json(typ->elem1).data);
+    str_add(&out,type_to_json(typ->u.elem1).data);
     str_add(&out,"}");
   }else if (typ->tag == TYP_STR){
     str_add(&out,"{\"type\":\"string\"}");
@@ -280,7 +280,7 @@ str_t expr_to_json(expr_t* expr, int indent){
     str_add(&out,(char*)opcode_to_name(expr->key));
     char s[32];
     str_add(&out,"\",\"line\":");
-    sprintf(s,"%d",expr->lino);
+    snprintf(s,sizeof(s),"%d",expr->lino);
     str_add(&out,s);
     str_add(&out,",\"dtype\":");
     str_add(&out,type_to_json(expr->type).data);

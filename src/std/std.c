@@ -158,7 +158,7 @@ typedef struct w_slot_st {
 } w_slot_t;
 
 typedef struct w_map_st {
-  char key_is_ptr;
+  int key_is_ptr;
   size_t len;
   w_slot_t* slots[W_NUM_MAP_SLOTS]; 
 } w_map_t;
