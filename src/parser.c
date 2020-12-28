@@ -218,6 +218,11 @@ typedef struct def_st {
   tok_t* token;
 } def_t;
 
+expr_t* expr_alloc(){
+  expr_t* expr = (expr_t*)mallocx(sizeof(expr_t));
+  memset(expr, 0, sizeof(expr_t));
+  return expr;
+}
 
 tok_t* tok_alloc(char tag, int lino){
   tok_t* tok = (tok_t*) mallocx(sizeof(tok_t));
@@ -794,18 +799,19 @@ void preprocess(const char* filename, list_t* tokens, map_t* included, map_t* de
 type_t* prim_type(int tag){
   type_t* typ = (type_t*)mallocx(sizeof(type_t));
   typ->tag = tag;
+  typ->elem0 = NULL;
+  typ->u.elem1 = NULL;
   return typ;
 }
 
 expr_t* type_expr(type_t* typ, int lino){
-  expr_t* expr = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* expr = expr_alloc();
   expr->key = EXPR_TYPE;
   expr->rawkey = str_from("",0);
 
   expr->term = typ;
   expr->lino = lino;
   expr->type = prim_type(TYP_TYP);
-  expr->symtable = map_new();
   expr->children = list_new();
   return expr;
 }
@@ -826,14 +832,12 @@ expr_t* parse_terminal(tok_t* tok){
     return NULL;
   }
 
-  expr_t* expr = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* expr = expr_alloc();
   expr->key = EXPR_TERM;
   expr->rawkey = str_from("",0);
   expr->term = tok;
   expr->lino = tok->lino;
-  expr->symtable = map_new();
   expr->children = list_new();
-  expr->type = NULL;
   return expr;
 }
 
@@ -994,7 +998,7 @@ type_t* parse_type(list_t* tokens){
 
 expr_t* parse_expr(list_t* tokens,int level){
   // print_tokens(tokens);
-  expr_t* expr = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* expr = expr_alloc();
   
   list_node_t* it = tokens->head;
   tok_t* tok = (tok_t*)(it->data);
@@ -1010,7 +1014,6 @@ expr_t* parse_expr(list_t* tokens,int level){
         expr->term = typ;
         expr->lino = tok->lino;
         expr->children = list_new();
-        expr->symtable = map_new();
         return expr;
       }
     }
@@ -1052,20 +1055,17 @@ expr_t* parse_expr(list_t* tokens,int level){
   }
 
   expr->lino = ((tok_t*)(tokens->head->data))->lino;
-  expr->symtable = map_new();
+  map_clear(&expr->symtable);
   expr->type = NULL;
   return expr;
 }
 
-
 expr_t* syntax_tree(list_t* tokens){
-  expr_t* prgm = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* prgm = expr_alloc();
   prgm->key = EXPR_PRGM;
   prgm->rawkey = str_from("program",7);
   prgm->children = list_new();
   prgm->type = prim_type(TYP_VOD);
-  prgm->lino = 0;
-  prgm->parent = NULL;
 
   
 
@@ -1375,13 +1375,12 @@ expr_t* caster(expr_t* expr, type_t* typ){
   }
 
 
-  expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* ex = expr_alloc();
   ex->key = EXPR_CAST;
   ex->rawkey = str_from("cast",4);
   ex->lino = expr->lino;
   ex->parent = expr->parent;
   ex->children = list_new();
-  ex->symtable = map_new();
   ex->type = typ;
 
   expr_t* tex = type_expr(typ,expr->lino);
@@ -1459,25 +1458,23 @@ void local_auto_free(void* it, expr_t* tree, int rec){
                sym->type.tag != TYP_INT
             && sym->type.tag != TYP_FLT
           )){
-          expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+          expr_t* ex = expr_alloc();
           ex->key = EXPR_FREE;
           ex->rawkey = str_from("free",4);
           ex->lino = tree->lino;
           ex->parent = tree;
           ex->children = list_new();
-          ex->symtable = map_new();
           ex->type = prim_type(TYP_VOD);
 
-          expr_t* ex0 = (expr_t*)mallocx(sizeof(expr_t));
+          expr_t* ex0 = expr_alloc();
           ex0->key = EXPR_TERM;
           ex0->rawkey = str_from("",0);
           ex0->lino = tree->lino;
           ex0->parent = ex;
           ex0->children = list_new();
-          ex0->symtable = map_new();
           ex0->type = &sym->type;
 
-          tok_t* tok = (tok_t*)mallocx(sizeof(expr_t));
+          tok_t* tok = (tok_t*)mallocx(sizeof(tok_t));
           tok->tag = TOK_IDT;
           tok->val = sym->name;
           ex0->term = tok;
@@ -1507,25 +1504,23 @@ void local_auto_free(void* it, expr_t* tree, int rec){
 tok_t* insert_tmp_var_l(list_node_t* it, expr_t* val){
   expr_t* expr = (expr_t*)(it->data);
 
-  expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* ex = expr_alloc();
   ex->key = EXPR_LET;
   ex->rawkey = str_from("let",3);
   ex->lino = expr->lino;
   ex->parent = expr->parent;
   ex->children = list_new();
-  ex->symtable = map_new();
   ex->type = prim_type(TYP_VOD);
 
-  expr_t* ex0 = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* ex0 = expr_alloc();
   ex0->key = EXPR_TERM;
   ex0->rawkey = str_from("",0);
   ex0->lino = expr->lino;
   ex0->parent = ex;
   ex0->children = list_new();
-  ex0->symtable = map_new();
   ex0->type = val->type;
 
-  tok_t* tok = (tok_t*)mallocx(sizeof(expr_t));
+  tok_t* tok = (tok_t*)mallocx(sizeof(tok_t));
   tok->tag = TOK_IDT;
   tok->val = tmp_name("tmp__var_");
   ex0->term = tok;
@@ -1615,13 +1610,12 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     if ((expr->children).len == 3){
 
-      expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+      expr_t* ex = expr_alloc();
       ex->key = EXPR_SET;
       ex->rawkey = str_from("set",3);
       ex->lino = expr->lino;
       ex->parent = expr->parent;
       ex->children = list_new();
-      ex->symtable = map_new();
       ex->type = typ;
 
       list_add(&ex->children, (expr->children).head->data);
@@ -1800,13 +1794,12 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
     expr_t* ptr = expr;
     if ((expr->children).len > 2){
 
-      expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+      expr_t* ex = expr_alloc();
       ex->key = EXPR_TBA;
       ex->rawkey = str_from("get",3);
       ex->lino = expr->lino;
       ex->parent = expr->parent;
       ex->children = list_new();
-      ex->symtable = map_new();
       expr->parent = ex;
 
       ptr = ex;
@@ -2071,13 +2064,12 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     if (jt){
 
-      expr_t* fexpr = (expr_t*)mallocx(sizeof(expr_t));
+      expr_t* fexpr = expr_alloc();
       fexpr->key = EXPR_FUNCBODY;
       fexpr->rawkey = str_from("funcbody",8);
       fexpr->term = NULL;
       fexpr->lino = expr->lino;
       fexpr->type = prim_type(TYP_VOD);
-      fexpr->symtable = map_new();
       fexpr->children = list_new();
       fexpr->parent = expr;
       int nrem = 0;
@@ -2288,13 +2280,12 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     if (str_eq(&expr->rawkey,"+") || str_eq(&expr->rawkey,"*")){
       while ((expr->children).len > 2){
-        expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+        expr_t* ex = expr_alloc();
         ex->key = EXPR_TBA;
         ex->rawkey = str_from(expr->rawkey.data,1);
         ex->lino = expr->lino;
         ex->parent = expr->parent;
         ex->children = list_new();
-        ex->symtable = map_new();
         list_add(&ex->children, (expr->children).head->data);
         list_add(&ex->children, (expr->children).head->next->data);
         list_pophead(&expr->children);
@@ -2304,13 +2295,12 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     int did_comp_ex0 = 0;
     if (str_eq(&expr->rawkey,"-") && (expr->children).len == 1){
-      expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+      expr_t* ex = expr_alloc();
       ex->key = EXPR_TERM;
       ex->rawkey = str_from("",0);
       ex->lino = expr->lino;
       ex->parent = expr->parent;
       ex->children = list_new();
-      ex->symtable = map_new();
       
       compile_syntax_tree_node((expr->children).head,functable,stttable);
       
@@ -2402,13 +2392,12 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     if (str_eq(&expr->rawkey,"&&") || str_eq(&expr->rawkey,"||")){
       while ((expr->children).len > 2){
-        expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+        expr_t* ex = expr_alloc();
         ex->key = EXPR_TBA;
         ex->rawkey = str_from(expr->rawkey.data,2);
         ex->lino = expr->lino;
         ex->parent = expr->parent;
         ex->children = list_new();
-        ex->symtable = map_new();
         list_add(&ex->children, (expr->children).head->data);
         list_add(&ex->children, (expr->children).head->next->data);
         list_pophead(&expr->children);
@@ -2546,13 +2535,12 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
         tok_t* t = insert_tmp_var_l(it, (expr_t*)((expr->children).head->data));
         compile_syntax_tree_node(it->prev,functable,stttable);
 
-        expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+        expr_t* ex = expr_alloc();
         ex->key = EXPR_TERM;
         ex->rawkey = str_from("",0);
         ex->lino = expr->lino;
         ex->parent = expr;
         ex->children = list_new();
-        ex->symtable = map_new();
         ex->type = rtyp;
         ex->term = t;
 
@@ -3309,7 +3297,7 @@ void compile_syntax_tree(expr_t* tree, map_t* functable, map_t* stttable){
 
 
   list_node_t* it = tree->children.head;
-  tree->symtable = map_new();
+  map_clear(&tree->symtable);
 
   while (it){
   
@@ -3380,7 +3368,7 @@ void lift_scope(expr_t* expr){
         }
         k++;
       }
-      expr->symtable = map_new();
+      map_clear(&expr->symtable);
     }
 
   }
@@ -3388,7 +3376,7 @@ void lift_scope(expr_t* expr){
   list_node_t* it = expr->children.head;
   while (it){
     expr_t* ex = (expr_t*)(it->data);
-    lift_scope(ex);
+    if(ex) lift_scope(ex);
     it = it->next;
   }
 }

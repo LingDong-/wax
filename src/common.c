@@ -262,13 +262,11 @@ void list_pophead(list_t* l){
 }
 
 
-map_t map_new(){
-  map_t m;
+void map_clear(map_t *m){
   for (int i = 0; i < NUM_MAP_SLOTS; i++){
-    m.slots[i] = NULL;
+    m->slots[i] = NULL;
   }
-  m.len = 0;
-  return m;
+  m->len = 0;
 }
 
 int map_hash(str_t s){

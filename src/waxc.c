@@ -58,8 +58,9 @@ void transpile(int targ, const char* input_file, const char* path, int print_tok
 
   str_t buf = read_file_ascii(input_file);
   list_t tokens = tokenize(buf);
-  map_t included = map_new();
-  map_t defs = map_new();
+  map_t included, defs;
+  map_clear(&included);
+  map_clear(&defs);
 
   if (targ == TARG_C){
     defs_addbool(&defs,"TARGET_C",0);
@@ -92,8 +93,9 @@ void transpile(int targ, const char* input_file, const char* path, int print_tok
   printinfo("[info] constructing syntax tree...\n");
   expr_t* tree = syntax_tree(&tokens);
   printinfo("[info] compiling syntax tree...\n");
-  map_t functable = map_new();
-  map_t stttable = map_new();
+  map_t functable, stttable;
+  map_clear(&functable);
+  map_clear(&stttable);
   compile_syntax_tree(tree,&functable,&stttable);
 
 

@@ -1199,6 +1199,7 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
   str_add(&out,";;=== WAX Standard Library END   ===;;\n\n");
 
   str_add(&out,")\n");
+  //TODO need free wat_strs
   return out;
 
 }
