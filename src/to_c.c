@@ -47,12 +47,12 @@ str_t expr_to_c(expr_t* expr, int indent){
     str_add(&out,"=0");
     
   }else if (expr->key == EXPR_SET){
-    str_add(&out,"(");
+    //str_add(&out,"(");
     str_add(&out, expr_to_c(CHILD1,-1).data);
     str_add(&out,"=");
 
     str_add(&out, expr_to_c(CHILD2,-1).data );
-    str_add(&out,")");
+    //str_add(&out,")");
 
   }else if (expr->key == EXPR_TERM){
 
@@ -124,13 +124,13 @@ str_t expr_to_c(expr_t* expr, int indent){
     }
 
   }else if (expr->key == EXPR_TIF){
-    str_add(&out, "((");
+    str_add(&out, "(");
     str_add(&out, expr_to_c(CHILD1,-1).data);
-    str_add(&out, ")?(");
+    str_add(&out, " ? ");
     str_add(&out, expr_to_c(CHILD2,-1).data);
-    str_add(&out, "):(");
+    str_add(&out, " : ");
     str_add(&out, expr_to_c(CHILD3,-1).data);
-    str_add(&out, "))");
+    str_add(&out, ")");
 
   }else if (expr->key == EXPR_WHILE){
     str_add(&out, "while(");
@@ -143,15 +143,15 @@ str_t expr_to_c(expr_t* expr, int indent){
   }else if (expr->key == EXPR_FOR){
     str_add(&out, "for(int ");
     str_add(&out, expr_to_c(CHILD1,-1).data);
-    str_add(&out, "=(");
+    str_add(&out, "=");
     str_add(&out, expr_to_c(CHILD2,-1).data);
-    str_add(&out, ");");
+    str_add(&out, ";");
     str_add(&out, expr_to_c(CHILD3,-1).data);
     str_add(&out, ";");
     str_add(&out, expr_to_c(CHILD1,-1).data);
-    str_add(&out, "+=(");
+    str_add(&out, "+=");
     str_add(&out, expr_to_c(CHILD4,-1).data);
-    str_add(&out, ")){\n");
+    str_add(&out, "){\n");
     str_add(&out, expr_to_c(CHILDN,indent).data);
     INDENT2(indent);
     str_add(&out, "}");
@@ -412,16 +412,14 @@ str_t expr_to_c(expr_t* expr, int indent){
 
   }else if (expr->key == EXPR_SETNULL){
     if (!CHILD2){
-      str_add(&out,"(");
       str_add(&out, expr_to_c(CHILD1,-1).data);
       str_add(&out,"=NULL");
     }else{
       if (CHILD1->type->tag == TYP_STT){
-        str_add(&out,"((");
         str_add(&out,expr_to_c(CHILD1,-1).data);
-        str_add(&out,")->");
+        str_add(&out,"->");
         str_add(&out,expr_to_c(CHILD2,-1).data);
-        str_add(&out,"=NULL)");
+        str_add(&out,"=NULL");
       }else if (CHILD1->type->tag == TYP_ARR){
         str_add(&out,"(w_arr_set(");
         str_add(&out,type_to_c(CHILD1->type->elem0).data);
@@ -541,18 +539,18 @@ str_t expr_to_c(expr_t* expr, int indent){
       str_add(&out,")");
     }
   }else if (expr->key == EXPR_STRUCTGET){
-    str_add(&out,"((");
+    //str_add(&out,"(");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,")->");
+    str_add(&out,"->");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,")");
+    //str_add(&out,")");
 
   }else if (expr->key == EXPR_STRUCTSET){
-    str_add(&out,"((");
+    //str_add(&out,"(");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,")->");
+    str_add(&out,"->");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,")=");
+    str_add(&out,"=");
     str_add(&out,expr_to_c(CHILD3,-1).data);
 
   }else if (expr->key == EXPR_VECGET){
@@ -574,53 +572,53 @@ str_t expr_to_c(expr_t* expr, int indent){
     str_add(&out,type_to_c(CHILD1->type->elem0).data);
     str_add(&out,")w_arr_get(");
     str_add(&out,type_to_c(CHILD1->type->elem0).data);
-    str_add(&out,",(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,")))");
+    str_add(&out,"))");
 
   }else if (expr->key == EXPR_ARRSET){
     str_add(&out,"w_arr_set(");
     str_add(&out,type_to_c(CHILD1->type->elem0).data);
-    str_add(&out,",(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD3,-1).data);
-    str_add(&out,"))");
+    str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRINS){
     str_add(&out,"w_arr_insert(");
     str_add(&out,type_to_c(CHILD1->type->elem0).data);
-    str_add(&out,",(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD3,-1).data);
-    str_add(&out,"))");
+    str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRREM){
     str_add(&out,"w_arr_remove(");
     str_add(&out,"(");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD3,-1).data);
-    str_add(&out,"))");
+    str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRCPY){
     str_add(&out,"w_arr_slice(");
     str_add(&out,"(");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD3,-1).data);
-    str_add(&out,"))");
+    str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRLEN){
     str_add(&out,"(");
