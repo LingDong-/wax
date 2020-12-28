@@ -1077,7 +1077,7 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
 
   list_node_t* it = tree->children.head;
 
-  while(it){
+  while(it && it->data){
     expr_t* expr = (expr_t*)(it->data);
 
     if (expr->key == EXPR_LET && it->next){
