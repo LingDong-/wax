@@ -12,7 +12,6 @@ expr_t* expr_int_const(expr_t* parent, int b){
   ex->rawkey = str_from("",0);
   ex->lino = parent->lino;
   ex->parent = parent;
-  ex->children = list_new();
   ex->type = prim_type(TYP_INT);
 
   tok_t* t = (tok_t*) mallocx(sizeof(tok_t));
@@ -40,7 +39,6 @@ expr_t* insert_tac_letset(list_node_t* it, expr_t* ex0, type_t* typ, expr_t* val
   ex->rawkey = str_from("let",3);
   ex->lino = expr->lino;
   ex->parent = expr->parent;
-  ex->children = list_new();
   ex->type = prim_type(TYP_VOD);
 
   // let (?)
@@ -63,7 +61,6 @@ expr_t* insert_tac_letset(list_node_t* it, expr_t* ex0, type_t* typ, expr_t* val
     ey->rawkey = str_from("set",3);
     ey->lino = expr->lino;
     ey->parent = expr->parent;
-    ey->children = list_new();
     ey->type = typ;
 
     // set (?)
@@ -72,7 +69,6 @@ expr_t* insert_tac_letset(list_node_t* it, expr_t* ex0, type_t* typ, expr_t* val
     ey0->rawkey = str_from("",0);
     ey0->lino = expr->lino;
     ey0->parent = ey;
-    ey0->children = list_new();
     ey0->type = typ;
     ey0->term = ex0->term;
 
@@ -91,7 +87,6 @@ expr_t* insert_tac_letset(list_node_t* it, expr_t* ex0, type_t* typ, expr_t* val
   ez->key = EXPR_TERM;
   ez->rawkey = str_from("",0);
   ez->lino = expr->lino;
-  ez->children = list_new();
   ez->type = typ;
   ez->term = ex0->term;
 
@@ -110,7 +105,6 @@ expr_t* insert_tac_tmp(list_node_t* it, type_t* typ, expr_t* val){
   ex0->key = EXPR_TERM;
   ex0->rawkey = str_from("",0);
   ex0->lino = expr->lino;
-  ex0->children = list_new();
   ex0->type = typ;
 
   tok_t* tok = (tok_t*)mallocx(sizeof(tok_t));
@@ -126,13 +120,11 @@ expr_t* insert_tac_tmp(list_node_t* it, type_t* typ, expr_t* val){
 
 expr_t* dup_term(expr_t* expr){
   // shallow
-  expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* ex = expr_alloc();
   ex->key = EXPR_TERM;
   ex->rawkey = str_from("",0);
   ex->lino = expr->lino;
   ex->parent = expr->parent;
-  ex->children = list_new();
-  map_clear(&ex->symtable);
   ex->type = expr->type;
   ex->term = expr->term;
 
@@ -149,7 +141,6 @@ expr_t* tac_block(list_node_t* it){
   ex->rawkey = str_from("if",2);
   ex->lino = expr->lino;
   ex->parent = expr->parent;
-  ex->children = list_new();
   ex->type = prim_type(TYP_VOD);
   list_add(&ex->children,expr_int_const(ex,1));
 
@@ -159,7 +150,6 @@ expr_t* tac_block(list_node_t* it){
   ex0->rawkey = str_from("then",4);
   ex0->lino = expr->lino;
   ex0->parent = ex;
-  ex0->children = list_new();
   ex0->type = prim_type(TYP_VOD);
 
   list_add(&ex->children,ex0);
@@ -178,7 +168,6 @@ void insert_tac_breakiffalse(list_node_t* it, expr_t* ea){
   ex->rawkey = str_from("if",2);
   ex->lino = expr->lino;
   ex->parent = expr->parent;
-  ex->children = list_new();
   ex->type = prim_type(TYP_VOD);
 
   // if (?)
@@ -191,7 +180,6 @@ void insert_tac_breakiffalse(list_node_t* it, expr_t* ea){
   ex0->rawkey = str_from("then",4);
   ex0->lino = expr->lino;
   ex0->parent = ex;
-  ex0->children = list_new();
   ex0->type = prim_type(TYP_VOD);
 
   list_add(&ex->children,ex0);
@@ -202,7 +190,6 @@ void insert_tac_breakiffalse(list_node_t* it, expr_t* ea){
   ex1->rawkey = str_from("else",4);
   ex1->lino = expr->lino;
   ex1->parent = ex;
-  ex1->children = list_new();
   ex1->type = prim_type(TYP_VOD);
 
   list_add(&ex->children,ex1);
@@ -214,7 +201,6 @@ void insert_tac_breakiffalse(list_node_t* it, expr_t* ea){
   ey->rawkey = str_from("break",5);
   ey->lino = expr->lino;
   ey->parent = ex1;
-  ey->children = list_new();
   ey->type = prim_type(TYP_VOD);
 
   list_add(&ex1->children,ey);
@@ -233,7 +219,6 @@ void insert_tac_ifelseset(list_node_t* it, expr_t* ea, expr_t* eb, expr_t* ec, e
   ex->rawkey = str_from("if",2);
   ex->lino = expr->lino;
   ex->parent = expr->parent;
-  ex->children = list_new();
   ex->type = prim_type(TYP_VOD);
 
   // if (?)
@@ -246,7 +231,6 @@ void insert_tac_ifelseset(list_node_t* it, expr_t* ea, expr_t* eb, expr_t* ec, e
   ex0->rawkey = str_from("then",4);
   ex0->lino = expr->lino;
   ex0->parent = ex;
-  ex0->children = list_new();
   ex0->type = prim_type(TYP_VOD);
 
   list_add(&ex->children,ex0);
@@ -257,7 +241,6 @@ void insert_tac_ifelseset(list_node_t* it, expr_t* ea, expr_t* eb, expr_t* ec, e
   ey->rawkey = str_from("set",3);
   ey->lino = expr->lino;
   ey->parent = ex0;
-  ey->children = list_new();
   ey->type = ec->type;
 
   list_add(&ex0->children,ey);
@@ -280,7 +263,6 @@ void insert_tac_ifelseset(list_node_t* it, expr_t* ea, expr_t* eb, expr_t* ec, e
     ex1->rawkey = str_from("else",4);
     ex1->lino = expr->lino;
     ex1->parent = ex;
-    ex1->children = list_new();
     ex1->type = prim_type(TYP_VOD);
 
     list_add(&ex->children,ex1);
@@ -291,7 +273,6 @@ void insert_tac_ifelseset(list_node_t* it, expr_t* ea, expr_t* eb, expr_t* ec, e
     ez->rawkey = str_from("set",3);
     ez->lino = expr->lino;
     ez->parent = ex1;
-    ez->children = list_new();
     ez->type = ed->type;
 
     list_add(&ex1->children,ez);
@@ -319,7 +300,6 @@ expr_t* tac_increment(expr_t* ea, expr_t* eb){
   ex->key = EXPR_SET;
   ex->rawkey = str_from("set",3);
   ex->lino = ea->lino;
-  ex->children = list_new();
   ex->type = ea->type;
 
   // set (?)
@@ -332,7 +312,6 @@ expr_t* tac_increment(expr_t* ea, expr_t* eb){
   ey->rawkey = str_from("+",1);
   ey->lino = ea->lino;
   ey->parent = ex;
-  ey->children = list_new();
   ey->type = ea->type;
 
   // + (?)
@@ -400,7 +379,7 @@ void compile_tac_node(list_node_t* it, expr_t* expr){
     expr->key = EXPR_INEQ;
     expr->rawkey = str_from("!=",0);
     expr->lino = expr->lino;
-    expr->children = list_new();
+    list_init(&expr->children);
     map_clear(&expr->symtable);
 
 
@@ -427,7 +406,6 @@ void compile_tac_node(list_node_t* it, expr_t* expr){
     ey->rawkey = str_from("=",1);
     ey->lino = expr->lino;
     ey->parent = ex0;
-    ey->children = list_new();
     ey->type = ex->type;
     list_add(&ey->children,ex);
     list_add(&ey->children,expr_int_const(ey,0));
@@ -440,7 +418,7 @@ void compile_tac_node(list_node_t* it, expr_t* expr){
 
     expr->key = EXPR_INEQ;
     expr->rawkey = str_from("!=",2);
-    expr->children = list_new();
+    list_init(&expr->children);
     map_clear(&expr->symtable);
 
 
@@ -473,9 +451,8 @@ void compile_tac_node(list_node_t* it, expr_t* expr){
 
     expr->key = EXPR_TERM;
     expr->rawkey = str_from("",0);
-    expr->children = list_new();
+    list_init(&expr->children);
     map_clear(&expr->symtable);
-    expr->children = list_new();
     expr->term = es->term;
 
     return;

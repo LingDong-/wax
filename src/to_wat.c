@@ -1044,7 +1044,7 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
   // print_syntax_tree(tree,0);
 
   wat_functable = functable;
-  wat_strs = list_new();
+  list_init(&wat_strs);
   wat_str_ptr = 4;
 
   max_wat_lits = 32;
@@ -1200,6 +1200,17 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
 
   str_add(&out,")\n");
   //TODO need free wat_strs
+/*
+  list_node_t *tmp2, *tmp1 = wat_strs.head;
+  while(tmp1){
+      tmp2 = tmp1->next;
+      free(tmp1->data);
+      free(tmp1);
+      tmp1 = tmp2;
+  }
+  wat_strs.len = 0;
+  wat_strs.head = wat_strs.tail = NULL;
+*/
   return out;
 
 }

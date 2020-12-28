@@ -43,12 +43,10 @@ typedef struct map_st {
 } map_t;
 
 
-list_t list_new(){
-  list_t l;
-  l.head = NULL;
-  l.tail = NULL;
-  l.len = 0;
-  return l;
+void list_init(list_t *l){
+  l->head = NULL;
+  l->tail = NULL;
+  l->len = 0;
 }
 
 
@@ -73,7 +71,7 @@ int num_mallocxed_bytes = 0;
 
 void* mallocx(size_t size){
   if (!mallocxed_initialized){
-    mallocxed = list_new();
+    list_init(&mallocxed);
     mallocxed_initialized = 1;
   }
   void* ptr = malloc(size);
@@ -154,7 +152,7 @@ str_t str_fromch(char c){
 
 
 void str_add (str_t* s, const char* cs){
-  int l = strlen(cs);
+  size_t l = strlen(cs);
   if (s->cap < s->len + l){
     int hs = s->cap/2;
     s->cap = s->len+MAX(l,hs);
@@ -320,11 +318,13 @@ str_t str_unquote(str_t src){
 #define INDENT2(x) for (int i = 0; i < (x); i++){str_add(&out, "  ");}
 #define INDENT4(x) for (int i = 0; i < (x); i++){str_add(&out, "    ");}
 
-#define CHILD1 ((expr->children.len>0)?((expr_t*)(expr->children.head->data)):NULL)
-#define CHILD2 ((expr->children.len>1)?((expr_t*)(expr->children.head->next->data)):NULL)
-#define CHILD3 ((expr->children.len>2)?((expr_t*)(expr->children.head->next->next->data)):NULL)
-#define CHILD4 ((expr->children.len>3)?((expr_t*)(expr->children.head->next->next->next->data)):NULL)
-#define CHILDN ((expr->children.len>0)?((expr_t*)(expr->children.tail->data)):NULL)
+struct expr_st *expr_t_nullptr = NULL;
+
+#define CHILD1 ((expr->children.len>0)?((expr_t*)(expr->children.head->data)):expr_t_nullptr)
+#define CHILD2 ((expr->children.len>1)?((expr_t*)(expr->children.head->next->data)):expr_t_nullptr)
+#define CHILD3 ((expr->children.len>2)?((expr_t*)(expr->children.head->next->next->data)):expr_t_nullptr)
+#define CHILD4 ((expr->children.len>3)?((expr_t*)(expr->children.head->next->next->next->data)):expr_t_nullptr)
+#define CHILDN ((expr->children.len>0)?((expr_t*)(expr->children.tail->data)):expr_t_nullptr)
 
 int tmp_name_cnt = 0;
 str_t tmp_name(char* prefix){
@@ -341,7 +341,7 @@ str_t tmp_name(char* prefix){
 
 
 str_t base_name(const char* path){
-	int l = strlen(path);
+	size_t l = strlen(path);
 	if (!l){
 		return str_new();
 	}
