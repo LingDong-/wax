@@ -404,6 +404,27 @@ Strings can be compared with `=` and `<>` equality tests. They actually check if
 ;; prints 1
 ```
 
+To find out the length of a string:
+
+```scheme
+(# s)
+```
+
+To get a character from a string:
+
+
+```scheme
+(let s str "hello")
+(let c int (get s 0)) ;; 'h'==104
+```
+
+To copy part of a string into a new string use `(slice s i n)` the same way as `slice` for `arr`:
+
+```scheme
+(let s str "hello")
+(slice s 1 3)  ;; "ell"
+```
+
 ## Casting
 
 Ints and Floats can be cast to each other implicitly. You can also use `(cast var to_type)` to do so explicitly:
