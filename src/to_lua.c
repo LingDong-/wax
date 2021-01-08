@@ -68,40 +68,40 @@ str_t expr_to_lua(expr_t* expr, int indent){
     str_add(&out, "))");
 
   }else if (expr->key == EXPR_BOR){
-    str_add(&out, "(bit or bit32).bor((");
+    str_add(&out, "bit.bor((");
     str_add(&out, expr_to_lua(CHILD1,-1).data );
     str_add(&out, "),(");
     str_add(&out, expr_to_lua(CHILD2,-1).data );
     str_add(&out, "))");
 
   }else if (expr->key == EXPR_BAND){
-    str_add(&out, "(bit or bit32).band((");
+    str_add(&out, "bit.band((");
     str_add(&out, expr_to_lua(CHILD1,-1).data );
     str_add(&out, "),(");
     str_add(&out, expr_to_lua(CHILD2,-1).data );
     str_add(&out, "))");
 
   }else if (expr->key == EXPR_SHL){
-    str_add(&out, "(bit or bit32).lshift((");
+    str_add(&out, "bit.lshift((");
     str_add(&out, expr_to_lua(CHILD1,-1).data );
     str_add(&out, "),(");
     str_add(&out, expr_to_lua(CHILD2,-1).data );
     str_add(&out, "))");
 
   }else if (expr->key == EXPR_SHR){
-    str_add(&out, "(bit or bit32).rshift((");
+    str_add(&out, "bit.rshift((");
     str_add(&out, expr_to_lua(CHILD1,-1).data );
     str_add(&out, "),(");
     str_add(&out, expr_to_lua(CHILD2,-1).data );
     str_add(&out, "))");
 
   }else if (expr->key == EXPR_BNEG){
-    str_add(&out, "(bit or bit32).bnot(");
+    str_add(&out, "bit.bnot(");
     str_add(&out, expr_to_lua(CHILD1,-1).data );
     str_add(&out, ")");
 
   }else if (expr->key == EXPR_XOR){
-    str_add(&out, "(bit or bit32).bxor((");
+    str_add(&out, "bit.bxor((");
     str_add(&out, expr_to_lua(CHILD1,-1).data );
     str_add(&out, "),(");
     str_add(&out, expr_to_lua(CHILD2,-1).data );
@@ -177,13 +177,13 @@ str_t expr_to_lua(expr_t* expr, int indent){
     INDENT2(indent);
     str_add(&out, "end");
   }else if (expr->key == EXPR_TIF){
-    str_add(&out, "((function() if (");
+    str_add(&out, "((");
     str_add(&out, expr_to_lua(CHILD1,-1).data);
-    str_add(&out, ")~=0 then return (");
+    str_add(&out, ")~=0 and (");
     str_add(&out, expr_to_lua(CHILD2,-1).data);
-    str_add(&out, ") else return (");
+    str_add(&out, ") or (");
     str_add(&out, expr_to_lua(CHILD3,-1).data);
-    str_add(&out, ") end end)())");
+    str_add(&out, "))");
 
   }else if (expr->key == EXPR_WHILE){
     str_add(&out, "while (");
@@ -644,9 +644,8 @@ str_t tree_to_lua(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
   str_add(&out,"------ WAX Standard Library BEGIN ------\n");
   str_addconst(&out,TEXT_std_lua);
   str_add(&out,"------ WAX Standard Library END   ------\n\n");
-
-
   str_add(&out,"------ User Code            BEGIN ------\n\n");
+  str_add(&out,"local bit = require('bit32') or require('bit')\n\n");
   list_node_t* it = tree->children.head;
 
   while(it){
