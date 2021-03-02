@@ -1065,6 +1065,7 @@ expr_t* syntax_tree(list_t* tokens){
   prgm->children = list_new();
   prgm->type = prim_type(TYP_VOD);
   prgm->lino = 0;
+  prgm->parent = NULL;
 
   
 
