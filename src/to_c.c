@@ -47,12 +47,12 @@ str_t expr_to_c(expr_t* expr, int indent){
     str_add(&out,"=0");
     
   }else if (expr->key == EXPR_SET){
-    //str_add(&out,"(");
+    str_add(&out,"(");
     str_add(&out, expr_to_c(CHILD1,-1).data);
     str_add(&out,"=");
 
     str_add(&out, expr_to_c(CHILD2,-1).data );
-    //str_add(&out,")");
+    str_add(&out,")");
 
   }else if (expr->key == EXPR_TERM){
 
@@ -124,13 +124,13 @@ str_t expr_to_c(expr_t* expr, int indent){
     }
 
   }else if (expr->key == EXPR_TIF){
-    str_add(&out, "(");
+    str_add(&out, "((");
     str_add(&out, expr_to_c(CHILD1,-1).data);
-    str_add(&out, " ? ");
+    str_add(&out, ")?(");
     str_add(&out, expr_to_c(CHILD2,-1).data);
-    str_add(&out, " : ");
+    str_add(&out, "):(");
     str_add(&out, expr_to_c(CHILD3,-1).data);
-    str_add(&out, ")");
+    str_add(&out, "))");
 
   }else if (expr->key == EXPR_WHILE){
     str_add(&out, "while(");

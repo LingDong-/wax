@@ -24,8 +24,10 @@ char* transpile(char* targ, char* filname, char* src, int print_ast){
 
   str_t buf = str_from(src,strlen(src));
   list_t tokens = tokenize(buf);
-  map_t included = map_new();
-  map_t defs = map_new();
+  map_t included;
+  map_t defs;
+  map_clear(&included);
+  map_clear(&defs);
 
   if (!strcmp(targ,"c")){
     defs_addbool(&defs,"TARGET_C",0);
@@ -58,8 +60,10 @@ char* transpile(char* targ, char* filname, char* src, int print_ast){
   printinfo("[info] constructing syntax tree...\n");
   expr_t* tree = syntax_tree(&tokens);
   printinfo("[info] compiling syntax tree...\n");
-  map_t functable = map_new();
-  map_t stttable = map_new();
+  map_t functable;
+  map_t stttable;
+  map_clear(&functable);
+  map_clear(&stttable);
   compile_syntax_tree(tree,&functable,&stttable);
 
   if (print_ast){

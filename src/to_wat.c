@@ -1199,8 +1199,7 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
   str_add(&out,";;=== WAX Standard Library END   ===;;\n\n");
 
   str_add(&out,")\n");
-  //TODO need free wat_strs
-/*
+
   list_node_t *tmp2, *tmp1 = wat_strs.head;
   while(tmp1){
       tmp2 = tmp1->next;
@@ -1210,7 +1209,7 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
   }
   wat_strs.len = 0;
   wat_strs.head = wat_strs.tail = NULL;
-*/
+
   return out;
 
 }
