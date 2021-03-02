@@ -177,13 +177,13 @@ str_t expr_to_lua(expr_t* expr, int indent){
     INDENT2(indent);
     str_add(&out, "end");
   }else if (expr->key == EXPR_TIF){
-    str_add(&out, "((");
+    str_add(&out, "((function() if (");
     str_add(&out, expr_to_lua(CHILD1,-1).data);
-    str_add(&out, ")~=0 and (");
+    str_add(&out, ")~=0 then return (");
     str_add(&out, expr_to_lua(CHILD2,-1).data);
-    str_add(&out, ") or (");
+    str_add(&out, ") else return (");
     str_add(&out, expr_to_lua(CHILD3,-1).data);
-    str_add(&out, "))");
+    str_add(&out, ") end end)())");
 
   }else if (expr->key == EXPR_WHILE){
     str_add(&out, "while (");
