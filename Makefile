@@ -7,7 +7,7 @@ co: _
 	gcc src/waxc.c -o waxc -O3 -std=c99 -pedantic -Wall
 
 c: _
-	gcc src/waxc.c -DEBUG -o waxc
+	gcc -g src/waxc.c -DEBUG -o waxc
 
 em: _
 	../emsdk/upstream/emscripten/emcc src/waxc.c -s WASM=0 -lnodefs.js -s NODERAWFS=1 -O3 -o waxc_cli.js --memory-init-file 0

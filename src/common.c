@@ -43,12 +43,10 @@ typedef struct map_st {
 } map_t;
 
 
-list_t list_new(){
-  list_t l;
-  l.head = NULL;
-  l.tail = NULL;
-  l.len = 0;
-  return l;
+void list_init(list_t *l){
+  l->head = NULL;
+  l->tail = NULL;
+  l->len = 0;
 }
 
 
@@ -73,7 +71,7 @@ int num_mallocxed_bytes = 0;
 
 void* mallocx(size_t size){
   if (!mallocxed_initialized){
-    mallocxed = list_new();
+    list_init(&mallocxed);
     mallocxed_initialized = 1;
   }
   void* ptr = malloc(size);
@@ -132,12 +130,12 @@ str_t str_new(){
   return s;
 }
 
-str_t str_from(char* cs, int l){
+str_t str_from(const char* cs, int l){
   str_t s;
   s.cap = l;
   s.len = l;
   s.data = (char*)mallocx(l+1);
-  strncpy(s.data,cs,l);
+  memcpy(s.data,cs,l);
   s.data[l] = 0;
   return s;
 }
@@ -153,26 +151,14 @@ str_t str_fromch(char c){
 }
 
 
-void str_add (str_t* s, char* cs){
-  int l = strlen(cs);
+void str_add (str_t* s, const char* cs){
+  size_t l = strlen(cs);
   if (s->cap < s->len + l){
     int hs = s->cap/2;
     s->cap = s->len+MAX(l,hs);
     s->data = (char*)reallocx(s->data, s->cap+1 );
   }
-  strcpy(&s->data[s->len],cs);
-  s->len += l;
-  s->data[s->len] = 0;
-}
-
-void str_addconst (str_t* s, const char* cs){
-  int l = strlen(cs);
-  if (s->cap < s->len + l){
-    int hs = s->cap/2;
-    s->cap = s->len+MAX(l,hs);
-    s->data = (char*)reallocx(s->data, s->cap+1 );
-  }
-  strcpy(&s->data[s->len],cs);
+  memcpy(&s->data[s->len],cs, l);
   s->len += l;
   s->data[s->len] = 0;
 }
@@ -274,13 +260,11 @@ void list_pophead(list_t* l){
 }
 
 
-map_t map_new(){
-  map_t m;
+void map_clear(map_t *m){
   for (int i = 0; i < NUM_MAP_SLOTS; i++){
-    m.slots[i] = NULL;
+    m->slots[i] = NULL;
   }
-  m.len = 0;
-  return m;
+  m->len = 0;
 }
 
 int map_hash(str_t s){
@@ -334,11 +318,13 @@ str_t str_unquote(str_t src){
 #define INDENT2(x) for (int i = 0; i < (x); i++){str_add(&out, "  ");}
 #define INDENT4(x) for (int i = 0; i < (x); i++){str_add(&out, "    ");}
 
-#define CHILD1 ((expr->children.len>0)?((expr_t*)(expr->children.head->data)):NULL)
-#define CHILD2 ((expr->children.len>1)?((expr_t*)(expr->children.head->next->data)):NULL)
-#define CHILD3 ((expr->children.len>2)?((expr_t*)(expr->children.head->next->next->data)):NULL)
-#define CHILD4 ((expr->children.len>3)?((expr_t*)(expr->children.head->next->next->next->data)):NULL)
-#define CHILDN ((expr->children.len>0)?((expr_t*)(expr->children.tail->data)):NULL)
+struct expr_st *expr_t_nullptr = NULL;
+
+#define CHILD1 ((expr->children.len>0)?((expr_t*)(expr->children.head->data)):expr_t_nullptr)
+#define CHILD2 ((expr->children.len>1)?((expr_t*)(expr->children.head->next->data)):expr_t_nullptr)
+#define CHILD3 ((expr->children.len>2)?((expr_t*)(expr->children.head->next->next->data)):expr_t_nullptr)
+#define CHILD4 ((expr->children.len>3)?((expr_t*)(expr->children.head->next->next->next->data)):expr_t_nullptr)
+#define CHILDN ((expr->children.len>0)?((expr_t*)(expr->children.tail->data)):expr_t_nullptr)
 
 int tmp_name_cnt = 0;
 str_t tmp_name(char* prefix){
@@ -347,15 +333,15 @@ str_t tmp_name(char* prefix){
   //   str_addch(&out, RAND%26+97);
   // }
   char x[16];
-  sprintf(x,"%02x",tmp_name_cnt);
+  snprintf(x,sizeof(x),"%02x",tmp_name_cnt);
   tmp_name_cnt ++;
   str_add(&out,x);
   return out;
 }
 
 
-str_t base_name(char* path){
-	int l = strlen(path);
+str_t base_name(const char* path){
+	size_t l = strlen(path);
 	if (!l){
 		return str_new();
 	}
@@ -429,7 +415,7 @@ str_t censor(str_t src){
       str_addch(&out,src.data[i]);
     }else{
       char x[8];
-      sprintf(x,"U%02x__",src.data[i]);
+      snprintf(x,sizeof(x),"U%02x__",src.data[i]);
       str_add(&out,x);
     }
   }

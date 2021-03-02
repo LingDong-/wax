@@ -148,6 +148,7 @@ const char* keywords[NUM_KEYWORDS] = {
 };
 
 
+#define TYP_NONE 0
 #define TYP_INT 1
 #define TYP_FLT 2
 #define TYP_STR 3
@@ -166,7 +167,7 @@ const char* types[NUM_TYPES] = {
 
 
 typedef struct tok_st {
-  char tag;
+  int tag;
   int lino; // line no.
   str_t val;
 } tok_t;
@@ -175,20 +176,16 @@ typedef struct tok_st {
 typedef struct type_st {
   int tag;
   struct type_st *elem0;
-  #ifdef __GNUC__
   union{
-  #endif
-    str_t name;
     int size;
+    str_t name;
     struct type_st *elem1;
-  #ifdef __GNUC__
-  };
-  #endif
+  } u;
 } type_t;
 
 
 typedef struct sym_st {
-  char is_local;
+  int is_local;
   str_t name;
   type_t type;
 } sym_t;
@@ -206,7 +203,7 @@ typedef struct func_st {
 
 
 typedef struct expr_st {
-  short key;
+  int key;
   int lino;
   str_t rawkey;
   void* term;
@@ -221,6 +218,11 @@ typedef struct def_st {
   tok_t* token;
 } def_t;
 
+expr_t* expr_alloc(){
+  expr_t* expr = (expr_t*)mallocx(sizeof(expr_t));
+  memset(expr, 0, sizeof(expr_t));
+  return expr;
+}
 
 tok_t* tok_alloc(char tag, int lino){
   tok_t* tok = (tok_t*) mallocx(sizeof(tok_t));
@@ -239,9 +241,10 @@ int tok_eq(tok_t* tok, const char* cs){
 }
 
 
-str_t read_file_ascii(char* filename){
+str_t read_file_ascii(const char* filename){
   char * buffer = 0;
   long length;
+  size_t sz;
   FILE * f = fopen (filename, "r");
   if (f){
     fseek(f, 0, SEEK_END);
@@ -249,7 +252,8 @@ str_t read_file_ascii(char* filename){
     fseek(f, 0, SEEK_SET);
     buffer = malloc(length+1);
     if (buffer){
-      fread(buffer, 1, length, f);
+      sz = fread(buffer, 1, length, f);
+      if(sz != length) goto failed;
     }
     fclose(f);
   
@@ -258,6 +262,7 @@ str_t read_file_ascii(char* filename){
     free(buffer);
     return s;
   }
+failed:
   printerr("file")("cannot read file %s.\n",filename);
   printf("exiting with file reading failure.\n");
   freex();exit(1);
@@ -265,7 +270,7 @@ str_t read_file_ascii(char* filename){
 }
 
 
-void write_file_ascii(char* filename, char* content){
+void write_file_ascii(const char* filename, char* content){
   FILE *fp;
   fp = fopen(filename, "w");
   fputs(content, fp);
@@ -359,8 +364,8 @@ tok_t* word_to_token(str_t s, int lino){
   }
 
 list_t tokenize(str_t src){
-  list_t tokens = list_new();
-
+  list_t tokens;
+  list_init(&tokens);
   str_t buf = str_new();
   int lino = 1;
   int isquote = 0;
@@ -490,7 +495,7 @@ void defs_addbool(map_t* defs, char* name_, int lino){
   map_add(defs,name,d);
 }
 
-void preprocess(char* filename, list_t* tokens, map_t* included, map_t* defs){
+void preprocess(const char* filename, list_t* tokens, map_t* included, map_t* defs){
 
   str_t fnstr = str_from(filename,strlen(filename));
 
@@ -651,7 +656,7 @@ void preprocess(char* filename, list_t* tokens, map_t* included, map_t* defs){
         if (is_std){
           inc = str_new();
           if (str_eq(&name,"math")){
-            str_addconst(&inc, TEXT_math_wax);
+            str_add(&inc, TEXT_math_wax);
           }else{
             printerr("file")("stdlib not found: '%s'.\n",fname);
             goto crash;
@@ -794,19 +799,19 @@ void preprocess(char* filename, list_t* tokens, map_t* included, map_t* defs){
 type_t* prim_type(int tag){
   type_t* typ = (type_t*)mallocx(sizeof(type_t));
   typ->tag = tag;
+  typ->elem0 = NULL;
+  typ->u.elem1 = NULL;
   return typ;
 }
 
 expr_t* type_expr(type_t* typ, int lino){
-  expr_t* expr = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* expr = expr_alloc();
   expr->key = EXPR_TYPE;
   expr->rawkey = str_from("",0);
 
   expr->term = typ;
   expr->lino = lino;
   expr->type = prim_type(TYP_TYP);
-  expr->symtable = map_new();
-  expr->children = list_new();
   return expr;
 }
 
@@ -826,14 +831,11 @@ expr_t* parse_terminal(tok_t* tok){
     return NULL;
   }
 
-  expr_t* expr = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* expr = expr_alloc();
   expr->key = EXPR_TERM;
   expr->rawkey = str_from("",0);
   expr->term = tok;
   expr->lino = tok->lino;
-  expr->symtable = map_new();
-  expr->children = list_new();
-  expr->type = NULL;
   return expr;
 }
 
@@ -931,8 +933,8 @@ type_t* parse_type(list_t* tokens){
     if (!typ->elem0){
       return NULL;
     }
-    typ->elem1 = parse_type(toks1);
-    if (!typ->elem1){
+    typ->u.elem1 = parse_type(toks1);
+    if (!typ->u.elem1){
       return NULL;
     }
   
@@ -971,7 +973,7 @@ type_t* parse_type(list_t* tokens){
       printerr("syntax")("line %d: vec size must be a positive int (parsed: %d).\n",tok->lino,size);
       return NULL;
     }
-    typ->size = size;
+    typ->u.size = size;
   }else if (tok_eq(tok,"struct")){
     if (groups->len != 1){
       printerr("syntax")("line %d: invalid struct type name.\n",tok->lino);
@@ -984,7 +986,7 @@ type_t* parse_type(list_t* tokens){
       return NULL;
     }
     typ->tag = TYP_STT;
-    typ->name = tok0->val;
+    typ->u.name = tok0->val;
 
   }
   return typ;
@@ -994,7 +996,7 @@ type_t* parse_type(list_t* tokens){
 
 expr_t* parse_expr(list_t* tokens,int level){
   // print_tokens(tokens);
-  expr_t* expr = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* expr = expr_alloc();
   
   list_node_t* it = tokens->head;
   tok_t* tok = (tok_t*)(it->data);
@@ -1009,8 +1011,6 @@ expr_t* parse_expr(list_t* tokens,int level){
         expr->key = EXPR_TYPE;
         expr->term = typ;
         expr->lino = tok->lino;
-        expr->children = list_new();
-        expr->symtable = map_new();
         return expr;
       }
     }
@@ -1022,7 +1022,6 @@ expr_t* parse_expr(list_t* tokens,int level){
   }
   expr->key = EXPR_TBA;
   expr->rawkey = tok->val;
-  expr->children = list_new();
 
   tokens->head = it->next;
 
@@ -1052,17 +1051,15 @@ expr_t* parse_expr(list_t* tokens,int level){
   }
 
   expr->lino = ((tok_t*)(tokens->head->data))->lino;
-  expr->symtable = map_new();
+  map_clear(&expr->symtable);
   expr->type = NULL;
   return expr;
 }
 
-
 expr_t* syntax_tree(list_t* tokens){
-  expr_t* prgm = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* prgm = expr_alloc();
   prgm->key = EXPR_PRGM;
   prgm->rawkey = str_from("program",7);
-  prgm->children = list_new();
   prgm->type = prim_type(TYP_VOD);
   prgm->lino = 0;
   prgm->parent = NULL;
@@ -1112,7 +1109,7 @@ void print_type(type_t* typ){
   }
   printf("%s",types[typ->tag-1]);
   if (typ->tag == TYP_VEC){
-    printf("%d",typ->size);
+    printf("%d",typ->u.size);
     printf("<");
     print_type(typ->elem0);
     printf(">");
@@ -1124,10 +1121,10 @@ void print_type(type_t* typ){
     printf("<");
     print_type(typ->elem0);
     printf(":");
-    print_type(typ->elem1);
+    print_type(typ->u.elem1);
     printf(">");
   }else if (typ->tag == TYP_STT){
-    printf(" %s",typ->name.data);
+    printf(" %s",typ->u.name.data);
   }else if (typ->tag == TYP_TYP){
     printf("<type>");
   }
@@ -1375,13 +1372,11 @@ expr_t* caster(expr_t* expr, type_t* typ){
   }
 
 
-  expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* ex = expr_alloc();
   ex->key = EXPR_CAST;
   ex->rawkey = str_from("cast",4);
   ex->lino = expr->lino;
   ex->parent = expr->parent;
-  ex->children = list_new();
-  ex->symtable = map_new();
   ex->type = typ;
 
   expr_t* tex = type_expr(typ,expr->lino);
@@ -1411,10 +1406,10 @@ int type_eq(type_t* t0, type_t* t1){
     return type_eq(t0->elem0,t1->elem0);
   }
   if (t0->tag == TYP_MAP && t1->tag == TYP_MAP){
-    return type_eq(t0->elem0,t1->elem0) && type_eq(t0->elem1,t1->elem1);
+    return type_eq(t0->elem0,t1->elem0) && type_eq(t0->u.elem1,t1->u.elem1);
   }
   if (t0->tag == TYP_STT && t1->tag == TYP_STT){
-    return str_eq(&t0->name,t1->name.data);
+    return str_eq(&t0->u.name,t1->u.name.data);
   }
   return 0;
 }
@@ -1459,25 +1454,21 @@ void local_auto_free(void* it, expr_t* tree, int rec){
                sym->type.tag != TYP_INT
             && sym->type.tag != TYP_FLT
           )){
-          expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+          expr_t* ex = expr_alloc();
           ex->key = EXPR_FREE;
           ex->rawkey = str_from("free",4);
           ex->lino = tree->lino;
           ex->parent = tree;
-          ex->children = list_new();
-          ex->symtable = map_new();
           ex->type = prim_type(TYP_VOD);
 
-          expr_t* ex0 = (expr_t*)mallocx(sizeof(expr_t));
+          expr_t* ex0 = expr_alloc();
           ex0->key = EXPR_TERM;
           ex0->rawkey = str_from("",0);
           ex0->lino = tree->lino;
           ex0->parent = ex;
-          ex0->children = list_new();
-          ex0->symtable = map_new();
           ex0->type = &sym->type;
 
-          tok_t* tok = (tok_t*)mallocx(sizeof(expr_t));
+          tok_t* tok = (tok_t*)mallocx(sizeof(tok_t));
           tok->tag = TOK_IDT;
           tok->val = sym->name;
           ex0->term = tok;
@@ -1507,25 +1498,21 @@ void local_auto_free(void* it, expr_t* tree, int rec){
 tok_t* insert_tmp_var_l(list_node_t* it, expr_t* val){
   expr_t* expr = (expr_t*)(it->data);
 
-  expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* ex = expr_alloc();
   ex->key = EXPR_LET;
   ex->rawkey = str_from("let",3);
   ex->lino = expr->lino;
   ex->parent = expr->parent;
-  ex->children = list_new();
-  ex->symtable = map_new();
   ex->type = prim_type(TYP_VOD);
 
-  expr_t* ex0 = (expr_t*)mallocx(sizeof(expr_t));
+  expr_t* ex0 = expr_alloc();
   ex0->key = EXPR_TERM;
   ex0->rawkey = str_from("",0);
   ex0->lino = expr->lino;
   ex0->parent = ex;
-  ex0->children = list_new();
-  ex0->symtable = map_new();
   ex0->type = val->type;
 
-  tok_t* tok = (tok_t*)mallocx(sizeof(expr_t));
+  tok_t* tok = (tok_t*)mallocx(sizeof(tok_t));
   tok->tag = TOK_IDT;
   tok->val = tmp_name("tmp__var_");
   ex0->term = tok;
@@ -1615,13 +1602,11 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     if ((expr->children).len == 3){
 
-      expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+      expr_t* ex = expr_alloc();
       ex->key = EXPR_SET;
       ex->rawkey = str_from("set",3);
       ex->lino = expr->lino;
       ex->parent = expr->parent;
-      ex->children = list_new();
-      ex->symtable = map_new();
       ex->type = typ;
 
       list_add(&ex->children, (expr->children).head->data);
@@ -1680,9 +1665,9 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
             printerr("syntax")("line %d: 'set' expecting a struct field name.\n",expr->lino);
             goto crash;
           }
-          type_t* typ = struct_lookup(&ex0->type->name,&((tok_t*)ex1->term)->val,stttable);
+          type_t* typ = struct_lookup(&ex0->type->u.name,&((tok_t*)ex1->term)->val,stttable);
           if (typ == NULL){
-            printerr("syntax")("line %d: struct '%s' has no field '%s' to 'set'.\n",expr->lino,ex0->type->name.data,((tok_t*)ex1->term)->val.data);
+            printerr("syntax")("line %d: struct '%s' has no field '%s' to 'set'.\n",expr->lino,ex0->type->u.name.data,((tok_t*)ex1->term)->val.data);
             goto crash;
           }
           if (!type_eq(typ,ex2->type)){
@@ -1775,7 +1760,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
               printf(".\n");
               goto crash;
             }
-            expr->type = ex0->type->elem1;
+            expr->type = ex0->type->u.elem1;
           }
 
         }else{
@@ -1800,13 +1785,11 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
     expr_t* ptr = expr;
     if ((expr->children).len > 2){
 
-      expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+      expr_t* ex = expr_alloc();
       ex->key = EXPR_TBA;
       ex->rawkey = str_from("get",3);
       ex->lino = expr->lino;
       ex->parent = expr->parent;
-      ex->children = list_new();
-      ex->symtable = map_new();
       expr->parent = ex;
 
       ptr = ex;
@@ -1836,9 +1819,9 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
           printerr("syntax")("line %d: 'get' expecting a struct field name.\n",expr->lino);
           goto crash;
         }
-        type_t* typ = struct_lookup(&ex0->type->name,&((tok_t*)ex1->term)->val,stttable);
+        type_t* typ = struct_lookup(&ex0->type->u.name,&((tok_t*)ex1->term)->val,stttable);
         if (typ == NULL){
-          printerr("syntax")("line %d: struct '%s' has no field '%s' to 'get'.\n",expr->lino,ex0->type->name.data,((tok_t*)ex1->term)->val.data);
+          printerr("syntax")("line %d: struct '%s' has no field '%s' to 'get'.\n",expr->lino,ex0->type->u.name.data,((tok_t*)ex1->term)->val.data);
           goto crash;
         }
 
@@ -1925,7 +1908,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
             printf(".\n");
             goto crash;
           }
-          expr->type = ex0->type->elem1;
+          expr->type = ex0->type->u.elem1;
         }
 
       }else{
@@ -1950,7 +1933,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     stt_t* stt = (stt_t*)mallocx(sizeof(stt_t));
     stt->name = ((tok_t*)ex0->term)->val;
-    stt->fields = list_new();
+    list_init(&stt->fields);
 
     map_add(stttable,stt->name,stt);
 
@@ -1984,7 +1967,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
       ex->key = EXPR_STRUCTFLD;
       jt = jt->next;
     }
-    typ->name = ((tok_t*)ex0->term)->val;
+    typ->u.name = ((tok_t*)ex0->term)->val;
     ex0->type = typ;      
 
   }else if (str_eq(&expr->rawkey,"func")){
@@ -2006,7 +1989,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     func_t* func = (func_t*)mallocx(sizeof(func_t));
     func->name = ((tok_t*)ex0->term)->val;
-    func->params = list_new();
+    list_init(&func->params);
 
     map_add(functable,func->name,func);
 
@@ -2071,14 +2054,12 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     if (jt){
 
-      expr_t* fexpr = (expr_t*)mallocx(sizeof(expr_t));
+      expr_t* fexpr = expr_alloc();
       fexpr->key = EXPR_FUNCBODY;
       fexpr->rawkey = str_from("funcbody",8);
       fexpr->term = NULL;
       fexpr->lino = expr->lino;
       fexpr->type = prim_type(TYP_VOD);
-      fexpr->symtable = map_new();
-      fexpr->children = list_new();
       fexpr->parent = expr;
       int nrem = 0;
 
@@ -2126,7 +2107,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
       func_t* func = (func_t*)mallocx(sizeof(func_t));
       func->name = ((tok_t*)ex0->term)->val;
-      func->params = list_new();
+      list_init(&func->params);
 
       map_add(functable,func->name,func);
 
@@ -2288,13 +2269,11 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     if (str_eq(&expr->rawkey,"+") || str_eq(&expr->rawkey,"*")){
       while ((expr->children).len > 2){
-        expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+        expr_t* ex = expr_alloc();
         ex->key = EXPR_TBA;
         ex->rawkey = str_from(expr->rawkey.data,1);
         ex->lino = expr->lino;
         ex->parent = expr->parent;
-        ex->children = list_new();
-        ex->symtable = map_new();
         list_add(&ex->children, (expr->children).head->data);
         list_add(&ex->children, (expr->children).head->next->data);
         list_pophead(&expr->children);
@@ -2304,13 +2283,11 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     int did_comp_ex0 = 0;
     if (str_eq(&expr->rawkey,"-") && (expr->children).len == 1){
-      expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+      expr_t* ex = expr_alloc();
       ex->key = EXPR_TERM;
       ex->rawkey = str_from("",0);
       ex->lino = expr->lino;
       ex->parent = expr->parent;
-      ex->children = list_new();
-      ex->symtable = map_new();
       
       compile_syntax_tree_node((expr->children).head,functable,stttable);
       
@@ -2345,8 +2322,8 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
     ex0 = (expr_t*)((expr->children).head->data);
     ex1 = (expr_t*)((expr->children).head->next->data);
 
-    int intver;
-    int fltver;
+    int intver = 0;
+    int fltver = 0;
     int ispred = 0;
          if (str_eq(&expr->rawkey,"+" )){ intver = EXPR_IADD; fltver = EXPR_FADD;}
     else if (str_eq(&expr->rawkey,"-" )){ intver = EXPR_ISUB; fltver = EXPR_FSUB;}
@@ -2402,13 +2379,11 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
 
     if (str_eq(&expr->rawkey,"&&") || str_eq(&expr->rawkey,"||")){
       while ((expr->children).len > 2){
-        expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+        expr_t* ex = expr_alloc();
         ex->key = EXPR_TBA;
         ex->rawkey = str_from(expr->rawkey.data,2);
         ex->lino = expr->lino;
         ex->parent = expr->parent;
-        ex->children = list_new();
-        ex->symtable = map_new();
         list_add(&ex->children, (expr->children).head->data);
         list_add(&ex->children, (expr->children).head->next->data);
         list_pophead(&expr->children);
@@ -2546,13 +2521,11 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
         tok_t* t = insert_tmp_var_l(it, (expr_t*)((expr->children).head->data));
         compile_syntax_tree_node(it->prev,functable,stttable);
 
-        expr_t* ex = (expr_t*)mallocx(sizeof(expr_t));
+        expr_t* ex = expr_alloc();
         ex->key = EXPR_TERM;
         ex->rawkey = str_from("",0);
         ex->lino = expr->lino;
         ex->parent = expr;
-        ex->children = list_new();
-        ex->symtable = map_new();
         ex->type = rtyp;
         ex->term = t;
 
@@ -2730,7 +2703,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
       }
 
       ex0->type = ex2->type->elem0;
-      ex1->type = ex2->type->elem1;
+      ex1->type = ex2->type->u.elem1;
 
       str_t name0 = ((tok_t*)ex0->term)->val;
       str_t name1 = ((tok_t*)ex1->term)->val;
@@ -2853,8 +2826,8 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
         printf(".\n");
         goto crash;
       }
-      if (typ->tag == TYP_VEC && typ->size != expr->children.len-1){
-        printerr("syntax")("line %d: number of elements in 'alloc' literal does not agree with vec size: expecting %d, got %d.\n",expr->lino,typ->size,expr->children.len-1);
+      if (typ->tag == TYP_VEC && typ->u.size != expr->children.len-1){
+        printerr("syntax")("line %d: number of elements in 'alloc' literal does not agree with vec size: expecting %d, got %d.\n",expr->lino,typ->u.size,expr->children.len-1);
         goto crash;
       }
 
@@ -2943,9 +2916,9 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
             printerr("syntax")("line %d: 'null' expecting a struct field name.\n",expr->lino);
             goto crash;
           }
-          type_t* typ = struct_lookup(&ex0->type->name,&((tok_t*)ex1->term)->val,stttable);
+          type_t* typ = struct_lookup(&ex0->type->u.name,&((tok_t*)ex1->term)->val,stttable);
           if (typ == NULL){
-            printerr("syntax")("line %d: struct '%s' has no field '%s' to nullify.\n",expr->lino,ex0->type->name.data,((tok_t*)ex1->term)->val.data);
+            printerr("syntax")("line %d: struct '%s' has no field '%s' to nullify.\n",expr->lino,ex0->type->u.name.data,((tok_t*)ex1->term)->val.data);
             goto crash;
           }
           ex1->type = prim_type(TYP_VOD);
@@ -3157,11 +3130,11 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
         
       }else if (ex0->type->tag == TYP_MAP){
         expr->key = EXPR_MAPSET;
-        if (!type_eq(ex1->type,ex0->type->elem0) || !type_eq(ex2->type,ex0->type->elem1)){
+        if (!type_eq(ex1->type,ex0->type->elem0) || !type_eq(ex2->type,ex0->type->u.elem1)){
           printerr("syntax")("line %d: map 'insert' expecting ",expr->lino);
           print_type(ex0->type->elem0);
           printf(" and ");
-          print_type(ex0->type->elem1);
+          print_type(ex0->type->u.elem1);
           printf(", got ");
           print_type(ex1->type);
           printf(" and ");
@@ -3309,7 +3282,7 @@ void compile_syntax_tree(expr_t* tree, map_t* functable, map_t* stttable){
 
 
   list_node_t* it = tree->children.head;
-  tree->symtable = map_new();
+  map_clear(&tree->symtable);
 
   while (it){
   
@@ -3380,7 +3353,7 @@ void lift_scope(expr_t* expr){
         }
         k++;
       }
-      expr->symtable = map_new();
+      map_clear(&expr->symtable);
     }
 
   }
@@ -3388,7 +3361,7 @@ void lift_scope(expr_t* expr){
   list_node_t* it = expr->children.head;
   while (it){
     expr_t* ex = (expr_t*)(it->data);
-    lift_scope(ex);
+    if(ex) lift_scope(ex);
     it = it->next;
   }
 }

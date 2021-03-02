@@ -12,7 +12,7 @@ str_t type_to_java(type_t* typ, char is_obj){
   }else if (typ->tag == TYP_FLT){
     str_add(&out,is_obj?"Float":"float");
   }else if (typ->tag == TYP_STT){
-    str_add(&out,typ->name.data);
+    str_add(&out,typ->u.name.data);
   }else if (typ->tag == TYP_ARR){
     str_add(&out,"ArrayList<");
     str_add(&out,type_to_java(typ->elem0,1).data);
@@ -24,7 +24,7 @@ str_t type_to_java(type_t* typ, char is_obj){
     str_add(&out,"HashMap<");
     str_add(&out,type_to_java(typ->elem0,1).data);
     str_add(&out,",");
-    str_add(&out,type_to_java(typ->elem1,1).data);
+    str_add(&out,type_to_java(typ->u.elem1,1).data);
     str_add(&out,">");
   }else if (typ->tag == TYP_STR){
     str_add(&out,"String");
@@ -66,7 +66,7 @@ str_t vec_init_java(type_t* typ){
   str_add(&out,type_to_java(t,0).data);
   str_addch(&out,'[');
   char s[32];
-  sprintf(s,"%d",typ->size);
+  snprintf(s,sizeof(s),"%d",typ->u.size);
   str_add(&out,s);
   str_addch(&out,']');
   for (int i = 0; i < num_br; i++){
@@ -249,7 +249,7 @@ str_t expr_to_java(expr_t* expr, int indent){
     str_add(&out, "for(Map.Entry<");
     str_add(&out, type_to_java(CHILD3->type->elem0,1).data);
     str_add(&out, ",");
-    str_add(&out, type_to_java(CHILD3->type->elem1,1).data);
+    str_add(&out, type_to_java(CHILD3->type->u.elem1,1).data);
     str_add(&out, "> ");
     str_add(&out, itname.data);
     str_add(&out, ":(");
@@ -267,11 +267,11 @@ str_t expr_to_java(expr_t* expr, int indent){
     str_add(&out, ".getKey());\n");
 
     INDENT2(indent+1);
-    str_add(&out, type_to_java(CHILD3->type->elem1,0).data);
+    str_add(&out, type_to_java(CHILD3->type->u.elem1,0).data);
     str_add(&out, " ");
     str_add(&out, expr_to_java(CHILD2,-1).data);
     str_add(&out, "=(");
-    str_add(&out, type_to_java(CHILD3->type->elem1,0).data);
+    str_add(&out, type_to_java(CHILD3->type->u.elem1,0).data);
     str_add(&out, ")(");
     str_add(&out, itname.data);
     str_add(&out, ".getValue());\n");
@@ -479,7 +479,7 @@ str_t expr_to_java(expr_t* expr, int indent){
 
     if (typ->tag == TYP_STT){
       str_add(&out,"(new ");
-      str_add(&out,typ->name.data);
+      str_add(&out,typ->u.name.data);
       str_add(&out,"())");
 
     }else if (typ->tag == TYP_ARR){
@@ -645,7 +645,7 @@ str_t expr_to_java(expr_t* expr, int indent){
     str_add(&out,"),(");
     str_add(&out,expr_to_java(CHILD2,-1).data);
     str_add(&out,"),(");
-    str_add(&out,zero_to_java(CHILD1->type->elem1).data);
+    str_add(&out,zero_to_java(CHILD1->type->u.elem1).data);
     str_add(&out,"))");
 
   }else if (expr->key == EXPR_MAPREM){
@@ -776,7 +776,7 @@ str_t tree_to_java(str_t modname, expr_t* tree, map_t* functable, map_t* stttabl
   str_add(&out,"{\n");
 
   str_add(&out,"/*=== WAX Standard Library BEGIN ===*/\n");
-  str_addconst(&out,TEXT_std_java);
+  str_add(&out,TEXT_std_java);
   // if (included_lookup("math",included)){
   //   str_add(&out,"\npublic static float fabs(float x){return Math.abs(x);}\n");
   //   str_add(&out,"\npublic static float fmin(float x, float y){return Math.min(x,y);}\n");

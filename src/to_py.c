@@ -414,7 +414,7 @@ str_t expr_to_py(expr_t* expr, int indent){
     type_t* typ = (type_t*)(CHILD1->term);
 
     if (typ->tag == TYP_STT){
-      str_add(&out,typ->name.data);
+      str_add(&out,typ->u.name.data);
       str_add(&out,"()");
 
     }else if (typ->tag == TYP_ARR){
@@ -440,7 +440,7 @@ str_t expr_to_py(expr_t* expr, int indent){
 
       if (expr->children.len == 1){
         char s[32];
-        sprintf(s,"%d",typ->size);
+        snprintf(s,sizeof(s),"%d",typ->u.size);
         str_add(&out,"([");
         str_add(&out,zero_to_py(typ->elem0).data);
         str_add(&out,"]*");
@@ -562,7 +562,7 @@ str_t expr_to_py(expr_t* expr, int indent){
     str_add(&out,",");
     str_add(&out,expr_to_py(CHILD2,-1).data);
     str_add(&out,",");
-    str_add(&out,zero_to_py(CHILD1->type->elem1).data);
+    str_add(&out,zero_to_py(CHILD1->type->u.elem1).data);
     str_add(&out,")");
 
   }else if (expr->key == EXPR_MAPREM){
@@ -625,6 +625,7 @@ str_t expr_to_py(expr_t* expr, int indent){
   }else if (expr->key == EXPR_EXTERN){
     //skip
     out.len-=4;
+    if(out.len < 0) out.len = 0;
     out.data[out.len] = 0;
     indent=-1;
   }else if (expr->key == EXPR_BREAK){
@@ -660,7 +661,7 @@ str_t tree_to_py(str_t modname, expr_t* tree, map_t* functable, map_t* stttable,
 
 
   str_add(&out,"# === WAX Standard Library BEGIN ===\n");
-  str_addconst(&out,TEXT_std_py);
+  str_add(&out,TEXT_std_py);
   str_add(&out,"# === WAX Standard Library END   ===\n\n");
 
 

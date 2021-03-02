@@ -53,13 +53,14 @@ void print_help(){
 }
 
 
-void transpile(int targ, char* input_file, char* path, int print_tok, int print_ast){
+void transpile(int targ, const char* input_file, const char* path, int print_tok, int print_ast){
 
 
   str_t buf = read_file_ascii(input_file);
   list_t tokens = tokenize(buf);
-  map_t included = map_new();
-  map_t defs = map_new();
+  map_t included, defs;
+  map_clear(&included);
+  map_clear(&defs);
 
   if (targ == TARG_C){
     defs_addbool(&defs,"TARGET_C",0);
@@ -92,8 +93,9 @@ void transpile(int targ, char* input_file, char* path, int print_tok, int print_
   printinfo("[info] constructing syntax tree...\n");
   expr_t* tree = syntax_tree(&tokens);
   printinfo("[info] compiling syntax tree...\n");
-  map_t functable = map_new();
-  map_t stttable = map_new();
+  map_t functable, stttable;
+  map_clear(&functable);
+  map_clear(&stttable);
   compile_syntax_tree(tree,&functable,&stttable);
 
 
@@ -133,17 +135,17 @@ void transpile(int targ, char* input_file, char* path, int print_tok, int print_
 
 
 int main(int argc, char** argv){
-  char* path_c = 0;
-  char* path_java = 0;
-  char* path_ts = 0;
-  char* path_json = 0;
-  char* path_py = 0;
-  char* path_cs = 0;
-  char* path_cpp = 0;
-  char* path_swift = 0;
-  char* path_lua = 0;
-  char* path_wat = 0;
-  char* input_file = 0;
+  const char* path_c = 0;
+  const char* path_java = 0;
+  const char* path_ts = 0;
+  const char* path_json = 0;
+  const char* path_py = 0;
+  const char* path_cs = 0;
+  const char* path_cpp = 0;
+  const char* path_swift = 0;
+  const char* path_lua = 0;
+  const char* path_wat = 0;
+  const char* input_file = 0;
 
   int print_ast = 0;
   int print_tok = 0;

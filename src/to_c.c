@@ -15,7 +15,7 @@ str_t type_to_c(type_t* typ){
     str_add(&out,"float");
   }else if (typ->tag == TYP_STT){
     str_add(&out,"struct ");
-    str_add(&out,typ->name.data);
+    str_add(&out,typ->u.name.data);
     str_add(&out,"*");
   }else if (typ->tag == TYP_ARR){
     str_add(&out,"w_arr_t*");
@@ -47,12 +47,12 @@ str_t expr_to_c(expr_t* expr, int indent){
     str_add(&out,"=0");
     
   }else if (expr->key == EXPR_SET){
-    str_add(&out,"(");
+    //str_add(&out,"(");
     str_add(&out, expr_to_c(CHILD1,-1).data);
     str_add(&out,"=");
 
     str_add(&out, expr_to_c(CHILD2,-1).data );
-    str_add(&out,")");
+    //str_add(&out,")");
 
   }else if (expr->key == EXPR_TERM){
 
@@ -124,13 +124,13 @@ str_t expr_to_c(expr_t* expr, int indent){
     }
 
   }else if (expr->key == EXPR_TIF){
-    str_add(&out, "((");
+    str_add(&out, "(");
     str_add(&out, expr_to_c(CHILD1,-1).data);
-    str_add(&out, ")?(");
+    str_add(&out, " ? ");
     str_add(&out, expr_to_c(CHILD2,-1).data);
-    str_add(&out, "):(");
+    str_add(&out, " : ");
     str_add(&out, expr_to_c(CHILD3,-1).data);
-    str_add(&out, "))");
+    str_add(&out, ")");
 
   }else if (expr->key == EXPR_WHILE){
     str_add(&out, "while(");
@@ -143,15 +143,15 @@ str_t expr_to_c(expr_t* expr, int indent){
   }else if (expr->key == EXPR_FOR){
     str_add(&out, "for(int ");
     str_add(&out, expr_to_c(CHILD1,-1).data);
-    str_add(&out, "=(");
+    str_add(&out, "=");
     str_add(&out, expr_to_c(CHILD2,-1).data);
-    str_add(&out, ");");
+    str_add(&out, ";");
     str_add(&out, expr_to_c(CHILD3,-1).data);
     str_add(&out, ";");
     str_add(&out, expr_to_c(CHILD1,-1).data);
-    str_add(&out, "+=(");
+    str_add(&out, "+=");
     str_add(&out, expr_to_c(CHILD4,-1).data);
-    str_add(&out, ")){\n");
+    str_add(&out, "){\n");
     str_add(&out, expr_to_c(CHILDN,indent).data);
     INDENT2(indent);
     str_add(&out, "}");
@@ -209,14 +209,14 @@ str_t expr_to_c(expr_t* expr, int indent){
       str_add(&out, "->key);\n");
     }
     INDENT2(indent+2);
-    str_add(&out, type_to_c(CHILD3->type->elem1).data);
+    str_add(&out, type_to_c(CHILD3->type->u.elem1).data);
     str_add(&out, " ");
     str_add(&out, expr_to_c(CHILD2,-1).data);
     str_add(&out, "=");
 
-    if (CHILD3->type->elem1->tag != TYP_FLT){
+    if (CHILD3->type->u.elem1->tag != TYP_FLT){
       str_add(&out, "(");
-      str_add(&out, type_to_c(CHILD3->type->elem1).data);
+      str_add(&out, type_to_c(CHILD3->type->u.elem1).data);
       str_add(&out, ")(");
       str_add(&out, itname.data);
       str_add(&out,"->data);\n");
@@ -412,16 +412,14 @@ str_t expr_to_c(expr_t* expr, int indent){
 
   }else if (expr->key == EXPR_SETNULL){
     if (!CHILD2){
-      str_add(&out,"(");
       str_add(&out, expr_to_c(CHILD1,-1).data);
       str_add(&out,"=NULL");
     }else{
       if (CHILD1->type->tag == TYP_STT){
-        str_add(&out,"((");
         str_add(&out,expr_to_c(CHILD1,-1).data);
-        str_add(&out,")->");
+        str_add(&out,"->");
         str_add(&out,expr_to_c(CHILD2,-1).data);
-        str_add(&out,"=NULL)");
+        str_add(&out,"=NULL");
       }else if (CHILD1->type->tag == TYP_ARR){
         str_add(&out,"(w_arr_set(");
         str_add(&out,type_to_c(CHILD1->type->elem0).data);
@@ -449,7 +447,7 @@ str_t expr_to_c(expr_t* expr, int indent){
       str_add(&out,type_to_c(typ).data);
       str_add(&out,")");
       str_add(&out,"calloc(sizeof(struct ");
-      str_add(&out,typ->name.data);
+      str_add(&out,typ->u.name.data);
       str_add(&out,"),1)");
 
     }else if (typ->tag == TYP_ARR){
@@ -459,7 +457,7 @@ str_t expr_to_c(expr_t* expr, int indent){
         str_add(&out,")");
       }else{
         char s[32];
-        sprintf(s,"%d",expr->children.len-1);
+        snprintf(s,sizeof(s),"%d",expr->children.len-1);
         if (((type_t*)CHILD1->term)->elem0->tag == TYP_INT){
           str_add(&out,"w_arr_new_ints(");
         }else if (((type_t*)CHILD1->term)->elem0->tag == TYP_FLT){
@@ -480,7 +478,7 @@ str_t expr_to_c(expr_t* expr, int indent){
 
     }else if (typ->tag == TYP_VEC){
       char s[32];
-      sprintf(s, "%d", typ->size);
+      snprintf(s, sizeof(s),"%d", typ->u.size);
 
       if (expr->children.len == 1){
         str_add(&out,"(");
@@ -541,18 +539,18 @@ str_t expr_to_c(expr_t* expr, int indent){
       str_add(&out,")");
     }
   }else if (expr->key == EXPR_STRUCTGET){
-    str_add(&out,"((");
+    //str_add(&out,"(");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,")->");
+    str_add(&out,"->");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,")");
+    //str_add(&out,")");
 
   }else if (expr->key == EXPR_STRUCTSET){
-    str_add(&out,"((");
+    //str_add(&out,"(");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,")->");
+    str_add(&out,"->");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,")=");
+    str_add(&out,"=");
     str_add(&out,expr_to_c(CHILD3,-1).data);
 
   }else if (expr->key == EXPR_VECGET){
@@ -574,53 +572,53 @@ str_t expr_to_c(expr_t* expr, int indent){
     str_add(&out,type_to_c(CHILD1->type->elem0).data);
     str_add(&out,")w_arr_get(");
     str_add(&out,type_to_c(CHILD1->type->elem0).data);
-    str_add(&out,",(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,")))");
+    str_add(&out,"))");
 
   }else if (expr->key == EXPR_ARRSET){
     str_add(&out,"w_arr_set(");
     str_add(&out,type_to_c(CHILD1->type->elem0).data);
-    str_add(&out,",(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD3,-1).data);
-    str_add(&out,"))");
+    str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRINS){
     str_add(&out,"w_arr_insert(");
     str_add(&out,type_to_c(CHILD1->type->elem0).data);
-    str_add(&out,",(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD3,-1).data);
-    str_add(&out,"))");
+    str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRREM){
     str_add(&out,"w_arr_remove(");
     str_add(&out,"(");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD3,-1).data);
-    str_add(&out,"))");
+    str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRCPY){
     str_add(&out,"w_arr_slice(");
     str_add(&out,"(");
     str_add(&out,expr_to_c(CHILD1,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD2,-1).data);
-    str_add(&out,"),(");
+    str_add(&out,",");
     str_add(&out,expr_to_c(CHILD3,-1).data);
-    str_add(&out,"))");
+    str_add(&out,")");
 
   }else if (expr->key == EXPR_ARRLEN){
     str_add(&out,"(");
@@ -634,11 +632,11 @@ str_t expr_to_c(expr_t* expr, int indent){
 
 
   }else if (expr->key == EXPR_MAPGET){
-    if (CHILD1->type->elem1->tag == TYP_FLT){
+    if (CHILD1->type->u.elem1->tag == TYP_FLT){
       str_add(&out,"w_reinterp_i2f((int)");
     }else{
       str_add(&out,"((");
-      str_add(&out,type_to_c(CHILD1->type->elem1).data);
+      str_add(&out,type_to_c(CHILD1->type->u.elem1).data);
       str_add(&out,")");
     }
     str_add(&out,"w_map_get((");
@@ -697,11 +695,11 @@ str_t expr_to_c(expr_t* expr, int indent){
       str_add(&out,")");
     }
     str_add(&out,",(");
-    if (CHILD1->type->elem1->tag == TYP_FLT){
+    if (CHILD1->type->u.elem1->tag == TYP_FLT){
       str_add(&out,"(int64_t)w_reinterp_f2i(");
       str_add(&out,expr_to_c(CHILD3,-1).data);
       str_add(&out,")");
-    }else if (CHILD1->type->elem1->tag == TYP_INT){
+    }else if (CHILD1->type->u.elem1->tag == TYP_INT){
       str_add(&out,"(int64_t)(");
       str_add(&out,expr_to_c(CHILD3,-1).data);
       str_add(&out,")");
@@ -805,7 +803,7 @@ str_t tree_to_c(str_t modname, expr_t* tree, map_t* functable, map_t* stttable){
   str_add(&out,__DATE__);
   str_add(&out,")*/\n\n");
   str_add(&out,"/*=== WAX Standard Library BEGIN ===*/\n");
-  str_addconst(&out,TEXT_std_c);
+  str_add(&out,TEXT_std_c);
   str_add(&out,"/*=== WAX Standard Library END   ===*/\n\n");
   str_add(&out,"/*=== User Code            BEGIN ===*/\n");
   str_add(&out,"\n");

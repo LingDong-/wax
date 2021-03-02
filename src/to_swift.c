@@ -14,7 +14,7 @@ str_t type_to_swift(type_t* typ){
   }else if (typ->tag == TYP_FLT){
     str_add(&out,"Float");
   }else if (typ->tag == TYP_STT){
-    str_add(&out,typ->name.data);
+    str_add(&out,typ->u.name.data);
     str_add(&out,"?");
   }else if (typ->tag == TYP_ARR){
     str_add(&out,"w_Arr<");
@@ -28,7 +28,7 @@ str_t type_to_swift(type_t* typ){
     str_add(&out,"w_Map<");
     str_add(&out,type_to_swift(typ->elem0).data);
     str_add(&out,",");
-    str_add(&out,type_to_swift(typ->elem1).data);
+    str_add(&out,type_to_swift(typ->u.elem1).data);
     str_add(&out,">?");
   }else if (typ->tag == TYP_STR){
     str_add(&out,"String?");
@@ -464,7 +464,7 @@ str_t expr_to_swift(expr_t* expr, int indent){
     type_t* typ = (type_t*)(CHILD1->term);
 
     if (typ->tag == TYP_STT){
-      str_add(&out,typ->name.data);
+      str_add(&out,typ->u.name.data);
       str_add(&out,"()");
 
     }else if (typ->tag == TYP_ARR || typ->tag == TYP_VEC){
@@ -478,7 +478,7 @@ str_t expr_to_swift(expr_t* expr, int indent){
           str_add(&out,"(data:[])");
         }else{
           char s[32];
-          sprintf(s,"%d",typ->size);
+          snprintf(s,sizeof(s),"%d",typ->u.size);
           str_add(&out,"(zero:");
           str_add(&out,zero_to_swift(typ->elem0).data);
           str_add(&out,",n:");
@@ -506,7 +506,7 @@ str_t expr_to_swift(expr_t* expr, int indent){
       str_add(&out,"w_Map<");
       str_add(&out,type_to_swift(typ->elem0).data);
       str_add(&out,",");
-      str_add(&out,type_to_swift(typ->elem1).data);
+      str_add(&out,type_to_swift(typ->u.elem1).data);
       str_add(&out,">()");
 
     }else if (typ->tag == TYP_STR){
@@ -597,7 +597,7 @@ str_t expr_to_swift(expr_t* expr, int indent){
     str_add(&out,")!.data[");
     str_add(&out,expr_to_swift(CHILD2,-1).data);
     str_add(&out,"] ?? ");
-    str_add(&out,zero_to_swift(CHILD1->type->elem1).data);
+    str_add(&out,zero_to_swift(CHILD1->type->u.elem1).data);
     str_add(&out,")");
 
   }else if (expr->key == EXPR_MAPREM){
@@ -702,7 +702,7 @@ str_t tree_to_swift(str_t modname, expr_t* tree, map_t* functable, map_t* stttab
   str_add(&out,"{\n");
 
   str_add(&out,"/*=== WAX Standard Library BEGIN ===*/\n");
-  str_addconst(&out,TEXT_std_swift);
+  str_add(&out,TEXT_std_swift);
   str_add(&out,"/*=== WAX Standard Library END   ===*/\n\n");
 
 
