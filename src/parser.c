@@ -1061,6 +1061,8 @@ expr_t* syntax_tree(list_t* tokens){
   prgm->key = EXPR_PRGM;
   prgm->rawkey = str_from("program",7);
   prgm->type = prim_type(TYP_VOD);
+  prgm->lino = 0;
+  prgm->parent = NULL;
 
   
 

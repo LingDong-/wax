@@ -381,7 +381,7 @@ const char* censored[] = {
   "Object","or","out","override","object","operator","of",
   "package","private","protected","public","prototype","pass","params",
   "register","raise","readonly","ref",
-  "short","sizeof","static","swtich","signed","super","stackalloc","sealed","sbyte","string",
+  "short","sizeof","static","switch","signed","super","stackalloc","sealed","sbyte","string",
   "typedef","this","throw","throws","try","typeof","true","True","template",
   "union","unsigned","undefined","unsafe","using","uint","ulong","unchecked","ushort",
   "volatile","var","virtual",
