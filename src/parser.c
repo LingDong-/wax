@@ -127,7 +127,7 @@ const char* tokens_desc[] = {"","L-PAREN","R-PAREN","INT-LIT","FLT-LIT","STR-LIT
 #define EXPR_STRNEQ 606
 #define EXPR_STRCAT 607
 
-// funciton things
+// function things
 #define EXPR_FUNCBODY 651
 #define EXPR_FUNCHEAD 652
 
