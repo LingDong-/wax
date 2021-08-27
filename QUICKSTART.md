@@ -806,7 +806,7 @@ You can embed fragments of the target language into wax, similar to embedding as
 
 ### Datatype mapping
 
-wax tries to give the genrated code an "idomatic" look & feel by mapping wax types directly to common types in target language whenever possible, in favor of rolling out custom ones.
+wax tries to give the generated code an "idiomatic" look & feel by mapping wax types directly to common types in target language whenever possible, in favor of rolling out custom ones.
 
 |   | int | float | str | vec | arr | map |
 |---|-----|-------|-----|-----|-----|-----|
