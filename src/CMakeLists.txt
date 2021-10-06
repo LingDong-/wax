@@ -1,5 +1,5 @@
-set(EXEC_NAME "wax")
-set(LIBRARY_NAME "waxl")
+set(EXEC_NAME "waxc")
+set(LIBRARY_NAME "wax")  # gets renamed to "libwax"
 
 set(Header_Files
         "common.h"

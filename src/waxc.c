@@ -195,7 +195,7 @@ int main(int argc, char** argv){
       i++;
     }else if (!strcmp(argv[i],"--help")){
       print_help();
-      exit(0);
+      exit(EXIT_SUCCESS);
     }else{
       if (input_file){
         printf("[error] cannot parse commandline argument %s.\n",argv[i]);
@@ -210,7 +210,7 @@ int main(int argc, char** argv){
 
   if (input_file == 0){
     printf("[warn] no input file. (try '--help' for usage.)\n");
-    exit(0);
+    exit(EXIT_SUCCESS);
   }
 
   if (path_c){

@@ -219,7 +219,7 @@ and so on.
 
 You need:
 
-- A C compiler that supports C99. e.g. `gcc` or `clang`.
+- A C compiler that supports C89. e.g. `gcc`, `clang`, `cl` (MSVC).
 
 To compile:
 
@@ -236,6 +236,14 @@ Alternatively you can run the Makefile:
 - `make em`. Compile it with emscripten as a node.js app. (You might need to edit the rule based on how/when/where you installed emscripten.)
 - `make emlib`. Compile it as a javascript library with emscripten, without filesystem dependencies. This is what powers the [online playground](https://waxc.netlify.app/).
 
+Also, there is CMake support, which will build both a shared library and an executable, usable like so:
+
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
 
 ### [VSCode Extension](https://github.com/LingDong-/wax4vscode)
 
