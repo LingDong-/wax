@@ -1,12 +1,11 @@
 #ifndef WAX_TO_WAT
 #define WAX_TO_WAT
 
+#include <stdio.h>
 #include "text.h"
-#include "parser.h"
+#include "to_c.h"
+#include "to_wat.h"
 #include "tac.h"
-#include "common.h"
-#include "to_c.c"
-
 
 map_t* wat_functable = NULL;
 

@@ -1,10 +1,11 @@
 #ifndef WAX_TO_LUA
 #define WAX_TO_LUA
 
+#include <stdio.h>
 #include "text.h"
 #include "parser.h"
 #include "common.h"
-#include "to_c.c"
+#include "to_c.h"
 
 str_t zero_to_lua(type_t* typ){
   str_t out = str_new();

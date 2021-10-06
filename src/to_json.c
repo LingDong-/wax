@@ -2,9 +2,7 @@
 #define WAX_TO_JSON
 
 #include <stdio.h>
-#include "text.h"
-#include "parser.h"
-#include "common.h"
+#include "to_json.h"
 
 const char* opcode_to_name(int x){
 if(x==(EXPR_EXTERN))return"EXTERN";

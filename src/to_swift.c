@@ -3,8 +3,7 @@
 
 #include <stdio.h>
 #include "text.h"
-#include "parser.h"
-#include "common.h"
+#include "to_swift.h"
 
 map_t* swift_functable = NULL;
 

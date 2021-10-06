@@ -2,9 +2,8 @@
 #define WAX_TO_C
 
 #include <stdio.h>
+#include "to_c.h"
 #include "text.h"
-#include "parser.h"
-#include "common.h"
 
 map_t* c_functable = NULL;
 

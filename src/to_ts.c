@@ -3,14 +3,11 @@
 
 #include <stdio.h>
 #include "text.h"
-#include "parser.h"
-#include "common.h"
+#include "to_ts.h"
 
 str_t type_to_ts(type_t* typ){
   str_t out = str_new();
-  if (typ->tag == TYP_INT){
-    str_add(&out,"number");
-  }else if (typ->tag == TYP_FLT){
+  if (typ->tag == TYP_INT || typ->tag == TYP_FLT){
     str_add(&out,"number");
   }else if (typ->tag == TYP_STT){
     str_add(&out,typ->u.name.data);

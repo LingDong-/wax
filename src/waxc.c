@@ -1,21 +1,23 @@
 #ifndef WAXC
 #define WAXC
 
+#include <string.h>
+#include <stdio.h>
+
 int WVERBOSE = 1;
 #define printinfo if(WVERBOSE)printf
 
-#include <string.h>
 #include "parser.h"
-#include "to_c.c"
-#include "to_java.c"
-#include "to_ts.c"
-#include "to_json.c"
-#include "to_py.c"
-#include "to_cs.c"
-#include "to_cpp.c"
-#include "to_swift.c"
-#include "to_lua.c"
-#include "to_wat.c"
+#include "to_c.h"
+#include "to_java.h"
+#include "to_ts.h"
+#include "to_json.h"
+#include "to_py.h"
+#include "to_cs.h"
+#include "to_cpp.h"
+#include "to_swift.h"
+#include "to_lua.h"
+#include "to_wat.h"
 
 #define TARG_C     1
 #define TARG_JAVA  2

@@ -3,8 +3,7 @@
 
 #include <stdio.h>
 #include "text.h"
-#include "parser.h"
-#include "common.h"
+#include "to_java.h"
 
 str_t type_to_java(type_t* typ, char is_obj){
   str_t out = str_new();

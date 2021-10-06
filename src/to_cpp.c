@@ -1,10 +1,12 @@
 #ifndef WAX_TO_CPP
 #define WAX_TO_CPP
 
+#include <stdio.h>
 #include "text.h"
 #include "parser.h"
 #include "common.h"
-#include "to_c.c"
+#include "to_c.h"
+#include "to_cpp.h"
 
 
 str_t type_to_cpp(type_t* typ){
