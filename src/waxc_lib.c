@@ -6,7 +6,8 @@ int WVERBOSE = 0;
 
 #define NO_ESC_COLOR
 
-#include "parser.c"
+#include <string.h>
+#include "parser.h"
 #include "to_c.c"
 #include "to_java.c"
 #include "to_ts.c"

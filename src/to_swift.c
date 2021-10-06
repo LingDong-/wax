@@ -1,9 +1,10 @@
 #ifndef WAX_TO_SWIFT
 #define WAX_TO_SWIFT
 
+#include <stdio.h>
 #include "text.c"
-#include "parser.c"
-#include "common.c"
+#include "parser.h"
+#include "common.h"
 
 map_t* swift_functable = NULL;
 

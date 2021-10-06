@@ -1,9 +1,10 @@
 #ifndef WAX_TO_JAVA
 #define WAX_TO_JAVA
 
+#include <stdio.h>
 #include "text.c"
-#include "parser.c"
-#include "common.c"
+#include "parser.h"
+#include "common.h"
 
 str_t type_to_java(type_t* typ, char is_obj){
   str_t out = str_new();

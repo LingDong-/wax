@@ -1,9 +1,10 @@
 #ifndef WAX_TO_TS
 #define WAX_TO_TS
 
+#include <stdio.h>
 #include "text.c"
-#include "parser.c"
-#include "common.c"
+#include "parser.h"
+#include "common.h"
 
 str_t type_to_ts(type_t* typ){
   str_t out = str_new();

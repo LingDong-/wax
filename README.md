@@ -98,7 +98,7 @@ There're many more examples, check them out [here](./examples) or on the [online
 
 ## The Compiler
 
-This repo contains a reference implementation of wax called `waxc`, written from scratch in C99.
+This repo contains a reference implementation of wax called `waxc`, written from scratch in C89.
 
 - Compiles from wax to C, C++, Java, TypeScript, Python, C#, Swift, Lua and WebAssembly.
 - It seems pretty fast. Compiling a 700 lines file takes 0.015 seconds on Macbook Pro 2015. Comparison: the output TypeScript, which is also 700 lines long, took `tsc` 1.5 seconds to compile. 

@@ -2,8 +2,8 @@
 #ifndef WAX_TAC
 #define WAX_TAC
 
-#include "common.c"
-#include "parser.c"
+#include "common.h"
+#include "parser.h"
 
 
 expr_t* expr_int_const(expr_t* parent, int b){

@@ -4,7 +4,8 @@
 int WVERBOSE = 1;
 #define printinfo if(WVERBOSE)printf
 
-#include "parser.c"
+#include <string.h>
+#include "parser.h"
 #include "tac.c"
 #include "to_c.c"
 #include "to_java.c"

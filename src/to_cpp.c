@@ -2,8 +2,8 @@
 #define WAX_TO_CPP
 
 #include "text.c"
-#include "parser.c"
-#include "common.c"
+#include "parser.h"
+#include "common.h"
 #include "to_c.c"
 
 

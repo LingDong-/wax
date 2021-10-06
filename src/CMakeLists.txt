@@ -1,5 +1,10 @@
 set(EXEC_NAME "wax")
 
+set(Header_Files
+        "common.h"
+        parser.h)
+source_group("Header Files" FILES "${Header_Files}")
+
 set(Source_Files
         "waxc.c"
         "common.c"
@@ -20,7 +25,7 @@ set(Source_Files
 )
 source_group("Source Files" FILES "${Source_Files}")
 
-add_executable("${EXEC_NAME}" "${Source_Files}")
+add_executable("${EXEC_NAME}" "${Header_Files}" "${Source_Files}")
 target_link_libraries("${EXEC_NAME}" PRIVATE "${LIBRARY_NAME}")
 
 target_include_directories(

@@ -1,9 +1,9 @@
 #ifndef WAX_TO_CS
 #define WAX_TO_CS
 
+#include <stdio.h>
 #include "text.c"
-#include "parser.c"
-#include "common.c"
+#include "parser.h"
 
 map_t* cs_functable = NULL;
 
