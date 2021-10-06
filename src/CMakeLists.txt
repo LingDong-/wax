@@ -2,7 +2,8 @@ set(EXEC_NAME "wax")
 
 set(Header_Files
         "common.h"
-        parser.h)
+        "parser.h"
+        "tac.h" text.h)
 source_group("Header Files" FILES "${Header_Files}")
 
 set(Source_Files

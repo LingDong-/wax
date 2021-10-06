@@ -1,9 +1,9 @@
 #ifndef WAX_TO_WAT
 #define WAX_TO_WAT
 
-#include "text.c"
+#include "text.h"
 #include "parser.h"
-#include "tac.c"
+#include "tac.h"
 #include "common.h"
 #include "to_c.c"
 

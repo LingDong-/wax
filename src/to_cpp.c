@@ -1,7 +1,7 @@
 #ifndef WAX_TO_CPP
 #define WAX_TO_CPP
 
-#include "text.c"
+#include "text.h"
 #include "parser.h"
 #include "common.h"
 #include "to_c.c"

@@ -6,7 +6,6 @@ int WVERBOSE = 1;
 
 #include <string.h>
 #include "parser.h"
-#include "tac.c"
 #include "to_c.c"
 #include "to_java.c"
 #include "to_ts.c"

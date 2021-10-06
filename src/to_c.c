@@ -2,7 +2,7 @@
 #define WAX_TO_C
 
 #include <stdio.h>
-#include "text.c"
+#include "text.h"
 #include "parser.h"
 #include "common.h"
 

@@ -4,6 +4,7 @@
 
 #include "common.h"
 #include "parser.h"
+#include "tac.h"
 
 
 expr_t* expr_int_const(expr_t* parent, int b){

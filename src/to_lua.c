@@ -1,7 +1,7 @@
 #ifndef WAX_TO_LUA
 #define WAX_TO_LUA
 
-#include "text.c"
+#include "text.h"
 #include "parser.h"
 #include "common.h"
 #include "to_c.c"

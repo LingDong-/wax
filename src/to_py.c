@@ -1,7 +1,7 @@
 #ifndef WAX_TO_PY
 #define WAX_TO_PY
 
-#include "text.c"
+#include "text.h"
 #include "parser.h"
 #include "common.h"
 #include "to_c.c"

@@ -8,7 +8,7 @@
 #include <math.h>
 
 #include "parser.h"
-#include "text.c"
+#include "text.h"
 #include "common.h"
 
 const char* tokens_desc[] = {"","L-PAREN","R-PAREN","INT-LIT","FLT-LIT","STR-LIT","IDENTFR","KEYWORD"};
