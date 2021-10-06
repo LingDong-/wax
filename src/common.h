@@ -21,7 +21,7 @@
 #define INDENT2(x) {int i; for (i = 0; i < (x); i++){str_add(&out, "  ");}}
 #define INDENT4(x) {int i; for (i = 0; i < (x); i++){str_add(&out, "    ");}}
 
-struct expr_st *expr_t_nullptr = NULL;
+extern struct expr_st *expr_t_nullptr;
 
 #define CHILD1 ((expr->children.len>0)?((expr_t*)(expr->children.head->data)):expr_t_nullptr)
 #define CHILD2 ((expr->children.len>1)?((expr_t*)(expr->children.head->next->data)):expr_t_nullptr)

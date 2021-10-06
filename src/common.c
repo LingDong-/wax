@@ -4,6 +4,8 @@
 
 #include "common.h"
 
+struct expr_st *expr_t_nullptr = NULL;
+
 void list_init(list_t *l){
   l->head = NULL;
   l->tail = NULL;
