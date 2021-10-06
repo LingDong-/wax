@@ -1,6 +1,10 @@
 #ifndef WAX_COMMON
 #define WAX_COMMON
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 #define no_segfault_yet printf("no segfault yet on line %d!\n",__LINE__);
 
 #ifndef NO_ESC_COLOR
@@ -76,8 +80,8 @@ void* mallocx(size_t size){
   }
   void* ptr = malloc(size);
   if (!ptr){
-    printf("[error] compiler out of memory.\n");
-    exit(1);
+    fputs("[error] compiler out of memory.", stderr);
+    exit(EXIT_FAILURE);
   }
   num_mallocxed_bytes += size;
   list_add_no_reg(&mallocxed,ptr);
@@ -261,15 +265,18 @@ void list_pophead(list_t* l){
 
 
 void map_clear(map_t *m){
-  for (int i = 0; i < NUM_MAP_SLOTS; i++){
-    m->slots[i] = NULL;
+  {
+    int i;
+    for (i = 0; i < NUM_MAP_SLOTS; i++) {
+      m->slots[i] = NULL;
+    }
   }
   m->len = 0;
 }
 
 int map_hash(str_t s){
-  int x = 0;
-  for (int i = 0; i < s.len; i++){
+  int x = 0, i;
+  for (i = 0; i < s.len; i++){
     char y = s.data[i];
     x ^= y;
   }
@@ -315,8 +322,8 @@ str_t str_unquote(str_t src){
 
 
 
-#define INDENT2(x) for (int i = 0; i < (x); i++){str_add(&out, "  ");}
-#define INDENT4(x) for (int i = 0; i < (x); i++){str_add(&out, "    ");}
+#define INDENT2(x) {int i; for (i = 0; i < (x); i++){str_add(&out, "  ");}}
+#define INDENT4(x) {int i; for (i = 0; i < (x); i++){str_add(&out, "    ");}}
 
 struct expr_st *expr_t_nullptr = NULL;
 
@@ -395,8 +402,8 @@ str_t censor(str_t src){
   str_t out = str_new();
 
   if (src.len <= 10){
-    int n = sizeof(censored)/sizeof(char*);
-    for (int i = 0; i < n; i++){
+    int n = sizeof(censored)/sizeof(char*), i;
+    for (i = 0; i < n; i++){
       if (str_eq(&src,censored[i])){
         str_add(&out,src.data);
         str_addch(&out,'_');
@@ -406,7 +413,8 @@ str_t censor(str_t src){
     }
   }
 
-  for (int i = 0; i < src.len; i++){
+  int i;
+  for (i = 0; i < src.len; i++){
     if ((97 <= src.data[i] && src.data[i]<=122)
       ||(65 <= src.data[i] && src.data[i]<=90)
       ||(48 <= src.data[i] && src.data[i]<=57)

@@ -265,7 +265,7 @@ str_t read_file_ascii(const char* filename){
 failed:
   printerr("file")("cannot read file %s.\n",filename);
   printf("exiting with file reading failure.\n");
-  freex();exit(1);
+  freex();exit(EXIT_FAILURE);
   return str_from("",0);
 }
 
@@ -281,8 +281,8 @@ void write_file_ascii(const char* filename, char* content){
 
 tok_t* word_to_token(str_t s, int lino){
   if (('0' <= s.data[0] && s.data[0] <= '9') || s.data[0] == '.' || (s.data[0] == '-' && s.len > 1)){
-    int isfloat = 0;
-    for (int i = 0; i < s.len; i++){
+    int isfloat = 0, i;
+    for (i = 0; i < s.len; i++){
       if (s.data[i] == '.'){
         isfloat = 1;
       }else if (('0' > s.data[i] || s.data[i] > '9') && s.data[i] != '.' && s.data[i] != 'e' && s.data[i] != 'x' && s.data[0] != '-'){
@@ -315,12 +315,13 @@ tok_t* word_to_token(str_t s, int lino){
       return tok;
     }
   }else{
-    for (int i = 0; i < NUM_KEYWORDS; i++){
+    int i;
+    for (i = 0; i < NUM_KEYWORDS; i++){
       if (s.len != strlen(keywords[i])){
         continue;
       }
-      int ok = 1;
-      for (int j = 0; j < s.len; j++){
+      int ok = 1, j;
+      for (j = 0; j < s.len; j++){
         if (s.data[j] != keywords[i][j]){
           ok = 0;
           break;
@@ -347,7 +348,7 @@ tok_t* word_to_token(str_t s, int lino){
     tok_t* tok = word_to_token(buf,lino);\
     if (!tok){\
       printf("exiting with tokenization failure.\n");\
-      freex();exit(1);\
+      freex();exit(EXIT_FAILURE);\
     }\
     list_add(&tokens,tok);\
     buf = str_new();\
@@ -369,8 +370,8 @@ list_t tokenize(str_t src){
   str_t buf = str_new();
   int lino = 1;
   int isquote = 0;
-  int iscomment = 0;
-  for (int i = 0; i < src.len; i++){
+  int iscomment = 0, i;
+  for (i = 0; i < src.len; i++){
     if (iscomment){
       if (src.data[i] == '\n'){
         iscomment = 0;
@@ -785,7 +786,7 @@ void preprocess(const char* filename, list_t* tokens, map_t* included, map_t* de
 
   crash:
   printf("exiting with preprocessor failure.\n");
-  freex();exit(1);
+  freex();exit(EXIT_FAILURE);
 
   done:
   return;
@@ -871,7 +872,7 @@ list_t* token_groups(list_t* tokens){
       if (lvl != -1){
         printerr("syntax")("line %d: unmatched parenthesis\n",tok->lino);
         printf("exiting with syntax tree parsing error.\n");
-        freex();exit(1);
+        freex();exit(EXIT_FAILURE);
       }
       
       list_add(groups,sub);
@@ -1002,7 +1003,8 @@ expr_t* parse_expr(list_t* tokens,int level){
   tok_t* tok = (tok_t*)(it->data);
 
   if (level){
-    for (int i = 0; i < NUM_TYPES; i++){
+    int i;
+    for (i = 0; i < NUM_TYPES; i++){
       if ( tok_eq(tok,types[i]) ){
         type_t* typ = parse_type(tokens);
         if (!typ){
@@ -1094,13 +1096,13 @@ expr_t* syntax_tree(list_t* tokens){
 
   crash:
   printf("exiting with syntax tree parsing failure.\n");
-  freex();exit(1);
+  freex();exit(EXIT_FAILURE);
 
   done:
   return prgm;
 }
 
-#define PRINT_INDENT(x) for (int i = 0; i < (x); i++){printf("` ");}
+#define PRINT_INDENT(x) {int i; for (i = 0; i < (x); i++){printf("` ");}}
 
 void print_type(type_t* typ){
   if (typ == NULL){
@@ -1368,7 +1370,7 @@ expr_t* caster(expr_t* expr, type_t* typ){
     printf(" to ");
     print_type(typ);
     printf(".\n");
-    freex();exit(1);
+    freex();exit(EXIT_FAILURE);
   }
 
 
@@ -1417,7 +1419,8 @@ int type_eq(type_t* t0, type_t* t1){
 
 int local_need_auto_free(list_node_t* it, expr_t* tree){
   // expr_t* expr = (expr_t*)(it->data);
-  for (int k = 0; k < NUM_MAP_SLOTS; k++){
+  int k;
+  for (k = 0; k < NUM_MAP_SLOTS; k++){
     if (tree->symtable.slots[k]){
       list_node_t* jt = tree->symtable.slots[k]->head;
       while(jt){
@@ -1445,45 +1448,48 @@ void local_auto_free(void* it, expr_t* tree, int rec){
   }else{
     expr = (expr_t*)it;
   }
-  for (int k = 0; k < NUM_MAP_SLOTS; k++){
-    if (tree->symtable.slots[k]){
-      list_node_t* jt = tree->symtable.slots[k]->head;
-      while(jt){
-        sym_t* sym = (sym_t*)(jt->data);
-        if (sym->is_local && (
-               sym->type.tag != TYP_INT
-            && sym->type.tag != TYP_FLT
-          )){
-          expr_t* ex = expr_alloc();
-          ex->key = EXPR_FREE;
-          ex->rawkey = str_from("free",4);
-          ex->lino = tree->lino;
-          ex->parent = tree;
-          ex->type = prim_type(TYP_VOD);
+  {
+    int k;
+    for (k = 0; k < NUM_MAP_SLOTS; k++) {
+      if (tree->symtable.slots[k]) {
+        list_node_t *jt = tree->symtable.slots[k]->head;
+        while (jt) {
+          sym_t *sym = (sym_t *) (jt->data);
+          if (sym->is_local && (
+                  sym->type.tag != TYP_INT
+                  && sym->type.tag != TYP_FLT
+          )) {
+            expr_t *ex = expr_alloc();
+            ex->key = EXPR_FREE;
+            ex->rawkey = str_from("free", 4);
+            ex->lino = tree->lino;
+            ex->parent = tree;
+            ex->type = prim_type(TYP_VOD);
 
-          expr_t* ex0 = expr_alloc();
-          ex0->key = EXPR_TERM;
-          ex0->rawkey = str_from("",0);
-          ex0->lino = tree->lino;
-          ex0->parent = ex;
-          ex0->type = &sym->type;
+            expr_t *ex0 = expr_alloc();
+            ex0->key = EXPR_TERM;
+            ex0->rawkey = str_from("", 0);
+            ex0->lino = tree->lino;
+            ex0->parent = ex;
+            ex0->type = &sym->type;
 
-          tok_t* tok = (tok_t*)mallocx(sizeof(tok_t));
-          tok->tag = TOK_IDT;
-          tok->val = sym->name;
-          ex0->term = tok;
+            tok_t *tok = (tok_t *) mallocx(sizeof(tok_t));
+            tok->tag = TOK_IDT;
+            tok->val = sym->name;
+            ex0->term = tok;
 
 
-          list_add(&ex->children,ex0);
+            list_add(&ex->children, ex0);
 
-          if (rec){
-            list_insert_l(&expr->parent->children,it,ex);
-          }else{
-            list_add(&expr->children,ex);
+            if (rec) {
+              list_insert_l(&expr->parent->children, it, ex);
+            } else {
+              list_add(&expr->children, ex);
+            }
+
           }
-          
+          jt = jt->next;
         }
-        jt = jt->next;
       }
     }
   }
@@ -2070,8 +2076,11 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
         nrem ++;
         jt = jt->next;
       }
-      for (int i = 0; i < nrem; i++){
-        list_pop(&(expr->children));
+      {
+        int i;
+        for (i = 0; i < nrem; i++) {
+          list_pop(&(expr->children));
+        }
       }
       list_add(&(expr->children),fexpr);
       compile_syntax_tree(fexpr,functable,stttable);
@@ -3269,7 +3278,7 @@ void compile_syntax_tree_node(list_node_t* it, map_t* functable, map_t* stttable
   crash:
 
   printf("exiting with syntax tree compilation failure.\n");
-  freex();exit(1);
+  freex();exit(EXIT_FAILURE);
 
   done:
   return;

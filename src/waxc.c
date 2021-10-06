@@ -198,7 +198,7 @@ int main(int argc, char** argv){
       if (input_file){
         printf("[error] cannot parse commandline argument %s.\n",argv[i]);
         printf("exiting with commandline parsing failure.\n");
-        exit(1);
+        exit(EXIT_FAILURE);
       }else{
         input_file = argv[i];
         i++;

@@ -5,6 +5,7 @@
 #include "parser.c"
 #include "tac.c"
 #include "common.c"
+#include "to_c.c"
 
 
 map_t* wat_functable = NULL;
@@ -431,21 +432,24 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
     }
 
   }else if (expr->key == EXPR_THEN || expr->key == EXPR_ELSE || expr->key == EXPR_DO || expr->key == EXPR_FUNCBODY){
-    for (int k = 0; k < NUM_MAP_SLOTS; k++){
-      if (!expr->symtable.slots[k]){
-        continue;
-      }
-      list_node_t* it = expr->symtable.slots[k]->head;
-      while (it){
-        sym_t* sym = (sym_t*)(it->data);
-        INDENT2(indent);
-        str_add(&out, "(local $");
-        str_add(&out, sym->name.data);
-        str_add(&out, " ");
-        str_add(&out, type_to_wat(&sym->type).data);
-        str_add(&out, ")\n");
-        INDENT2(indent);
-        it = it->next;
+    {
+      int k;
+      for (k = 0; k < NUM_MAP_SLOTS; k++) {
+        if (!expr->symtable.slots[k]) {
+          continue;
+        }
+        list_node_t *it = expr->symtable.slots[k]->head;
+        while (it) {
+          sym_t *sym = (sym_t *) (it->data);
+          INDENT2(indent);
+          str_add(&out, "(local $");
+          str_add(&out, sym->name.data);
+          str_add(&out, " ");
+          str_add(&out, type_to_wat(&sym->type).data);
+          str_add(&out, ")\n");
+          INDENT2(indent);
+          it = it->next;
+        }
       }
     }
     if (expr->key == EXPR_FUNCBODY){
@@ -642,9 +646,12 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
         str_add(&out,"(call $w__arr_lit");
         str_add(&out,s);
         int need = 1;
-        for (int ii = 0; ii < num_wat_lits; ii++){
-          if (wat_lits[ii] == expr->children.len-1){
-            need = 0;
+        {
+          int ii;
+          for (ii = 0; ii < num_wat_lits; ii++) {
+            if (wat_lits[ii] == expr->children.len - 1) {
+              need = 0;
+            }
           }
         }
         if (need){
@@ -685,9 +692,12 @@ str_t expr_to_wat(expr_t* expr, int indent, char lr){
         str_add(&out,"(call $w__vec_lit");
         str_add(&out,s);
         int need = 1;
-        for (int ii = 0; ii < num_wat_lits; ii++){
-          if (wat_lits[ii] == -(expr->children.len-1)){
-            need = 0;
+        {
+          int ii;
+          for (ii = 0; ii < num_wat_lits; ii++) {
+            if (wat_lits[ii] == -(expr->children.len - 1)) {
+              need = 0;
+            }
           }
         }
         if (need){
@@ -1054,8 +1064,11 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
   str_t out = str_new();
   str_add(&out,";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;\n;; ");
   str_add(&out,modname.data);
-  for (int i = 0; i < 37-modname.len; i++){
-    str_addch(&out,' ');
+  {
+    int i;
+    for (i = 0; i < 37 - modname.len; i++) {
+      str_addch(&out, ' ');
+    }
   }
   str_add(&out,";;\n;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;\n");
   str_add(&out,";;Compiled by WAXC (Version ");
@@ -1122,63 +1135,78 @@ str_t tree_to_wat(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
     it = it->next;
   }
 
-  for (int i = 0; i < num_wat_lits; i++){
-    char s[32];
+  {
+    int i;
+    for (i = 0; i < num_wat_lits; i++) {
+      char s[32];
 
-    if (wat_lits[i]>0){
-      snprintf(s,sizeof(s),"%d",wat_lits[i]);
-      str_add(&out,"(func $w__arr_lit");
-      str_add(&out,s);
-      for (int j = 0; j < wat_lits[i]; j++){
-        char s2[32];
-        snprintf(s2,sizeof(s2),"%d",j);
-        str_add(&out," (param $_");
-        str_add(&out,s2);
-        str_add(&out," i32)");
+      if (wat_lits[i] > 0) {
+        snprintf(s, sizeof(s), "%d", wat_lits[i]);
+        str_add(&out, "(func $w__arr_lit");
+        str_add(&out, s);
+        {
+          int j;
+          for (j = 0; j < wat_lits[i]; j++) {
+            char s2[32];
+            snprintf(s2, sizeof(s2), "%d", j);
+            str_add(&out, " (param $_");
+            str_add(&out, s2);
+            str_add(&out, " i32)");
+          }
+        }
+        str_add(&out, "(result i32)\n  (local $a i32) (local.set $a (call $wax::arr_new (i32.const ");
+        str_add(&out, s);
+        str_add(&out, ")))");
+        {
+          int j;
+          for (j = 0; j < wat_lits[i]; j++) {
+            char s2[32];
+            snprintf(s2, sizeof(s2), "%d", j);
+            str_add(&out, "\n  (call $wax::arr_set (local.get $a) ");
+            str_add(&out, "(i32.const ");
+            str_add(&out, s2);
+            str_add(&out, ") (local.get $_");
+            str_add(&out, s2);
+            str_add(&out, "))");
+          }
+        }
+        str_add(&out, "\n  (return (local.get $a))\n)\n");
+      } else {
+        snprintf(s, sizeof(s), "%d", -wat_lits[i]);
+        char s1[32];
+        snprintf(s1, sizeof(s1), "%d", -wat_lits[i] * 4);
+        str_add(&out, "(func $w__vec_lit");
+        str_add(&out, s);
+        {
+          int j;
+          for (j = 0; j < -wat_lits[i]; j++) {
+            char s2[32];
+            snprintf(s2, sizeof(s2), "%d", j);
+            str_add(&out, " (param $_");
+            str_add(&out, s2);
+            str_add(&out, " i32)");
+          }
+        }
+        str_add(&out, "(result i32)\n  (local $a i32) (local.set $a (call $wax::malloc (i32.const ");
+        str_add(&out, s1);
+        str_add(&out, ")))");
+        {
+          int j;
+          for (j = 0; j < -wat_lits[i]; j++) {
+            char s2[32];
+            char s3[32];
+            snprintf(s2, sizeof(s2), "%d", j);
+            snprintf(s3, sizeof(s3), "%d", j * 4);
+            str_add(&out, "\n  (i32.store (i32.add (local.get $a) ");
+            str_add(&out, "(i32.const ");
+            str_add(&out, s3);
+            str_add(&out, ")) (local.get $_");
+            str_add(&out, s2);
+            str_add(&out, "))");
+          }
+        }
+        str_add(&out, "\n  (return (local.get $a))\n)\n");
       }
-      str_add(&out,"(result i32)\n  (local $a i32) (local.set $a (call $wax::arr_new (i32.const ");
-      str_add(&out,s);
-      str_add(&out,")))");
-      for (int j = 0; j < wat_lits[i]; j++){
-        char s2[32];
-        snprintf(s2,sizeof(s2),"%d",j);
-        str_add(&out,"\n  (call $wax::arr_set (local.get $a) ");
-        str_add(&out,"(i32.const ");
-        str_add(&out,s2);
-        str_add(&out,") (local.get $_");
-        str_add(&out,s2);
-        str_add(&out,"))");
-      }
-      str_add(&out,"\n  (return (local.get $a))\n)\n");
-    }else{
-      snprintf(s,sizeof(s),"%d",-wat_lits[i]);
-      char s1[32];
-      snprintf(s1,sizeof(s1),"%d",-wat_lits[i]*4);
-      str_add(&out,"(func $w__vec_lit");
-      str_add(&out,s);
-      for (int j = 0; j < -wat_lits[i]; j++){
-        char s2[32];
-        snprintf(s2,sizeof(s2),"%d",j);
-        str_add(&out," (param $_");
-        str_add(&out,s2);
-        str_add(&out," i32)");
-      }
-      str_add(&out,"(result i32)\n  (local $a i32) (local.set $a (call $wax::malloc (i32.const ");
-      str_add(&out,s1);
-      str_add(&out,")))");
-      for (int j = 0; j < -wat_lits[i]; j++){
-        char s2[32];
-        char s3[32];
-        snprintf(s2,sizeof(s2),"%d",j);
-        snprintf(s3,sizeof(s3),"%d",j*4);
-        str_add(&out,"\n  (i32.store (i32.add (local.get $a) ");
-        str_add(&out,"(i32.const ");
-        str_add(&out,s3);
-        str_add(&out,")) (local.get $_");
-        str_add(&out,s2);
-        str_add(&out,"))");
-      }
-      str_add(&out,"\n  (return (local.get $a))\n)\n");
     }
   }
 

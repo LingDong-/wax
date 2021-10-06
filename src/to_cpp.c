@@ -4,6 +4,7 @@
 #include "text.c"
 #include "parser.c"
 #include "common.c"
+#include "to_c.c"
 
 
 str_t type_to_cpp(type_t* typ){
@@ -713,8 +714,11 @@ str_t tree_to_cpp(str_t modname, expr_t* tree, map_t* functable, map_t* stttable
   str_t out = str_new();
   str_add(&out,"/*****************************************\n * ");
   str_add(&out,modname.data);
-  for (int i = 0; i < 38-modname.len; i++){
-    str_addch(&out,' ');
+  {
+    int i;
+    for (i = 0; i < 38-modname.len; i++){
+      str_addch(&out,' ');
+    }
   }
   str_add(&out,"*\n *****************************************/\n");
   str_add(&out,"/* Compiled by WAXC (Version ");
