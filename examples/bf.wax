@@ -1,0 +1,99 @@
+(@define BF_VAL_INC 43)
+(@define BF_VAL_DEC 45)
+(@define BF_PTR_INC 62)
+(@define BF_PTR_DEC 60)
+(@define BF_IO_OUT 46)
+(@define BF_IO_IN 44)
+(@define BF_LOOP_BEGIN 91)
+(@define BF_LOOP_END 93)
+
+(@define DATA_SIZE 65536)
+
+; hello world outputs the text Hello World!
+(func prog_helloworld (result str)
+	(return "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.")
+)
+
+; exec executes a Brainfu*k program, and returns the output
+(func exec (param prog str) (result str)
+	(let output str (alloc str ""))
+
+	(let data (vec @DATA_SIZE int) (alloc (vec @DATA_SIZE int)))
+	(let dataptr int 0)
+
+	(let instructionptr int 0)
+
+	(while (<> instructionptr (# prog)) (do
+		(let c int (get prog instructionptr))
+		(if (= c @BF_VAL_INC) (then
+			(set data dataptr (+ (get data dataptr) 1))
+			)
+		)
+		(if (= c @BF_VAL_DEC) (then
+			(set data dataptr (- (get data dataptr) 1))
+			)
+		)
+		(if (= c @BF_PTR_INC) (then
+			(set dataptr (+ dataptr 1))
+			)
+		)
+		(if (= c @BF_PTR_DEC) (then
+			(set dataptr (- dataptr 1))
+			)
+		)
+		(if (= c @BF_LOOP_BEGIN) (then
+			(if (= (get data dataptr) 0) (then
+				(let backetnesting int 1)
+				
+ 				(while (<> backetnesting 0) (do
+					(set instructionptr (+ instructionptr 1))
+ 					(if (= (get prog instructionptr) @BF_LOOP_END) (then
+						(set backetnesting (- backetnesting 1))
+ 						)
+ 					)
+ 					(if (= (get prog instructionptr) @BF_LOOP_BEGIN) (then
+						(set backetnesting (+ backetnesting 1))
+					))
+				))
+			)))
+		)
+		(if (= c @BF_LOOP_END) (then
+			(if (<> (get data dataptr) 0) (then
+				(let backetnesting int 1)
+				
+ 				(while (<> backetnesting 0) (do
+					(set instructionptr (- instructionptr 1))
+ 					(if (= (get prog instructionptr) @BF_LOOP_BEGIN) (then
+						(set backetnesting (- backetnesting 1))
+ 						)
+ 					)
+ 					(if (= (get prog instructionptr) @BF_LOOP_END) (then
+						(set backetnesting (+ backetnesting 1))
+					))
+				))
+			)))
+		)
+		(if (= c @BF_IO_OUT) (then
+			(<< output (get data dataptr))
+			)
+		)
+		(if (= c @BF_IO_IN) (then
+			(return "',' (read input) not implemented")
+			)
+		)
+
+		(set instructionptr (+ instructionptr 1))
+		)
+	)
+
+	(return output)
+)
+
+(func main (result int)
+    (let prog str (call prog_helloworld))
+
+	(let output str(call exec prog))
+	(print output)
+
+	(return 0)
+)
