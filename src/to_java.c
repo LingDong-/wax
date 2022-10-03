@@ -1,9 +1,9 @@
 #ifndef WAX_TO_JAVA
 #define WAX_TO_JAVA
 
-#include "text.c"
-#include "parser.c"
-#include "common.c"
+#include <stdio.h>
+#include "text.h"
+#include "to_java.h"
 
 str_t type_to_java(type_t* typ, char is_obj){
   str_t out = str_new();
@@ -69,8 +69,11 @@ str_t vec_init_java(type_t* typ){
   snprintf(s,sizeof(s),"%d",typ->u.size);
   str_add(&out,s);
   str_addch(&out,']');
-  for (int i = 0; i < num_br; i++){
-    str_add(&out,"[]");
+  {
+    int i;
+    for (i = 0; i < num_br; i++) {
+      str_add(&out, "[]");
+    }
   }
   return out;
 }
@@ -745,8 +748,11 @@ str_t tree_to_java(str_t modname, expr_t* tree, map_t* functable, map_t* stttabl
   str_t out = str_new();
   str_add(&out,"/*****************************************\n * ");
   str_add(&out,modname.data);
-  for (int i = 0; i < 38-modname.len; i++){
-    str_addch(&out,' ');
+  {
+    int i;
+    for (i = 0; i < 38 - modname.len; i++) {
+      str_addch(&out, ' ');
+    }
   }
   str_add(&out,"*\n *****************************************/\n");
   str_add(&out,"/* Compiled by WAXC (Version ");

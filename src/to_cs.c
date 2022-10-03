@@ -1,9 +1,9 @@
 #ifndef WAX_TO_CS
 #define WAX_TO_CS
 
-#include "text.c"
-#include "parser.c"
-#include "common.c"
+#include <stdio.h>
+#include "to_cs.h"
+#include "text.h"
 
 map_t* cs_functable = NULL;
 
@@ -71,8 +71,11 @@ str_t vec_init_cs(type_t* typ){
   snprintf(s,sizeof(s),"%d",typ->u.size);
   str_add(&out,s);
   str_addch(&out,']');
-  for (int i = 0; i < num_br; i++){
-    str_add(&out,"[]");
+  {
+    int i;
+    for (i = 0; i < num_br; i++) {
+      str_add(&out, "[]");
+    }
   }
   return out;
 }
@@ -737,8 +740,11 @@ str_t tree_to_cs(str_t modname, expr_t* tree, map_t* functable, map_t* stttable,
   str_t out = str_new();
   str_add(&out,"/*****************************************\n * ");
   str_add(&out,modname.data);
-  for (int i = 0; i < 38-modname.len; i++){
-    str_addch(&out,' ');
+  {
+    int i;
+    for (i = 0; i < 38-modname.len; i++){
+      str_addch(&out,' ');
+    }
   }
   str_add(&out,"*\n *****************************************/\n");
   str_add(&out,"/* Compiled by WAXC (Version ");

@@ -98,7 +98,7 @@ There're many more examples, check them out [here](./examples) or on the [online
 
 ## The Compiler
 
-This repo contains a reference implementation of wax called `waxc`, written from scratch in C99.
+This repo contains a reference implementation of wax called `waxc`, written from scratch in C89.
 
 - Compiles from wax to C, C++, Java, TypeScript, Python, C#, Swift, Lua and WebAssembly.
 - It seems pretty fast. Compiling a 700 lines file takes 0.015 seconds on Macbook Pro 2015. Comparison: the output TypeScript, which is also 700 lines long, took `tsc` 1.5 seconds to compile. 
@@ -219,7 +219,7 @@ and so on.
 
 You need:
 
-- A C compiler that supports C99. e.g. `gcc` or `clang`.
+- A C compiler that supports C89. e.g. `gcc`, `clang`, `cl` (MSVC).
 
 To compile:
 
@@ -236,6 +236,14 @@ Alternatively you can run the Makefile:
 - `make em`. Compile it with emscripten as a node.js app. (You might need to edit the rule based on how/when/where you installed emscripten.)
 - `make emlib`. Compile it as a javascript library with emscripten, without filesystem dependencies. This is what powers the [online playground](https://waxc.netlify.app/).
 
+Also, there is CMake support, which will build both a shared library and an executable, usable like so:
+
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
 
 ### [VSCode Extension](https://github.com/LingDong-/wax4vscode)
 

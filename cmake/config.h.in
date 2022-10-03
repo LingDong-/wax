@@ -1,0 +1,9 @@
+#ifndef wax_CONFIG_H
+#define wax_CONFIG_H
+
+#define wax_VERSION_MAJOR @wax_VERSION_MAJOR@
+#define wax_VERSION_MINOR @wax_VERSION_MINOR@
+#define wax_VERSION_PATCH @wax_VERSION_PATCH@
+#define wax_VERSION "@wax_VERSION@"
+
+#endif /* wax_CONFIG_H */

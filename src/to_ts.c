@@ -1,15 +1,13 @@
 #ifndef WAX_TO_TS
 #define WAX_TO_TS
 
-#include "text.c"
-#include "parser.c"
-#include "common.c"
+#include <stdio.h>
+#include "text.h"
+#include "to_ts.h"
 
 str_t type_to_ts(type_t* typ){
   str_t out = str_new();
-  if (typ->tag == TYP_INT){
-    str_add(&out,"number");
-  }else if (typ->tag == TYP_FLT){
+  if (typ->tag == TYP_INT || typ->tag == TYP_FLT){
     str_add(&out,"number");
   }else if (typ->tag == TYP_STT){
     str_add(&out,typ->u.name.data);
@@ -626,8 +624,11 @@ str_t tree_to_ts(str_t modname, expr_t* tree, map_t* functable, map_t* stttable,
   str_t out = str_new();
   str_add(&out,"/*****************************************\n * ");
   str_add(&out,modname.data);
-  for (int i = 0; i < 38-modname.len; i++){
-    str_addch(&out,' ');
+  {
+    int i;
+    for (i = 0; i < 38-modname.len; i++){
+      str_addch(&out,' ');
+    }
   }
   str_add(&out,"*\n *****************************************/\n");
   str_add(&out,"/* Compiled by WAXC (Version ");

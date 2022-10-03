@@ -1,9 +1,9 @@
 #ifndef WAX_TO_SWIFT
 #define WAX_TO_SWIFT
 
-#include "text.c"
-#include "parser.c"
-#include "common.c"
+#include <stdio.h>
+#include "text.h"
+#include "to_swift.h"
 
 map_t* swift_functable = NULL;
 
@@ -282,7 +282,10 @@ str_t expr_to_swift(expr_t* expr, int indent){
       str_add(&out,":");
       str_add(&out,type_to_swift(  ptyp ).data);
 
-      for (int i = 0; i < indent+1; i++){str_add(&varpar, "  ");}
+      {
+        int i;
+        for (i = 0; i < indent + 1; i++) { str_add(&varpar, "  "); }
+      }
 
       str_add(&varpar,"var ");
       str_add(&varpar,paname.data);
@@ -687,8 +690,11 @@ str_t tree_to_swift(str_t modname, expr_t* tree, map_t* functable, map_t* stttab
   str_t out = str_new();
   str_add(&out,"/*****************************************\n * ");
   str_add(&out,modname.data);
-  for (int i = 0; i < 38-modname.len; i++){
-    str_addch(&out,' ');
+  {
+    int i;
+    for (i = 0; i < 38 - modname.len; i++) {
+      str_addch(&out, ' ');
+    }
   }
   str_add(&out,"*\n *****************************************/\n");
   str_add(&out,"/* Compiled by WAXC (Version ");
