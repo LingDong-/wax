@@ -1,21 +1,23 @@
 #ifndef WAXC
 #define WAXC
 
+#include <string.h>
+#include <stdio.h>
+
 int WVERBOSE = 1;
 #define printinfo if(WVERBOSE)printf
 
-#include "parser.c"
-#include "tac.c"
-#include "to_c.c"
-#include "to_java.c"
-#include "to_ts.c"
-#include "to_json.c"
-#include "to_py.c"
-#include "to_cs.c"
-#include "to_cpp.c"
-#include "to_swift.c"
-#include "to_lua.c"
-#include "to_wat.c"
+#include "parser.h"
+#include "to_c.h"
+#include "to_java.h"
+#include "to_ts.h"
+#include "to_json.h"
+#include "to_py.h"
+#include "to_cs.h"
+#include "to_cpp.h"
+#include "to_swift.h"
+#include "to_lua.h"
+#include "to_wat.h"
 
 #define TARG_C     1
 #define TARG_JAVA  2
@@ -193,12 +195,12 @@ int main(int argc, char** argv){
       i++;
     }else if (!strcmp(argv[i],"--help")){
       print_help();
-      exit(0);
+      exit(EXIT_SUCCESS);
     }else{
       if (input_file){
         printf("[error] cannot parse commandline argument %s.\n",argv[i]);
         printf("exiting with commandline parsing failure.\n");
-        exit(1);
+        exit(EXIT_FAILURE);
       }else{
         input_file = argv[i];
         i++;
@@ -208,7 +210,7 @@ int main(int argc, char** argv){
 
   if (input_file == 0){
     printf("[warn] no input file. (try '--help' for usage.)\n");
-    exit(0);
+    exit(EXIT_SUCCESS);
   }
 
   if (path_c){

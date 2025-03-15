@@ -1,47 +1,10 @@
-#ifndef WAX_COMMON
-#define WAX_COMMON
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-#define no_segfault_yet printf("no segfault yet on line %d!\n",__LINE__);
+#include "common.h"
 
-#ifndef NO_ESC_COLOR
-	#define printerr(x) printf("\033[0;31m[" x " error]\033[0m ");printf
-#else
-	#define printerr(x) printf("[" x " error] ");printf
-#endif
-
-#ifndef MIN
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#endif
-#ifndef MAX
-#define MAX(a,b) (((a)>(b))?(a):(b))
-#endif
-
-typedef struct str_st {
-  int len;
-  int cap;
-  char* data;
-} str_t;
-
-
-typedef struct list_node_st {
-  struct list_node_st *prev;
-  struct list_node_st *next;
-  void* data;
-} list_node_t;
-
-typedef struct list_st {
-  list_node_t *head;
-  list_node_t *tail;
-  int len;
-} list_t;
-
-
-#define NUM_MAP_SLOTS 64
-typedef struct map_st {
-  int len;
-  list_t* slots[NUM_MAP_SLOTS];
-} map_t;
-
+struct expr_st *expr_t_nullptr = NULL;
 
 void list_init(list_t *l){
   l->head = NULL;
@@ -67,7 +30,7 @@ void list_add_no_reg(list_t* l, void* dataptr){
 
 list_t mallocxed;
 int mallocxed_initialized = 0;
-int num_mallocxed_bytes = 0;
+size_t num_mallocxed_bytes = 0;
 
 void* mallocx(size_t size){
   if (!mallocxed_initialized){
@@ -76,8 +39,8 @@ void* mallocx(size_t size){
   }
   void* ptr = malloc(size);
   if (!ptr){
-    printf("[error] compiler out of memory.\n");
-    exit(1);
+    fputs("[error] compiler out of memory.", stderr);
+    exit(EXIT_FAILURE);
   }
   num_mallocxed_bytes += size;
   list_add_no_reg(&mallocxed,ptr);
@@ -130,7 +93,7 @@ str_t str_new(){
   return s;
 }
 
-str_t str_from(const char* cs, int l){
+str_t str_from(const char* cs, size_t l){
   str_t s;
   s.cap = l;
   s.len = l;
@@ -154,7 +117,7 @@ str_t str_fromch(char c){
 void str_add (str_t* s, const char* cs){
   size_t l = strlen(cs);
   if (s->cap < s->len + l){
-    int hs = s->cap/2;
+    size_t hs = s->cap/2;
     s->cap = s->len+MAX(l,hs);
     s->data = (char*)reallocx(s->data, s->cap+1 );
   }
@@ -164,9 +127,8 @@ void str_add (str_t* s, const char* cs){
 }
 
 void str_addch (str_t* s, char c){
- 
   if (s->cap < s->len + 1){
-    int hs = s->cap/2;
+    size_t hs = s->cap/2;
     s->cap = s->len+MAX(1,hs);
     s->data = (char*)reallocx(s->data, s->cap+1 );
   }
@@ -196,27 +158,6 @@ void list_add(list_t* l, void* dataptr){
     l->tail->next = n;
   }
   l->tail = n;
-  l->len ++;
-}
-
-void list_insert_l(list_t* l, list_node_t* node, void* dataptr){
-  if (l->head == NULL){
-    list_add(l,dataptr);
-    return;
-  }
-  list_node_t* n = (list_node_t*)mallocx( sizeof(list_node_t) );
-  n->data = dataptr;
-
-  n->prev = node->prev;
-  n->next = node;
-
-  if (l->head == node){
-    l->head = n;
-  }else{
-    node->prev->next = n;
-  }
-  node->prev = n;
-
   l->len ++;
 }
 
@@ -261,15 +202,18 @@ void list_pophead(list_t* l){
 
 
 void map_clear(map_t *m){
-  for (int i = 0; i < NUM_MAP_SLOTS; i++){
-    m->slots[i] = NULL;
+  {
+    int i;
+    for (i = 0; i < NUM_MAP_SLOTS; i++) {
+      m->slots[i] = NULL;
+    }
   }
   m->len = 0;
 }
 
 int map_hash(str_t s){
-  int x = 0;
-  for (int i = 0; i < s.len; i++){
+  int x = 0, i;
+  for (i = 0; i < s.len; i++){
     char y = s.data[i];
     x ^= y;
   }
@@ -313,19 +257,6 @@ str_t str_unquote(str_t src){
   return out;
 }
 
-
-
-#define INDENT2(x) for (int i = 0; i < (x); i++){str_add(&out, "  ");}
-#define INDENT4(x) for (int i = 0; i < (x); i++){str_add(&out, "    ");}
-
-struct expr_st *expr_t_nullptr = NULL;
-
-#define CHILD1 ((expr->children.len>0)?((expr_t*)(expr->children.head->data)):expr_t_nullptr)
-#define CHILD2 ((expr->children.len>1)?((expr_t*)(expr->children.head->next->data)):expr_t_nullptr)
-#define CHILD3 ((expr->children.len>2)?((expr_t*)(expr->children.head->next->next->data)):expr_t_nullptr)
-#define CHILD4 ((expr->children.len>3)?((expr_t*)(expr->children.head->next->next->next->data)):expr_t_nullptr)
-#define CHILDN ((expr->children.len>0)?((expr_t*)(expr->children.tail->data)):expr_t_nullptr)
-
 int tmp_name_cnt = 0;
 str_t tmp_name(char* prefix){
   str_t out = str_from(prefix,strlen(prefix));
@@ -345,8 +276,8 @@ str_t base_name(const char* path){
 	if (!l){
 		return str_new();
 	}
-	int i = 0;
-	int j = -1;
+	size_t i;
+    size_t j = -1;
 
 	for (i = l-1; i >= 0; i--){
 		
@@ -395,8 +326,8 @@ str_t censor(str_t src){
   str_t out = str_new();
 
   if (src.len <= 10){
-    int n = sizeof(censored)/sizeof(char*);
-    for (int i = 0; i < n; i++){
+    int n = sizeof(censored)/sizeof(char*), i;
+    for (i = 0; i < n; i++){
       if (str_eq(&src,censored[i])){
         str_add(&out,src.data);
         str_addch(&out,'_');
@@ -406,7 +337,8 @@ str_t censor(str_t src){
     }
   }
 
-  for (int i = 0; i < src.len; i++){
+  int i;
+  for (i = 0; i < src.len; i++){
     if ((97 <= src.data[i] && src.data[i]<=122)
       ||(65 <= src.data[i] && src.data[i]<=90)
       ||(48 <= src.data[i] && src.data[i]<=57)
@@ -440,5 +372,3 @@ int char_literal(char* s){
   }
   return (int)s[1];
 }
-
-#endif
