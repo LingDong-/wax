@@ -224,7 +224,7 @@ You need:
 To compile:
 
 ```bash
-gcc src/wax.c -o waxc
+gcc src/waxc.c -o waxc
 ```
 
 That's it, no dependencies.
